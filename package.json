@@ -3,7 +3,7 @@
     "private": true,
     "packageManager": "pnpm@10.28.0",
     "scripts": {
-        "r": "pnpm i && pnpm publish -r",
+        "r": "pnpm i && pnpm publish -r --access public",
         "cs": "pnpm changeset && pnpm changeset version",
         "build": "pnpm -r --if-present build",
         "dev": "pnpm -r --parallel --if-present dev",
