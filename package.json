@@ -1,0 +1,27 @@
+{
+    "name": "react-wdp-workspace",
+    "private": true,
+    "packageManager": "pnpm@10.28.0",
+    "scripts": {
+        "r": "pnpm i && pnpm publish -r",
+        "cs": "pnpm changeset && pnpm changeset version",
+        "build": "pnpm -r --if-present build",
+        "dev": "pnpm -r --parallel --if-present dev",
+        "lint": "eslint .",
+        "format": "prettier --write .",
+        "fg": "npm run format && git add . && git commit -m \"feat: format\"",
+        "prepare": "husky"
+    },
+    "devDependencies": {
+        "@1adybug/eslint": "^0.0.11",
+        "@1adybug/prettier": "^0.0.28",
+        "@changesets/cli": "^2.31.0",
+        "eslint": "^9.39.4",
+        "husky": "^9.1.7",
+        "lint-staged": "^17.0.7",
+        "prettier": "^3.8.3"
+    },
+    "lint-staged": {
+        "**/*": "prettier --write --ignore-unknown"
+    }
+}

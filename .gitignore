@@ -1,0 +1,26 @@
+# Local
+.DS_Store
+*.local
+*.log*
+
+# Dist
+node_modules
+dist/
+storybook-static
+doc_build/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+package-lock.json
+bun.lockb
+bun.lock
+dist*
+build
+yarn.lock
+yarn-error.log
+.yarnrc.yml
+.yarn
+test*

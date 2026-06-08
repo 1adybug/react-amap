@@ -1,0 +1,41 @@
+{
+    "name": "@1adybug/react-amap",
+    "version": "0.0.1",
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
+        }
+    },
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "sideEffects": false,
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "rslib build",
+        "dev": "rslib --watch",
+        "lint": "eslint . --ignore-pattern dist",
+        "prepublishOnly": "npm run build"
+    },
+    "devDependencies": {
+        "@rsbuild/plugin-react": "^2.0.1",
+        "@rslib/core": "^0.22.0",
+        "typescript": "^6.0.3"
+    },
+    "peerDependencies": {
+        "@types/react": "^19.2.15",
+        "@types/react-dom": "^19.2.3",
+        "react": ">=19.2.4",
+        "react-dom": ">=19.2.4"
+    },
+    "dependencies": {
+        "@amap/amap-jsapi-loader": "1.0.1",
+        "@amap/amap-jsapi-types": "0.0.15",
+        "stable-hash": "^0.0.6"
+    }
+}
