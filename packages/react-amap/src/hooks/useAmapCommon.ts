@@ -32,7 +32,6 @@ export interface AmapGeometryUtil {
     closestOnSegment?: (point: AmapLngLatLike, start: AmapLngLatLike, end: AmapLngLatLike) => AmapLngLatLike
     /** 计算点到线段距离 */
     distanceToSegment?: (point: AmapLngLatLike, start: AmapLngLatLike, end: AmapLngLatLike) => number
-    [key: string]: unknown
 }
 
 /** DOM 工具库 */
@@ -61,12 +60,108 @@ export interface AmapDomUtil {
     setCss?: (element: HTMLElement, css: Record<string, unknown>) => void
     /** 设置透明度 */
     setOpacity?: (element: HTMLElement, opacity: number) => void
-    [key: string]: unknown
 }
 
 /** 浏览器能力信息 */
 export interface AmapBrowser {
-    [key: string]: unknown
+    /** User-Agent */
+    ua?: string
+    /** 是否移动端 */
+    mobile?: boolean
+    /** 平台类型 */
+    plat?: string
+    /** 是否 macOS 设备 */
+    mac?: boolean
+    /** 是否 Windows 设备 */
+    windows?: boolean
+    /** 是否 iOS 设备 */
+    ios?: boolean
+    /** 是否 iPad */
+    iPad?: boolean
+    /** 是否 iPhone */
+    iPhone?: boolean
+    /** 是否 Android 设备 */
+    android?: boolean
+    /** 是否 Android 4 以下系统 */
+    android23?: boolean
+    /** 是否 Chrome 浏览器 */
+    chrome?: boolean
+    /** 是否 Firefox 浏览器 */
+    firefox?: boolean
+    /** 是否 Safari 浏览器 */
+    safari?: boolean
+    /** 是否微信 */
+    wechat?: boolean
+    /** 是否 UC 浏览器 */
+    uc?: boolean
+    /** 是否 QQ 或 QQ 浏览器 */
+    qq?: boolean
+    /** 是否 IE */
+    ie?: boolean
+    /** 是否 IE6 */
+    ie6?: boolean
+    /** 是否 IE7 */
+    ie7?: boolean
+    /** 是否 IE8 */
+    ie8?: boolean
+    /** 是否 IE9 */
+    ie9?: boolean
+    /** 是否 IE10 */
+    ie10?: boolean
+    /** 是否 IE11 */
+    ie11?: boolean
+    /** 是否 Edge 浏览器 */
+    edge?: boolean
+    /** 是否 IE9 以下 */
+    ielt9?: boolean
+    /** 是否百度浏览器 */
+    baidu?: boolean
+    /** 是否支持 LocalStorage */
+    isLocalStorage?: boolean
+    /** 是否支持 Geolocation */
+    isGeolocation?: boolean
+    /** 是否 WebKit 移动浏览器 */
+    mobileWebkit?: boolean
+    /** 是否支持 CSS 3D 的 WebKit 移动端浏览器 */
+    mobileWebkit3d?: boolean
+    /** 是否移动端 Opera 浏览器 */
+    mobileOpera?: boolean
+    /** 是否高清屏幕 */
+    retina?: boolean
+    /** 是否触屏 */
+    touch?: boolean
+    /** 是否 MS Pointer 设备 */
+    msPointer?: boolean
+    /** 是否 Pointer 设备 */
+    pointer?: boolean
+    /** 基础渲染方式 */
+    baseRender?: string
+    /** 是否支持 wasm */
+    wasm?: boolean
+    /** 是否 WebKit 浏览器 */
+    webkit?: boolean
+    /** 是否支持 CSS 3D 的 IE 浏览器 */
+    ie3d?: boolean
+    /** 是否支持 CSS 3D 的 WebKit 浏览器 */
+    webkit3d?: boolean
+    /** 是否支持 CSS 3D 的 Gecko 浏览器 */
+    gecko3d?: boolean
+    /** 是否支持 CSS 3D 的 Opera 浏览器 */
+    opera3d?: boolean
+    /** 是否支持 CSS 3D */
+    any3d?: boolean
+    /** 是否支持 Canvas */
+    isCanvas?: boolean
+    /** 是否支持 SVG */
+    isSvg?: boolean
+    /** 是否支持 VML */
+    isVML?: boolean
+    /** 是否支持 Web Worker */
+    isWorker?: boolean
+    /** 是否支持 WebSocket */
+    isWebsocket?: boolean
+    /** 是否支持 WebGL */
+    isWebGL?: boolean
 }
 
 /** 通用工具库 */
@@ -101,7 +196,6 @@ export interface AmapUtil {
     requestAnimFrame?: (callback: FrameRequestCallback) => number
     /** 取消动画帧 */
     cancelAnimFrame?: (id: number) => void
-    [key: string]: unknown
 }
 
 /** 通用库命名空间 */

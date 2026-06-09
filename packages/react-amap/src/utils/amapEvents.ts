@@ -172,7 +172,7 @@ export interface AmapMapEventShortcutProps<TClickEvent extends AmapMouseEvent = 
 
 /** 拆分事件快捷属性结果 */
 export interface SplitAmapEventShortcutPropsResult<
-    TProps extends Record<string, unknown>,
+    TProps extends object,
     TClickEvent extends AmapMouseEvent = AmapOverlayMouseEvent,
 > {
     /** 事件快捷属性 */
@@ -291,7 +291,7 @@ export function getAmapEventEntries<TEvents extends AmapEventMap>(events?: TEven
 }
 
 export function splitAmapEventShortcutProps<
-    TProps extends Record<string, unknown>,
+    TProps extends object,
     TClickEvent extends AmapMouseEvent = AmapOverlayMouseEvent,
 >(
     props: TProps

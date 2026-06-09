@@ -130,12 +130,10 @@ export interface AmapMarkerBaseOptions {
     label?: AmapMarkerLabelOptions
     /** 自定义数据 */
     extData?: unknown
-    [key: string]: unknown
 }
 
 /** 点标记构造参数 */
 export interface AmapMarkerOptions extends AmapMarkerBaseOptions {
-    [key: string]: unknown
 }
 
 /** 点标记事件映射 */
@@ -185,7 +183,6 @@ export interface AmapMarkerInstance extends AMap.Marker {
     setTop(isTop: boolean): void
     /** 设置自定义内容 */
     setContent(content: AmapMarkerContent): void
-    [key: string]: unknown
 }
 
 /** 支持 Marker 构造器的高德命名空间 */
@@ -268,7 +265,11 @@ function mergeAmapMarkerOptions({
     }
 
     Object.entries(topLevelMarkerOptions).forEach(([key, value]) => {
-        if (value !== undefined) nextMarkerOptions[key] = value
+        if (value !== undefined) {
+            Object.assign(nextMarkerOptions, {
+                [key]: value,
+            })
+        }
     })
 
     if (hasChildrenContent && contentElement) {

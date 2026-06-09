@@ -70,7 +70,6 @@ export interface AmapVectorOverlayBaseOptions {
     draggable?: boolean
     /** 自定义数据 */
     extData?: unknown
-    [key: string]: unknown
 }
 
 /** 面状矢量覆盖物参数 */
@@ -117,7 +116,6 @@ export interface AmapPolygonBaseOptions extends AmapAreaOverlayBaseOptions {
 
 /** 多边形构造参数 */
 export interface AmapPolygonOptions extends AmapPolygonBaseOptions {
-    [key: string]: unknown
 }
 
 /** 折线基础参数 */
@@ -128,7 +126,6 @@ export interface AmapPolylineBaseOptions extends AmapLineOverlayBaseOptions {
 
 /** 折线构造参数 */
 export interface AmapPolylineOptions extends AmapPolylineBaseOptions {
-    [key: string]: unknown
 }
 
 /** 贝塞尔曲线基础参数 */
@@ -139,7 +136,6 @@ export interface AmapBezierCurveBaseOptions extends AmapLineOverlayBaseOptions {
 
 /** 贝塞尔曲线构造参数 */
 export interface AmapBezierCurveOptions extends AmapBezierCurveBaseOptions {
-    [key: string]: unknown
 }
 
 /** 圆形基础参数 */
@@ -152,7 +148,6 @@ export interface AmapCircleBaseOptions extends AmapAreaOverlayBaseOptions {
 
 /** 圆形构造参数 */
 export interface AmapCircleOptions extends AmapCircleBaseOptions {
-    [key: string]: unknown
 }
 
 /** 圆点标记基础参数 */
@@ -165,7 +160,6 @@ export interface AmapCircleMarkerBaseOptions extends AmapAreaOverlayBaseOptions 
 
 /** 圆点标记构造参数 */
 export interface AmapCircleMarkerOptions extends AmapCircleMarkerBaseOptions {
-    [key: string]: unknown
 }
 
 /** 椭圆基础参数 */
@@ -178,7 +172,6 @@ export interface AmapEllipseBaseOptions extends AmapAreaOverlayBaseOptions {
 
 /** 椭圆构造参数 */
 export interface AmapEllipseOptions extends AmapEllipseBaseOptions {
-    [key: string]: unknown
 }
 
 /** 矩形基础参数 */
@@ -189,7 +182,6 @@ export interface AmapRectangleBaseOptions extends AmapAreaOverlayBaseOptions {
 
 /** 矩形构造参数 */
 export interface AmapRectangleOptions extends AmapRectangleBaseOptions {
-    [key: string]: unknown
 }
 
 /** GeoJSON 基础参数 */
@@ -206,7 +198,6 @@ export interface AmapGeoJSONBaseOptions extends AmapVectorOverlayBaseOptions {
 
 /** GeoJSON 构造参数 */
 export interface AmapGeoJSONOptions extends AmapGeoJSONBaseOptions {
-    [key: string]: unknown
 }
 
 /** 矢量覆盖物实例 */
@@ -564,7 +555,7 @@ function getAmapVectorOverlayConstructor<
     TInstance extends AmapVectorOverlayInstance,
     TOptions extends AmapVectorOverlayBaseOptions,
 >({ AMap, constructorName }: GetAmapVectorOverlayConstructorParams) {
-    const constructor = (AMap as Record<string, unknown>)[constructorName]
+    const constructor = (AMap as unknown as Record<string, unknown>)[constructorName]
 
     if (typeof constructor !== "function") return undefined
 

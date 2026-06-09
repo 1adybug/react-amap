@@ -165,7 +165,6 @@ export interface AmapLngLatObject {
     lng: number
     /** 纬度 */
     lat: number
-    [key: string]: unknown
 }
 
 export type AmapLngLatLike = AMap.LngLatLike | AmapLngLatObject
@@ -300,7 +299,6 @@ export interface AmapMapStatusOptions {
 
 /** 地图初始化参数 */
 export interface AmapMapOptions extends AmapMapBaseOptions {
-    [key: string]: unknown
 }
 
 /** 地图实例 */
@@ -339,7 +337,6 @@ export interface AmapMapInstance extends AMap.Map {
 export interface AmapNamespaceConfig {
     /** 应用标识 */
     appname?: string
-    [key: string]: unknown
 }
 
 export type AmapNamespaceBase = Omit<typeof AMap, "Map" | "getConfig" | "plugin">
@@ -352,7 +349,6 @@ export interface AmapNamespace {
     getConfig?: () => AmapNamespaceConfig
     /** 加载 JSAPI 插件 */
     plugin?: (plugins: AmapPlugin | AmapPlugin[], callback?: () => void) => void
-    [key: string]: unknown
 }
 
 /** 安全密钥配置 */
@@ -361,7 +357,6 @@ export interface AmapSecurityConfig {
     securityJsCode?: string
     /** 安全代理地址 */
     serviceHost?: string
-    [key: string]: unknown
 }
 
 /** AMapUI 加载配置 */
@@ -392,7 +387,6 @@ export interface AmapLoaderOptions {
     Loca?: AmapLocaLoaderOptions
     /** 安全代理地址 */
     serviceHost?: string
-    [key: string]: unknown
 }
 
 /** JSAPI Loader 额外参数 */
@@ -409,7 +403,6 @@ export interface AmapLoaderExtraOptions {
     Loca?: AmapLocaLoaderOptions
     /** 安全代理地址请通过 securityConfig.serviceHost 设置 */
     serviceHost?: never
-    [key: string]: unknown
 }
 
 /** JSAPI Loader 实例 */
@@ -721,7 +714,11 @@ function mergeAmapMapOptions({ mapOptions, ...topLevelMapOptions }: MergeAmapMap
     }
 
     Object.entries(topLevelMapOptions).forEach(([key, value]) => {
-        if (value !== undefined) nextMapOptions[key] = value
+        if (value !== undefined) {
+            Object.assign(nextMapOptions, {
+                [key]: value,
+            })
+        }
     })
 
     return nextMapOptions

@@ -98,7 +98,6 @@ export interface AmapPointOverlayInstance {
     setTop?: (isTop: boolean) => void
     /** 设置悬停光标 */
     setCursor?: (cursor: string) => void
-    [key: string]: unknown
 }
 
 /** 点标记覆盖物构造参数 */
@@ -109,7 +108,22 @@ export interface AmapPointOverlayOptions {
     visible?: boolean
     /** 自定义数据 */
     extData?: unknown
-    [key: string]: unknown
+}
+
+/** 点标记覆盖物运行时可同步参数 */
+export interface AmapPointOverlayRuntimeOptions extends AmapPointOverlayOptions {
+    /** 点标记坐标 */
+    position?: AmapMarkerPosition
+    /** 鼠标悬停文字 */
+    title?: string
+    /** 是否可点击 */
+    clickable?: boolean
+    /** 是否可拖拽 */
+    draggable?: boolean
+    /** 叠加层级 */
+    zIndex?: number
+    /** 鼠标悬停样式 */
+    cursor?: string
 }
 
 /** 文本标记基础参数 */
@@ -146,7 +160,6 @@ export interface AmapTextBaseOptions extends AmapPointOverlayOptions {
 
 /** 文本标记构造参数 */
 export interface AmapTextOptions extends AmapTextBaseOptions {
-    [key: string]: unknown
 }
 
 /** 文本标记实例 */
@@ -185,7 +198,6 @@ export interface AmapElasticMarkerIconOptions {
     maxScale?: number
     /** 最小放大比例 */
     minScale?: number
-    [key: string]: unknown
 }
 
 /** 灵活点标记文本样式 */
@@ -198,7 +210,6 @@ export interface AmapElasticMarkerLabelOptions {
     offset?: AmapMarkerOffset
     /** 最小显示级别 */
     minZoom?: number
-    [key: string]: unknown
 }
 
 /** 灵活点标记样式 */
@@ -207,7 +218,6 @@ export interface AmapElasticMarkerStyleOptions {
     icon?: AmapElasticMarkerIconOptions
     /** 文本样式 */
     label?: AmapElasticMarkerLabelOptions
-    [key: string]: unknown
 }
 
 /** 灵活点标记基础参数 */
@@ -236,7 +246,6 @@ export interface AmapElasticMarkerBaseOptions extends AmapPointOverlayOptions {
 
 /** 灵活点标记构造参数 */
 export interface AmapElasticMarkerOptions extends AmapElasticMarkerBaseOptions {
-    [key: string]: unknown
 }
 
 /** 灵活点标记实例 */
@@ -256,7 +265,6 @@ export interface AmapLabelMarkerIconOptions {
     clipSize?: AmapMarkerOffset
     /** 图标锚点 */
     anchor?: AmapMarkerAnchor
-    [key: string]: unknown
 }
 
 /** 标注文本样式 */
@@ -279,7 +287,6 @@ export interface AmapLabelMarkerTextStyle {
     borderColor?: string
     /** 边框宽度 */
     borderWidth?: number
-    [key: string]: unknown
 }
 
 /** 标注文本参数 */
@@ -292,7 +299,6 @@ export interface AmapLabelMarkerTextOptions {
     offset?: AmapMarkerOffset
     /** 文本样式 */
     style?: AmapLabelMarkerTextStyle
-    [key: string]: unknown
 }
 
 /** 标注基础参数 */
@@ -317,12 +323,10 @@ export interface AmapLabelMarkerBaseOptions {
     icon?: AmapLabelMarkerIconOptions
     /** 文本参数 */
     text?: AmapLabelMarkerTextOptions
-    [key: string]: unknown
 }
 
 /** 标注构造参数 */
 export interface AmapLabelMarkerOptions extends AmapLabelMarkerBaseOptions {
-    [key: string]: unknown
 }
 
 /** 标注实例 */
@@ -347,7 +351,6 @@ export interface AmapLabelMarkerInstance {
     setOpacity?: (opacity: number) => void
     /** 设置避让优先级 */
     setRank?: (rank: number) => void
-    [key: string]: unknown
 }
 
 /** 标注图层基础参数 */
@@ -364,12 +367,10 @@ export interface AmapLabelsLayerBaseOptions {
     allowCollision?: boolean
     /** 是否启用动画 */
     animation?: boolean
-    [key: string]: unknown
 }
 
 /** 标注图层构造参数 */
 export interface AmapLabelsLayerOptions extends AmapLabelsLayerBaseOptions {
-    [key: string]: unknown
 }
 
 /** 标注图层实例 */
@@ -396,7 +397,6 @@ export interface AmapLabelsLayerInstance {
     on?: (eventName: string, handler: AmapEventHandler) => void
     /** 解绑事件 */
     off?: (eventName: string, handler: AmapEventHandler) => void
-    [key: string]: unknown
 }
 
 /** 海量点数据 */
@@ -405,7 +405,6 @@ export interface AmapMassMarksData {
     lnglat: AmapLngLatLike
     /** 样式索引 */
     style?: number
-    [key: string]: unknown
 }
 
 /** 海量点样式 */
@@ -420,7 +419,6 @@ export interface AmapMassMarksStyleOptions {
     anchor?: AmapMarkerOffset
     /** 层级 */
     zIndex?: number
-    [key: string]: unknown
 }
 
 /** 海量点基础参数 */
@@ -437,12 +435,10 @@ export interface AmapMassMarksBaseOptions {
     style?: AmapMassMarksStyleOptions | AmapMassMarksStyleOptions[]
     /** 是否可见 */
     visible?: boolean
-    [key: string]: unknown
 }
 
 /** 海量点构造参数 */
 export interface AmapMassMarksOptions extends AmapMassMarksBaseOptions {
-    [key: string]: unknown
 }
 
 /** 海量点实例 */
@@ -473,7 +469,6 @@ export interface AmapMassMarksInstance {
     on?: (eventName: string, handler: AmapEventHandler) => void
     /** 解绑事件 */
     off?: (eventName: string, handler: AmapEventHandler) => void
-    [key: string]: unknown
 }
 
 /** 点聚合数据 */
@@ -482,7 +477,6 @@ export interface AmapMarkerClusterData {
     lnglat: AmapLngLatLike
     /** 权重 */
     weight?: number
-    [key: string]: unknown
 }
 
 /** 点聚合样式 */
@@ -499,7 +493,6 @@ export interface AmapMarkerClusterStyleOptions {
     textColor?: string
     /** 文本大小 */
     textSize?: number
-    [key: string]: unknown
 }
 
 /** 点聚合基础参数 */
@@ -518,12 +511,10 @@ export interface AmapMarkerClusterBaseOptions {
     renderClusterMarker?: (context: Record<string, unknown>) => void
     /** 自定义非聚合点渲染 */
     renderMarker?: (context: Record<string, unknown>) => void
-    [key: string]: unknown
 }
 
 /** 点聚合构造参数 */
 export interface AmapMarkerClusterOptions extends AmapMarkerClusterBaseOptions {
-    [key: string]: unknown
 }
 
 /** 点聚合实例 */
@@ -548,7 +539,6 @@ export interface AmapMarkerClusterInstance {
     on?: (eventName: string, handler: AmapEventHandler) => void
     /** 解绑事件 */
     off?: (eventName: string, handler: AmapEventHandler) => void
-    [key: string]: unknown
 }
 
 /** 支持点标记扩展构造器的高德命名空间 */
@@ -789,19 +779,21 @@ function updateAmapPointOverlay<TInstance extends AmapPointOverlayInstance>(
     overlay: TInstance,
     options: AmapPointOverlayOptions
 ) {
+    const runtimeOptions = options as AmapPointOverlayRuntimeOptions
+
     overlay.setOptions?.(options)
 
-    if (options.position !== undefined) overlay.setPosition?.(options.position as AmapMarkerPosition)
-    if (typeof options.title === "string") overlay.setTitle?.(options.title)
-    if (typeof options.clickable === "boolean") overlay.setClickable?.(options.clickable)
-    if (typeof options.draggable === "boolean") overlay.setDraggable?.(options.draggable)
-    if (options.extData !== undefined) overlay.setExtData?.(options.extData)
-    if (typeof options.zIndex === "number") overlay.setzIndex?.(options.zIndex)
-    if (typeof options.cursor === "string") overlay.setCursor?.(options.cursor)
+    if (runtimeOptions.position !== undefined) overlay.setPosition?.(runtimeOptions.position)
+    if (typeof runtimeOptions.title === "string") overlay.setTitle?.(runtimeOptions.title)
+    if (typeof runtimeOptions.clickable === "boolean") overlay.setClickable?.(runtimeOptions.clickable)
+    if (typeof runtimeOptions.draggable === "boolean") overlay.setDraggable?.(runtimeOptions.draggable)
+    if (runtimeOptions.extData !== undefined) overlay.setExtData?.(runtimeOptions.extData)
+    if (typeof runtimeOptions.zIndex === "number") overlay.setzIndex?.(runtimeOptions.zIndex)
+    if (typeof runtimeOptions.cursor === "string") overlay.setCursor?.(runtimeOptions.cursor)
 
-    if (options.visible === undefined) return
+    if (runtimeOptions.visible === undefined) return
 
-    if (options.visible) {
+    if (runtimeOptions.visible) {
         overlay.show?.()
         return
     }
@@ -819,7 +811,7 @@ function updateAmapText(text: AmapTextInstance, options: AmapTextOptions) {
     if (typeof options.angle === "number") text.setAngle?.(options.angle)
 }
 
-function mergeAmapPointOptions<TOptions extends Record<string, unknown>>(
+function mergeAmapPointOptions<TOptions extends object>(
     options: TOptions | undefined,
     extraOptions: TOptions
 ) {

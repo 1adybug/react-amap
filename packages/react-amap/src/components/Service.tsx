@@ -98,7 +98,6 @@ export interface AmapServiceEvents<TInstance = AmapServiceInstance> extends Amap
 
 /** 服务基础参数 */
 export interface AmapServiceBaseOptions {
-    [key: string]: unknown
 }
 
 /** 服务实例运行时能力 */
@@ -115,7 +114,6 @@ export interface AmapServiceInstance {
     close?: () => void
     /** 从地图移除服务 */
     setMap?: (map: AmapMapInstance | null) => void
-    [key: string]: unknown
 }
 
 /** 服务构造器 */
@@ -301,12 +299,10 @@ export interface AmapPoiOnAmapOptions {
     location: AmapLngLatLike
     /** POI 地址 */
     address?: string
-    [key: string]: unknown
 }
 
 /** 唤起高德客户端参数 */
 export interface AmapOpenAmapOptions {
-    [key: string]: unknown
 }
 
 /** POI 搜索实例 */
@@ -373,7 +369,6 @@ export interface AmapCloudDataSearchInstance extends AmapServiceInstance {
 export interface AmapRouteSearchOptions {
     /** 途经点 */
     waypoints?: AmapLngLatLike[]
-    [key: string]: unknown
 }
 
 /** 名称路线规划点 */
@@ -382,7 +377,6 @@ export interface AmapRouteKeywordPoint {
     keyword: string
     /** 城市 */
     city?: string
-    [key: string]: unknown
 }
 
 /** 路线规划基础参数 */
@@ -527,7 +521,6 @@ export interface AmapDragRouteTruckOptions extends AmapDragRouteOptions, AmapTru
 export interface AmapDragRouteTruckLocation {
     /** 经纬度 */
     lnglat: AmapLngLatLike
-    [key: string]: unknown
 }
 
 /** 拖拽路线实例 */
@@ -572,7 +565,6 @@ export interface AmapGraspRoadPoint {
     ag?: number
     /** 时间 */
     tm?: number
-    [key: string]: unknown
 }
 
 /** 轨迹纠偏实例 */
@@ -713,7 +705,6 @@ export interface AmapCitySearchInstance extends AmapServiceInstance {
 
 /** WebService HTTP 参数 */
 export interface AmapWebServiceHttpOptions {
-    [key: string]: unknown
 }
 
 /** WebService 实例 */
@@ -727,7 +718,6 @@ export interface AmapWebServiceInstance {
     ) => void
     /** POST 请求 */
     post?: (path: string, params: unknown, callback: AmapWebServiceCallback) => void
-    [key: string]: unknown
 }
 
 /** 支持服务构造器的高德命名空间 */
@@ -935,7 +925,7 @@ function getAmapServiceConstructor<TInstance extends AmapServiceInstance, TOptio
     AMap,
     constructorName,
 }: CreateAmapServiceParams<TOptions>) {
-    const constructor = (AMap as Record<string, unknown>)[constructorName]
+    const constructor = (AMap as unknown as Record<string, unknown>)[constructorName]
 
     if (typeof constructor !== "function") return undefined
 
@@ -981,7 +971,11 @@ function mergeAmapServiceOptions<TOptions extends AmapServiceBaseOptions>(option
     } as TOptions
 
     Object.entries(cleanAmapServiceExtraOptions(extraOptions)).forEach(([key, value]) => {
-        if (value !== undefined) (nextOptions as Record<string, unknown>)[key] = value
+        if (value !== undefined) {
+            Object.assign(nextOptions, {
+                [key]: value,
+            })
+        }
     })
 
     return nextOptions
@@ -1637,7 +1631,6 @@ export interface AmapMoveAnimationOptions {
     circlable?: boolean
     /** 动画结束是否自动旋转 */
     autoRotation?: boolean
-    [key: string]: unknown
 }
 
 /** 移动动画目标 */

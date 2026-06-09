@@ -49,7 +49,34 @@ export interface AmapLayerBaseOptions {
     zIndex?: number
     /** 图层缩放范围 */
     zooms?: AmapZoomRange
-    [key: string]: unknown
+}
+
+/** 图层运行时可同步参数 */
+export interface AmapLayerRuntimeOptions extends AmapLayerBaseOptions {
+    /** 切片取图地址 */
+    tileUrl?: string
+    /** 数据地址 */
+    url?: string
+    /** 图层范围 */
+    bounds?: AmapBoundsLike
+    /** 楼块样式 */
+    styleOpts?: AmapBuildingsStyleOptions
+    /** 行政区或矢量瓦片样式 */
+    styles?: Record<string, unknown> | AmapMapboxVectorTileLayerStyles
+    /** 国家代码 */
+    SOC?: string
+    /** 行政区编码 */
+    adcode?: string | number | Array<string | number>
+    /** 建筑物 POI ID */
+    indoorid?: string
+    /** 楼层 */
+    floor?: number
+    /** 商铺 ID */
+    shopid?: string
+    /** 是否显示楼层条 */
+    floorBarVisible?: boolean
+    /** 是否显示室内标注 */
+    labelsVisible?: boolean
 }
 
 /** 瓦片图层参数 */
@@ -99,7 +126,6 @@ export interface AmapBuildingsStyleOptions {
     hideWithoutStyle?: boolean
     /** 区域样式 */
     areas?: unknown[]
-    [key: string]: unknown
 }
 
 /** 楼块图层参数 */
@@ -194,7 +220,6 @@ export interface AmapMapboxVectorTileLayerStyles {
     point?: Record<string, unknown>
     /** 多面体样式 */
     polyhedron?: Record<string, unknown>
-    [key: string]: unknown
 }
 
 /** Mapbox 矢量瓦片图层参数 */
@@ -207,7 +232,6 @@ export interface AmapMapboxVectorTileLayerOptions extends AmapTileLayerOptions {
 
 /** 矢量图层参数 */
 export interface AmapVectorLayerOptions extends AmapLayerBaseOptions {
-    [key: string]: unknown
 }
 
 /** 热力图参数 */
@@ -226,7 +250,6 @@ export interface AmapHeatMapData {
     lat?: number
     /** 权重 */
     count?: number
-    [key: string]: unknown
 }
 
 /** 热力图数据集 */
@@ -301,7 +324,6 @@ export interface AmapLayerInstance {
     query?: (geometry: unknown) => unknown
     /** 获取图层范围 */
     getBounds?: () => unknown
-    [key: string]: unknown
 }
 
 /** 图层构造器 */
@@ -401,7 +423,6 @@ export interface LayerProps<TOptions extends AmapLayerBaseOptions = AmapLayerBas
     onLoad?: AmapLayerOnLoad
     /** 销毁前回调 */
     onDestroy?: AmapLayerOnDestroy
-    [key: string]: unknown
 }
 
 /** 热力图组件属性 */
@@ -589,47 +610,49 @@ function updateAmapLayer<TInstance extends AmapLayerInstance, TOptions extends A
     layer: TInstance,
     options: TOptions
 ) {
+    const runtimeOptions = options as TOptions & AmapLayerRuntimeOptions
+
     layer.setOptions?.(options)
 
-    if (typeof options.opacity === "number") layer.setOpacity?.(options.opacity)
-    if (typeof options.zIndex === "number") layer.setzIndex?.(options.zIndex)
-    if (options.zooms) layer.setZooms?.(options.zooms)
-    if (typeof options.tileUrl === "string") layer.setTileUrl?.(options.tileUrl)
-    if (typeof options.url === "string") layer.setUrl?.(options.url)
-    if (options.bounds !== undefined) layer.setBounds?.(options.bounds as AmapBoundsLike)
-    if (options.styleOpts) layer.setStyle?.(options.styleOpts)
-    if (options.styles) layer.setStyles?.(options.styles)
-    if (typeof options.SOC === "string") layer.setSOC?.(options.SOC)
+    if (typeof runtimeOptions.opacity === "number") layer.setOpacity?.(runtimeOptions.opacity)
+    if (typeof runtimeOptions.zIndex === "number") layer.setzIndex?.(runtimeOptions.zIndex)
+    if (runtimeOptions.zooms) layer.setZooms?.(runtimeOptions.zooms)
+    if (typeof runtimeOptions.tileUrl === "string") layer.setTileUrl?.(runtimeOptions.tileUrl)
+    if (typeof runtimeOptions.url === "string") layer.setUrl?.(runtimeOptions.url)
+    if (runtimeOptions.bounds !== undefined) layer.setBounds?.(runtimeOptions.bounds)
+    if (runtimeOptions.styleOpts) layer.setStyle?.(runtimeOptions.styleOpts)
+    if (runtimeOptions.styles) layer.setStyles?.(runtimeOptions.styles)
+    if (typeof runtimeOptions.SOC === "string") layer.setSOC?.(runtimeOptions.SOC)
 
-    if (options.adcode !== undefined) {
-        layer.setAdcode?.(options.adcode as string | number | Array<string | number>)
-        layer.setDistricts?.(options.adcode as string | number | Array<string | number>)
+    if (runtimeOptions.adcode !== undefined) {
+        layer.setAdcode?.(runtimeOptions.adcode)
+        layer.setDistricts?.(runtimeOptions.adcode)
     }
 
-    if (typeof options.indoorid === "string")
-        layer.showIndoorMap?.(options.indoorid, options.floor as number | undefined, options.shopid as string | undefined)
+    if (typeof runtimeOptions.indoorid === "string")
+        layer.showIndoorMap?.(runtimeOptions.indoorid, runtimeOptions.floor, runtimeOptions.shopid)
 
-    if (typeof options.floor === "number") layer.showFloor?.(options.floor)
+    if (typeof runtimeOptions.floor === "number") layer.showFloor?.(runtimeOptions.floor)
 
-    if (typeof options.floorBarVisible === "boolean") {
-        if (options.floorBarVisible) {
+    if (typeof runtimeOptions.floorBarVisible === "boolean") {
+        if (runtimeOptions.floorBarVisible) {
             layer.showFloorBar?.()
         } else {
             layer.hideFloorBar?.()
         }
     }
 
-    if (typeof options.labelsVisible === "boolean") {
-        if (options.labelsVisible) {
+    if (typeof runtimeOptions.labelsVisible === "boolean") {
+        if (runtimeOptions.labelsVisible) {
             layer.showLabels?.()
         } else {
             layer.hideLabels?.()
         }
     }
 
-    if (options.visible === undefined) return
+    if (runtimeOptions.visible === undefined) return
 
-    if (options.visible) {
+    if (runtimeOptions.visible) {
         layer.show?.()
         return
     }

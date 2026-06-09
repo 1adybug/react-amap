@@ -51,7 +51,6 @@ export interface AmapVectorEditorBaseOptions {
     createOptions?: AmapVectorOverlayBaseOptions
     /** 编辑对象样式 */
     editOptions?: AmapVectorOverlayBaseOptions
-    [key: string]: unknown
 }
 
 /** 多边形编辑器参数 */
@@ -130,7 +129,6 @@ export interface AmapVectorEditorInstance<TTarget = unknown> {
     on?(eventName: string, handler: AmapEventHandler): void
     /** 解绑事件 */
     off?(eventName: string, handler: AmapEventHandler): void
-    [key: string]: unknown
 }
 
 /** 多边形编辑器实例 */
@@ -499,7 +497,7 @@ function getAmapVectorEditorConstructor<
     TTarget,
     TOptions extends AmapVectorEditorBaseOptions,
 >({ AMap, constructorName }: GetAmapVectorEditorConstructorParams) {
-    const constructor = (AMap as Record<string, unknown>)[constructorName]
+    const constructor = (AMap as unknown as Record<string, unknown>)[constructorName]
 
     if (typeof constructor !== "function") return undefined
 

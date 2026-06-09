@@ -57,7 +57,6 @@ export interface AmapInfoWindowOptions {
     position?: AmapMarkerPosition
     /** 自定义数据 */
     extData?: unknown
-    [key: string]: unknown
 }
 
 /** 信息窗体实例 */
@@ -80,7 +79,6 @@ export interface AmapInfoWindowInstance {
     on?: (eventName: string, handler: AmapEventHandler) => void
     /** 解绑事件 */
     off?: (eventName: string, handler: AmapEventHandler) => void
-    [key: string]: unknown
 }
 
 /** 右键菜单项 */
@@ -99,7 +97,6 @@ export interface AmapContextMenuOptions {
     position?: AmapMarkerPosition
     /** 自定义内容 */
     content?: string | HTMLElement
-    [key: string]: unknown
 }
 
 /** 右键菜单实例 */
@@ -116,7 +113,6 @@ export interface AmapContextMenuInstance {
     on?: (eventName: string, handler: AmapEventHandler) => void
     /** 解绑事件 */
     off?: (eventName: string, handler: AmapEventHandler) => void
-    [key: string]: unknown
 }
 
 /** 支持 DOM 覆盖物构造器的高德命名空间 */
@@ -229,7 +225,7 @@ export interface AmapDomOverlayEventTarget {
     off?: (eventName: string, handler: AmapEventHandler) => void
 }
 
-function mergeAmapDomOverlayOptions<TOptions extends Record<string, unknown>>(options: TOptions | undefined, extraOptions: TOptions) {
+function mergeAmapDomOverlayOptions<TOptions extends object>(options: TOptions | undefined, extraOptions: TOptions) {
     const nextOptions: TOptions = {
         ...options,
     } as TOptions
@@ -285,7 +281,10 @@ export const InfoWindow: FC<InfoWindowProps> = ({
     const [contentElement, setContentElement] = useState<HTMLElement | null>(null)
     const hasChildrenContent = children !== undefined && children !== null && typeof children !== "boolean"
     const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
-    const currentOptions = mergeAmapDomOverlayOptions(infoWindowOptions, restOptions as AmapInfoWindowOptions)
+    const currentOptions: AmapInfoWindowOptions = mergeAmapDomOverlayOptions(
+        infoWindowOptions,
+        restOptions as AmapInfoWindowOptions
+    )
     const currentEvents = mergeAmapEvents({
         eventShortcuts,
         events,
@@ -398,7 +397,10 @@ export const ContextMenu: FC<ContextMenuProps> = ({
     const [contentElement, setContentElement] = useState<HTMLElement | null>(null)
     const hasChildrenContent = children !== undefined && children !== null && typeof children !== "boolean"
     const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
-    const currentOptions = mergeAmapDomOverlayOptions(contextMenuOptions, restOptions as AmapContextMenuOptions)
+    const currentOptions: AmapContextMenuOptions = mergeAmapDomOverlayOptions(
+        contextMenuOptions,
+        restOptions as AmapContextMenuOptions
+    )
     const currentEvents = mergeAmapEvents({
         eventShortcuts,
         events,

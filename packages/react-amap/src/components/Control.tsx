@@ -65,7 +65,6 @@ export interface AmapControlBaseOptions {
     offset?: [number, number]
     /** 是否可见 */
     visible?: boolean
-    [key: string]: unknown
 }
 
 /** 控件事件映射 */
@@ -87,7 +86,6 @@ export interface AmapControlInstance {
     on?: (eventName: string, handler: AmapEventHandler) => void
     /** 解绑事件 */
     off?: (eventName: string, handler: AmapEventHandler) => void
-    [key: string]: unknown
 }
 
 /** 控件构造器 */
@@ -109,7 +107,6 @@ export interface AmapMapTypeLayerInfo {
     layer?: unknown
     /** 是否显示 */
     show?: boolean
-    [key: string]: unknown
 }
 
 /** MapType 控件参数 */
@@ -285,7 +282,7 @@ function getAmapControlConstructor<TInstance extends AmapControlInstance, TOptio
     AMap: AmapNamespace,
     constructorName: string,
 ) {
-    const constructor = (AMap as Record<string, unknown>)[constructorName]
+    const constructor = (AMap as unknown as Record<string, unknown>)[constructorName]
 
     if (typeof constructor !== "function") return undefined
 

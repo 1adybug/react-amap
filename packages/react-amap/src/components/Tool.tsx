@@ -46,7 +46,6 @@ export interface AmapRangingToolOptions {
     midLabelOffset?: unknown
     /** 终点标签偏移量 */
     endLabelOffset?: unknown
-    [key: string]: unknown
 }
 
 /** 测距工具实例 */
@@ -59,7 +58,6 @@ export interface AmapRangingToolInstance {
     on?: (eventName: string, handler: AmapEventHandler) => void
     /** 解绑事件 */
     off?: (eventName: string, handler: AmapEventHandler) => void
-    [key: string]: unknown
 }
 
 /** 支持测距工具构造器的高德命名空间 */
@@ -119,7 +117,11 @@ function mergeAmapRangingToolOptions(options: AmapRangingToolOptions | undefined
     }
 
     Object.entries(extraOptions).forEach(([key, value]) => {
-        if (value !== undefined) nextOptions[key] = value
+        if (value !== undefined) {
+            Object.assign(nextOptions, {
+                [key]: value,
+            })
+        }
     })
 
     return nextOptions

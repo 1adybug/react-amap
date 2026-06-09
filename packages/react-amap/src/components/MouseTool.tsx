@@ -43,10 +43,11 @@ export type AmapMouseToolOnLoad = (mouseTool: AmapMouseToolInstance) => void
 
 export type AmapMouseToolOnDestroy = (mouseTool: AmapMouseToolInstance) => void
 
-/** 鼠标工具绘制参数 */
-export interface AmapMouseToolDrawOptions {
-    [key: string]: unknown
-}
+export type AmapMouseToolDrawOptions =
+    | AmapMarkerOptions
+    | AmapCircleOptions
+    | AmapPolygonOptions
+    | AmapPolylineOptions
 
 /** 鼠标工具事件映射 */
 export interface AmapMouseToolEvents extends AmapEventMap<AmapOverlayMouseEvent<AmapMouseToolInstance>> {}
@@ -77,7 +78,6 @@ export interface AmapMouseToolInstance {
     on?: (eventName: string, handler: AmapEventHandler) => void
     /** 解绑事件 */
     off?: (eventName: string, handler: AmapEventHandler) => void
-    [key: string]: unknown
 }
 
 /** 鼠标工具构造器 */
@@ -194,7 +194,7 @@ export interface MouseToolProps extends AmapEventShortcutProps<AmapOverlayMouseE
 }
 
 function getAmapMouseToolConstructor({ AMap }: GetAmapMouseToolConstructorParams) {
-    const constructor = (AMap as Record<string, unknown>).MouseTool
+    const constructor = (AMap as unknown as Record<string, unknown>).MouseTool
 
     if (typeof constructor !== "function") return undefined
 

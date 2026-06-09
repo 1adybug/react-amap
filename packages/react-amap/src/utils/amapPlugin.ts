@@ -31,7 +31,7 @@ export interface LoadAmapPluginParams extends GetAmapPluginLoaderParams {
 }
 
 export function hasAmapConstructor({ AMap, constructorName }: HasAmapConstructorParams) {
-    const constructor = (AMap as Record<string, unknown>)[constructorName]
+    const constructor = (AMap as unknown as Record<string, unknown>)[constructorName]
 
     return typeof constructor === "function"
 }

@@ -33,7 +33,6 @@ export interface AmapGroupOptions {
     zIndex?: number
     /** 缩放范围 */
     zooms?: AmapZoomRange
-    [key: string]: unknown
 }
 
 /** 群组实例 */
@@ -50,7 +49,6 @@ export interface AmapGroupInstance {
     on?: (eventName: string, handler: AmapEventHandler) => void
     /** 解绑事件 */
     off?: (eventName: string, handler: AmapEventHandler) => void
-    [key: string]: unknown
 }
 
 /** 覆盖物群组实例 */
