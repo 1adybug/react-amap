@@ -1,5 +1,11 @@
 # @1adybug/react-amap
 
+## 0.3.1
+
+### Patch Changes
+
+- fix(react-amap): sync child overlay state with parent groups
+
 ## 0.3.0
 
 ### Minor Changes

@@ -18,7 +18,7 @@ import {
     type AmapZoomRange,
     useAmapContext,
 } from "./Amap"
-import { useLayerGroupContext } from "./Group"
+import { type AmapGroupChildSync, type AmapGroupChildSyncCleanup, useLayerGroupContext } from "./Group"
 import type { AmapBoundsLike } from "./Vector"
 import { loadAmapPlugin } from "../utils/amapPlugin"
 import { optionalFn } from "../utils/optionalFn"
@@ -430,8 +430,32 @@ export interface VectorLayerProps extends LayerProps<AmapVectorLayerOptions> {
     children?: ReactNode
 }
 
+/** 矢量图层上下文数据 */
+export interface AmapVectorLayerContextValue {
+    /** 矢量图层实例 */
+    layer: AmapLayerInstance
+    /** 添加矢量覆盖物并同步图层状态 */
+    addVector(vector: unknown): void
+    /** 移除矢量覆盖物 */
+    removeVector(vector: unknown): void
+    /** 同步子覆盖物变更后的图层状态 */
+    sync(): void
+    /** 同步所有子矢量覆盖物 */
+    syncChildren(): void
+    /** 注册子矢量覆盖物同步函数 */
+    registerChildSync(sync: AmapGroupChildSync): AmapGroupChildSyncCleanup
+}
+
+/** 创建矢量图层上下文参数 */
+export interface CreateAmapVectorLayerContextValueParams {
+    /** 矢量图层实例 */
+    layer: AmapLayerInstance
+    /** 获取最新图层参数 */
+    getOptions: () => AmapLayerBaseOptions
+}
+
 /** 矢量图层上下文 */
-export const VectorLayerContext = createContext<AmapLayerInstance | null>(null)
+export const VectorLayerContext = createContext<AmapVectorLayerContextValue | null>(null)
 
 export function useVectorLayerContext() {
     return useContext(VectorLayerContext)
@@ -613,6 +637,52 @@ function updateAmapLayer<TInstance extends AmapLayerInstance, TOptions extends A
     layer.hide?.()
 }
 
+function syncAmapLayerAfterChildChange<TInstance extends AmapLayerInstance, TOptions extends AmapLayerBaseOptions>(
+    layer: TInstance,
+    options: TOptions
+) {
+    const { visible, ...setOptions } = options
+
+    updateAmapLayer(layer, setOptions as TOptions)
+
+    if (visible === false) layer.hide?.()
+}
+
+function createAmapVectorLayerContextValue({
+    layer,
+    getOptions,
+}: CreateAmapVectorLayerContextValueParams): AmapVectorLayerContextValue {
+    const childSyncs = new Set<AmapGroupChildSync>()
+
+    function sync() {
+        syncAmapLayerAfterChildChange(layer, getOptions())
+    }
+
+    function syncChildren() {
+        childSyncs.forEach(childSync => childSync())
+    }
+
+    return {
+        layer,
+        addVector(vector) {
+            layer.add?.(vector)
+            sync()
+        },
+        removeVector(vector) {
+            layer.remove?.(vector)
+        },
+        sync,
+        syncChildren,
+        registerChildSync(childSync) {
+            childSyncs.add(childSync)
+
+            return function unregisterAmapVectorLayerChildSync() {
+                childSyncs.delete(childSync)
+            }
+        },
+    }
+}
+
 function AmapLayer<TInstance extends AmapLayerInstance, TOptions extends AmapLayerBaseOptions>({
     ref,
     map,
@@ -631,7 +701,7 @@ function AmapLayer<TInstance extends AmapLayerInstance, TOptions extends AmapLay
     const context = useAmapContext()
     const contextGroup = useLayerGroupContext()
     const layerRef = useRef<TInstance | null>(null)
-    const [contextLayer, setContextLayer] = useState<TInstance | null>(null)
+    const [contextValue, setContextValue] = useState<AmapVectorLayerContextValue | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = AMap ?? context.AMap
     const currentGroup = map ? null : contextGroup
@@ -643,7 +713,7 @@ function AmapLayer<TInstance extends AmapLayerInstance, TOptions extends AmapLay
     })
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
-    const getInitialOptions = useEffectEvent(() => options)
+    const getCurrentOptions = useEffectEvent(() => options)
     const currentEvents = mergeAmapEvents({
         eventShortcuts,
         events,
@@ -656,28 +726,33 @@ function AmapLayer<TInstance extends AmapLayerInstance, TOptions extends AmapLay
 
         if (!LayerConstructor) return
 
-        const initialOptions = getInitialOptions()
+        const initialOptions = getCurrentOptions()
         const layer = new LayerConstructor(initialOptions)
 
-        if (currentGroup) currentGroup.addLayer?.(layer)
+        if (currentGroup) currentGroup.addLayer(layer)
         else addAmapLayer(currentMap, layer)
 
         layerRef.current = layer
-        setContextLayer(layer)
+        if (provideVectorLayerContext)
+            setContextValue(createAmapVectorLayerContextValue({
+                layer,
+                getOptions: getCurrentOptions as () => AmapLayerBaseOptions,
+            }))
         setAmapLayerRef(ref, layer)
         updateAmapLayer(layer, initialOptions)
+        currentGroup?.sync()
         onLoad(layer)
 
         return () => {
             layerRef.current = null
-            setContextLayer(null)
+            setContextValue(null)
             setAmapLayerRef(ref, null)
 
             if (currentGroup) {
                 try {
                     onDestroy(layer)
                 } finally {
-                    currentGroup.removeLayer?.(layer)
+                    currentGroup.removeLayer(layer)
                     layer.setMap?.(null)
                     layer.destroy?.()
                 }
@@ -687,13 +762,28 @@ function AmapLayer<TInstance extends AmapLayerInstance, TOptions extends AmapLay
 
             removeAmapLayer(currentMap, layer, onDestroy)
         }
-    }, [constructorPath, currentAMap, currentGroup, currentMap, pluginLoaded, ref])
+    }, [constructorPath, currentAMap, currentGroup, currentMap, pluginLoaded, provideVectorLayerContext, ref])
 
     useStableEffect(() => {
         if (!layerRef.current) return
 
         updateAmapLayer(layerRef.current, options)
-    }, [options])
+        currentGroup?.sync()
+        contextValue?.syncChildren()
+        if (options.visible === false) layerRef.current.hide?.()
+    }, [contextValue, currentGroup, options])
+
+    useStableEffect(() => {
+        if (!currentGroup) return
+
+        return currentGroup.registerChildSync(() => {
+            if (!layerRef.current) return
+
+            updateAmapLayer(layerRef.current, options)
+            contextValue?.syncChildren()
+            if (options.visible === false) layerRef.current.hide?.()
+        })
+    }, [contextValue, currentGroup, options])
 
     useStableEffect(() => {
         if (!layerRef.current) return
@@ -702,7 +792,7 @@ function AmapLayer<TInstance extends AmapLayerInstance, TOptions extends AmapLay
     }, [constructorPath, currentAMap, currentEvents, currentGroup, currentMap, pluginLoaded, ref])
 
     if (provideVectorLayerContext)
-        return <VectorLayerContext value={contextLayer}>{contextLayer ? children : null}</VectorLayerContext>
+        return <VectorLayerContext value={contextValue}>{contextValue ? children : null}</VectorLayerContext>
 
     return null
 }
@@ -866,10 +956,11 @@ export const HeatMap: FC<HeatMapProps> = ({
         const initialOptions = getInitialOptions()
         const heatMap = new (HeatMapConstructor as AmapHeatMapConstructor)(currentMap, initialOptions)
 
-        currentGroup?.addLayer?.(heatMap)
+        currentGroup?.addLayer(heatMap)
         heatMapRef.current = heatMap
         setAmapLayerRef(ref, heatMap)
         updateAmapLayer(heatMap, initialOptions)
+        currentGroup?.sync()
         heatMap.setDataSet?.(getInitialDataSet() ?? {})
         onLoadAction(heatMap)
 
@@ -881,7 +972,7 @@ export const HeatMap: FC<HeatMapProps> = ({
                 try {
                     onDestroyAction(heatMap)
                 } finally {
-                    currentGroup.removeLayer?.(heatMap)
+                    currentGroup.removeLayer(heatMap)
                     heatMap.setMap?.(null)
                     heatMap.destroy?.()
                 }
@@ -897,7 +988,18 @@ export const HeatMap: FC<HeatMapProps> = ({
         if (!heatMapRef.current) return
 
         updateAmapLayer(heatMapRef.current, currentOptions)
-    }, [currentOptions])
+        currentGroup?.sync()
+    }, [currentGroup, currentOptions])
+
+    useStableEffect(() => {
+        if (!currentGroup) return
+
+        return currentGroup.registerChildSync(() => {
+            if (!heatMapRef.current) return
+
+            updateAmapLayer(heatMapRef.current, currentOptions)
+        })
+    }, [currentGroup, currentOptions])
 
     useStableEffect(() => heatMapRef.current?.setDataSet?.(dataSet ?? {}), [dataSet])
 

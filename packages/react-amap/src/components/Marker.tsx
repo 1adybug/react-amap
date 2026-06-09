@@ -457,7 +457,7 @@ export const Marker: FC<MarkerProps> = ({
 
         const marker = new currentAMap.Marker(nextMarkerOptions)
 
-        currentGroup?.addOverlay?.(marker)
+        currentGroup?.addOverlay(marker)
         markerRef.current = marker
         setAmapMarkerRef({
             ref,
@@ -476,7 +476,7 @@ export const Marker: FC<MarkerProps> = ({
                 try {
                     onDestroy(marker)
                 } finally {
-                    currentGroup.removeOverlay?.(marker)
+                    currentGroup.removeOverlay(marker)
                     marker.setMap?.(null)
                 }
 
@@ -491,7 +491,18 @@ export const Marker: FC<MarkerProps> = ({
         if (!markerRef.current) return
 
         updateAmapMarker(markerRef.current, currentMarkerOptions)
-    }, [currentMarkerOptions])
+        currentGroup?.sync()
+    }, [currentGroup, currentMarkerOptions])
+
+    useStableEffect(() => {
+        if (!currentGroup) return
+
+        return currentGroup.registerChildSync(() => {
+            if (!markerRef.current) return
+
+            updateAmapMarker(markerRef.current, currentMarkerOptions)
+        })
+    }, [currentGroup, currentMarkerOptions])
 
     useStableEffect(() => {
         if (!markerRef.current) return

@@ -673,8 +673,8 @@ function AmapVectorOverlay<
         const initialOptions = getInitialOptions()
         const overlay = new OverlayConstructor(initialOptions)
 
-        if (currentLayer) currentLayer.add?.(overlay)
-        else if (currentGroup) currentGroup.addOverlay?.(overlay)
+        if (currentLayer) currentLayer.addVector(overlay)
+        else if (currentGroup) currentGroup.addOverlay(overlay)
         else currentMap.add?.(overlay)
 
         overlayRef.current = overlay
@@ -686,6 +686,8 @@ function AmapVectorOverlay<
             overlay,
             options: initialOptions,
         })
+        currentLayer?.sync()
+        currentGroup?.sync()
         onLoad(overlay)
 
         return () => {
@@ -701,7 +703,7 @@ function AmapVectorOverlay<
                 try {
                     onDestroy(overlay)
                 } finally {
-                    currentLayer.remove?.(overlay)
+                    currentLayer.removeVector(overlay)
                     runtimeOverlay.setMap?.(null)
                 }
 
@@ -714,7 +716,7 @@ function AmapVectorOverlay<
                 try {
                     onDestroy(overlay)
                 } finally {
-                    currentGroup.removeOverlay?.(overlay)
+                    currentGroup.removeOverlay(overlay)
                     runtimeOverlay.setMap?.(null)
                 }
 
@@ -736,7 +738,35 @@ function AmapVectorOverlay<
             overlay: overlayRef.current,
             options,
         })
-    }, [options])
+        currentLayer?.sync()
+        currentGroup?.sync()
+    }, [currentGroup, currentLayer, options])
+
+    useStableEffect(() => {
+        if (!currentGroup) return
+
+        return currentGroup.registerChildSync(() => {
+            if (!overlayRef.current) return
+
+            updateAmapVectorOverlay({
+                overlay: overlayRef.current,
+                options,
+            })
+        })
+    }, [currentGroup, options])
+
+    useStableEffect(() => {
+        if (!currentLayer) return
+
+        return currentLayer.registerChildSync(() => {
+            if (!overlayRef.current) return
+
+            updateAmapVectorOverlay({
+                overlay: overlayRef.current,
+                options,
+            })
+        })
+    }, [currentLayer, options])
 
     useStableEffect(() => {
         if (!overlayRef.current) return

@@ -18,7 +18,7 @@ import {
     type AmapZoomRange,
     useAmapContext,
 } from "./Amap"
-import { useLayerGroupContext } from "./Group"
+import { type AmapGroupChildSync, type AmapGroupChildSyncCleanup, useLayerGroupContext } from "./Group"
 import type {
     AmapMarkerAnchor,
     AmapMarkerLabelDirection,
@@ -715,8 +715,32 @@ export interface MarkerClusterProps
     onDestroy?: (markerCluster: AmapMarkerClusterInstance) => void
 }
 
+/** LabelsLayer 上下文数据 */
+export interface AmapLabelsLayerContextValue {
+    /** 标注图层实例 */
+    layer: AmapLabelsLayerInstance
+    /** 添加标注并同步图层状态 */
+    addMarker(marker: AmapLabelMarkerInstance): void
+    /** 移除标注 */
+    removeMarker(marker: AmapLabelMarkerInstance): void
+    /** 同步子标注变更后的图层状态 */
+    sync(): void
+    /** 同步所有子标注 */
+    syncChildren(): void
+    /** 注册子标注同步函数 */
+    registerChildSync(sync: AmapGroupChildSync): AmapGroupChildSyncCleanup
+}
+
+/** 创建 LabelsLayer 上下文参数 */
+export interface CreateAmapLabelsLayerContextValueParams {
+    /** 标注图层实例 */
+    layer: AmapLabelsLayerInstance
+    /** 获取最新标注图层参数 */
+    getOptions: () => AmapLabelsLayerOptions
+}
+
 /** LabelsLayer 上下文 */
-export const LabelsLayerContext = createContext<AmapLabelsLayerInstance | null>(null)
+export const LabelsLayerContext = createContext<AmapLabelsLayerContextValue | null>(null)
 
 export function useLabelsLayerContext() {
     return useContext(LabelsLayerContext)
@@ -826,6 +850,49 @@ function updateAmapLabelsLayer(layer: AmapLabelsLayerInstance, options: AmapLabe
     layer.hide?.()
 }
 
+function syncAmapLabelsLayerAfterChildChange(layer: AmapLabelsLayerInstance, options: AmapLabelsLayerOptions) {
+    const { visible, ...setOptions } = options
+
+    updateAmapLabelsLayer(layer, setOptions)
+
+    if (visible === false) layer.hide?.()
+}
+
+function createAmapLabelsLayerContextValue({
+    layer,
+    getOptions,
+}: CreateAmapLabelsLayerContextValueParams): AmapLabelsLayerContextValue {
+    const childSyncs = new Set<AmapGroupChildSync>()
+
+    function sync() {
+        syncAmapLabelsLayerAfterChildChange(layer, getOptions())
+    }
+
+    function syncChildren() {
+        childSyncs.forEach(childSync => childSync())
+    }
+
+    return {
+        layer,
+        addMarker(marker) {
+            layer.add?.(marker)
+            sync()
+        },
+        removeMarker(marker) {
+            layer.remove?.(marker)
+        },
+        sync,
+        syncChildren,
+        registerChildSync(childSync) {
+            childSyncs.add(childSync)
+
+            return function unregisterAmapLabelsLayerChildSync() {
+                childSyncs.delete(childSync)
+            }
+        },
+    }
+}
+
 function removeAmapLabelsLayer(layer: AmapLabelsLayerInstance, onDestroy?: (layer: AmapLabelsLayerInstance) => void) {
     try {
         onDestroy?.(layer)
@@ -930,6 +997,7 @@ export const Text: FC<TextProps> = ({
                 ref,
                 instance: null,
             })
+
             removeAmapPointOverlay(text, onDestroy)
         }
     }, [currentAMap, currentMap, ref])
@@ -1003,6 +1071,7 @@ export const ElasticMarker: FC<ElasticMarkerProps> = ({
                 ref,
                 instance: null,
             })
+
             removeAmapPointOverlay(marker, onDestroy)
         }
     }, [currentAMap, currentMap, pluginLoaded, ref])
@@ -1039,7 +1108,7 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
     const context = useAmapContext()
     const contextGroup = useLayerGroupContext()
     const layerRef = useRef<AmapLabelsLayerInstance | null>(null)
-    const [contextLayer, setContextLayer] = useState<AmapLabelsLayerInstance | null>(null)
+    const [contextValue, setContextValue] = useState<AmapLabelsLayerContextValue | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = (AMap ?? context.AMap) as AmapPointNamespace | null
     const currentGroup = map ? null : contextGroup
@@ -1051,29 +1120,33 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
     }) as AmapMarkerEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
-    const getInitialOptions = useEffectEvent(() => currentOptions)
+    const getCurrentOptions = useEffectEvent(() => currentOptions)
 
     useStableEffect(() => {
         if (!currentMap || !currentAMap?.LabelsLayer) return
 
-        const initialOptions = getInitialOptions()
+        const initialOptions = getCurrentOptions()
         const layer = new currentAMap.LabelsLayer(initialOptions)
 
-        if (currentGroup) currentGroup.addLayer?.(layer)
+        if (currentGroup) currentGroup.addLayer(layer)
         else currentMap.add?.(layer)
 
         layerRef.current = layer
-        setContextLayer(layer)
+        setContextValue(createAmapLabelsLayerContextValue({
+            layer,
+            getOptions: getCurrentOptions,
+        }))
         setAmapPointRef({
             ref,
             instance: layer,
         })
         updateAmapLabelsLayer(layer, initialOptions)
+        currentGroup?.sync()
         onLoad(layer)
 
         return () => {
             layerRef.current = null
-            setContextLayer(null)
+            setContextValue(null)
             setAmapPointRef({
                 ref,
                 instance: null,
@@ -1083,7 +1156,7 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
                 try {
                     onDestroy(layer)
                 } finally {
-                    currentGroup.removeLayer?.(layer)
+                    currentGroup.removeLayer(layer)
                     layer.clear?.()
                     layer.setMap?.(null)
                 }
@@ -1099,7 +1172,22 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
         if (!layerRef.current) return
 
         updateAmapLabelsLayer(layerRef.current, currentOptions)
-    }, [currentOptions])
+        currentGroup?.sync()
+        contextValue?.syncChildren()
+        if (currentOptions.visible === false) layerRef.current.hide?.()
+    }, [contextValue, currentGroup, currentOptions])
+
+    useStableEffect(() => {
+        if (!currentGroup) return
+
+        return currentGroup.registerChildSync(() => {
+            if (!layerRef.current) return
+
+            updateAmapLabelsLayer(layerRef.current, currentOptions)
+            contextValue?.syncChildren()
+            if (currentOptions.visible === false) layerRef.current.hide?.()
+        })
+    }, [contextValue, currentGroup, currentOptions])
 
     useStableEffect(() => {
         if (!layerRef.current) return
@@ -1110,7 +1198,7 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
         })
     }, [currentAMap, currentEvents, currentGroup, currentMap, ref])
 
-    return <LabelsLayerContext value={contextLayer}>{children}</LabelsLayerContext>
+    return <LabelsLayerContext value={contextValue}>{contextValue ? children : null}</LabelsLayerContext>
 }
 
 export const LabelMarker: FC<LabelMarkerProps> = ({
@@ -1143,13 +1231,14 @@ export const LabelMarker: FC<LabelMarkerProps> = ({
         const initialOptions = getInitialOptions()
         const marker = new currentAMap.LabelMarker(initialOptions)
 
-        currentLayer.add?.(marker)
+        currentLayer.addMarker(marker)
         markerRef.current = marker
         setAmapPointRef({
             ref,
             instance: marker,
         })
         updateAmapLabelMarker(marker, initialOptions)
+        currentLayer.sync()
         onLoad(marker)
 
         return () => {
@@ -1162,7 +1251,7 @@ export const LabelMarker: FC<LabelMarkerProps> = ({
             try {
                 onDestroy(marker)
             } finally {
-                currentLayer.remove?.(marker)
+                currentLayer.removeMarker(marker)
             }
         }
     }, [currentAMap, currentLayer, ref])
@@ -1171,7 +1260,18 @@ export const LabelMarker: FC<LabelMarkerProps> = ({
         if (!markerRef.current) return
 
         updateAmapLabelMarker(markerRef.current, currentOptions)
-    }, [currentOptions])
+        currentLayer?.sync()
+    }, [currentLayer, currentOptions])
+
+    useStableEffect(() => {
+        if (!currentLayer) return
+
+        return currentLayer.registerChildSync(() => {
+            if (!markerRef.current) return
+
+            updateAmapLabelMarker(markerRef.current, currentOptions)
+        })
+    }, [currentLayer, currentOptions])
 
     useStableEffect(() => {
         if (!markerRef.current) return
