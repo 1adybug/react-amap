@@ -17,9 +17,12 @@ import { optionalFn } from "../utils/optionalFn"
 import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapEventMap,
-    type AmapEventShortcutProps,
+    type AmapMoveEvent,
+    type AmapOverlayEventMap,
+    type AmapOverlayEventShortcutProps,
+    type AmapOverlayInteractionEvent,
     type AmapOverlayMouseEvent,
+    type AmapTargetEvent,
     getAmapEventEntries,
     mergeAmapEvents,
 } from "../utils/amapEvents"
@@ -49,8 +52,34 @@ export type AmapMouseToolDrawOptions =
     | AmapPolygonOptions
     | AmapPolylineOptions
 
+/** MouseTool 鼠标事件 */
+export interface AmapMouseToolMouseEvent extends AmapOverlayMouseEvent<AmapMouseToolInstance> {}
+
+/** MouseTool 交互坐标事件 */
+export interface AmapMouseToolInteractionEvent extends AmapOverlayInteractionEvent<AmapMouseToolInstance> {}
+
+/** MouseTool 目标事件 */
+export interface AmapMouseToolTargetEvent extends AmapTargetEvent<AmapMouseToolInstance> {}
+
+/** MouseTool 移动动画事件 */
+export interface AmapMouseToolMoveEvent extends AmapMoveEvent<AmapMouseToolInstance> {}
+
+/** MouseTool 绘制完成事件 */
+export interface AmapMouseToolDrawEvent extends AmapTargetEvent<AmapMouseToolInstance> {
+    /** 绘制出的覆盖物 */
+    obj?: unknown
+}
+
+/** MouseTool 事件快捷属性 */
+export interface AmapMouseToolEventShortcutProps extends AmapOverlayEventShortcutProps<AmapMouseToolInstance> {}
+
+export type AmapMouseToolOnDraw = (event: AmapMouseToolDrawEvent) => void
+
 /** 鼠标工具事件映射 */
-export interface AmapMouseToolEvents extends AmapEventMap<AmapOverlayMouseEvent<AmapMouseToolInstance>> {}
+export interface AmapMouseToolEvents extends AmapOverlayEventMap<AmapMouseToolInstance> {
+    /** 绘制完成事件 */
+    draw?: AmapMouseToolOnDraw
+}
 
 /** 鼠标工具实例 */
 export interface AmapMouseToolInstance {
@@ -112,7 +141,7 @@ export interface BindAmapMouseToolEventsParams {
     /** 事件映射 */
     events?: AmapMouseToolEvents
     /** 绘制完成回调 */
-    onDraw?: AmapEventHandler
+    onDraw?: AmapMouseToolOnDraw
 }
 
 /** 获取 MouseTool 模式参数 */
@@ -148,7 +177,7 @@ export interface OpenAmapMouseToolModeParams extends GetAmapMouseToolModeOptions
 }
 
 /** MouseTool 组件属性 */
-export interface MouseToolProps extends AmapEventShortcutProps<AmapOverlayMouseEvent<AmapMouseToolInstance>> {
+export interface MouseToolProps extends AmapMouseToolEventShortcutProps {
     /** MouseTool 实例 ref */
     ref?: Ref<AmapMouseToolInstance | null>
     /** 地图实例 */
@@ -186,7 +215,7 @@ export interface MouseToolProps extends AmapEventShortcutProps<AmapOverlayMouseE
     /** MouseTool 事件映射 */
     events?: AmapMouseToolEvents
     /** 绘制完成回调 */
-    onDraw?: AmapEventHandler
+    onDraw?: AmapMouseToolOnDraw
     /** MouseTool 创建完成回调 */
     onLoad?: AmapMouseToolOnLoad
     /** MouseTool 销毁前回调 */

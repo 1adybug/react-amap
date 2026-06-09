@@ -22,9 +22,12 @@ import { useOverlayGroupContext } from "./Group"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapEventMap,
-    type AmapEventShortcutProps,
+    type AmapMoveEvent,
+    type AmapOverlayEventMap,
+    type AmapOverlayEventShortcutProps,
+    type AmapOverlayInteractionEvent,
     type AmapOverlayMouseEvent,
+    type AmapTargetEvent,
     getAmapEventEntries,
     mergeAmapEvents,
     splitAmapEventShortcutProps,
@@ -69,6 +72,21 @@ export type AmapMarkerContent = string | HTMLElement
 export type AmapMarkerOnLoad = (marker: AmapMarkerInstance) => void
 
 export type AmapMarkerOnDestroy = (marker: AmapMarkerInstance) => void
+
+/** 点标记鼠标事件 */
+export interface AmapMarkerMouseEvent extends AmapOverlayMouseEvent<AmapMarkerInstance> {}
+
+/** 点标记交互坐标事件 */
+export interface AmapMarkerInteractionEvent extends AmapOverlayInteractionEvent<AmapMarkerInstance> {}
+
+/** 点标记目标事件 */
+export interface AmapMarkerTargetEvent extends AmapTargetEvent<AmapMarkerInstance> {}
+
+/** 点标记移动动画事件 */
+export interface AmapMarkerMoveEvent extends AmapMoveEvent<AmapMarkerInstance> {}
+
+/** 点标记事件快捷属性 */
+export interface AmapMarkerEventShortcutProps extends AmapOverlayEventShortcutProps<AmapMarkerInstance> {}
 
 /** 高德 Pixel 实例 */
 export interface AmapPixelInstance extends AMap.Pixel {}
@@ -137,7 +155,8 @@ export interface AmapMarkerOptions extends AmapMarkerBaseOptions {
 }
 
 /** 点标记事件映射 */
-export interface AmapMarkerEvents<TInstance = AmapMarkerInstance> extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
+export interface AmapMarkerEvents<TInstance = AmapMarkerInstance>
+    extends AmapOverlayEventMap<TInstance> {}
 
 /** 高德 Marker 实例 */
 export interface AmapMarkerInstance extends AMap.Marker {
@@ -230,7 +249,7 @@ export interface UpdateAmapMarkerContentElementParams {
 }
 
 /** 点标记组件属性 */
-export interface MarkerProps extends AmapMarkerBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapMarkerInstance>> {
+export interface MarkerProps extends AmapMarkerBaseOptions, AmapMarkerEventShortcutProps {
     /** 点标记实例 ref */
     ref?: Ref<AmapMarkerInstance | null>
     /** 高德地图命名空间 */

@@ -30,8 +30,11 @@ import { optionalFn } from "../utils/optionalFn"
 import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapEventShortcutProps,
+    type AmapMoveEvent,
+    type AmapOverlayEventShortcutProps,
+    type AmapOverlayInteractionEvent,
     type AmapOverlayMouseEvent,
+    type AmapTargetEvent,
     getAmapEventEntries,
     mergeAmapEvents,
     splitAmapEventShortcutProps,
@@ -63,6 +66,23 @@ export type AmapPointOverlayOnLoad<TInstance extends AmapPointOverlayInstance = 
 export type AmapPointOverlayOnDestroy<TInstance extends AmapPointOverlayInstance = AmapPointOverlayInstance> = (
     overlay: TInstance
 ) => void
+
+/** 点覆盖物鼠标事件 */
+export interface AmapPointOverlayMouseEvent<TInstance = AmapPointOverlayInstance> extends AmapOverlayMouseEvent<TInstance> {}
+
+/** 点覆盖物交互坐标事件 */
+export interface AmapPointOverlayInteractionEvent<TInstance = AmapPointOverlayInstance>
+    extends AmapOverlayInteractionEvent<TInstance> {}
+
+/** 点覆盖物目标事件 */
+export interface AmapPointOverlayTargetEvent<TInstance = AmapPointOverlayInstance> extends AmapTargetEvent<TInstance> {}
+
+/** 点覆盖物移动动画事件 */
+export interface AmapPointOverlayMoveEvent<TInstance = AmapPointOverlayInstance> extends AmapMoveEvent<TInstance> {}
+
+/** 点覆盖物事件快捷属性 */
+export interface AmapPointOverlayEventShortcutProps<TInstance = AmapPointOverlayInstance>
+    extends AmapOverlayEventShortcutProps<TInstance> {}
 
 /** 点标记覆盖物基础实例 */
 export interface AmapPointOverlayInstance {
@@ -541,6 +561,96 @@ export interface AmapMarkerClusterInstance {
     off?: (eventName: string, handler: AmapEventHandler) => void
 }
 
+/** 文本标记鼠标事件 */
+export interface AmapTextMouseEvent extends AmapPointOverlayMouseEvent<AmapTextInstance> {}
+
+/** 文本标记交互坐标事件 */
+export interface AmapTextInteractionEvent extends AmapPointOverlayInteractionEvent<AmapTextInstance> {}
+
+/** 文本标记目标事件 */
+export interface AmapTextTargetEvent extends AmapPointOverlayTargetEvent<AmapTextInstance> {}
+
+/** 文本标记移动动画事件 */
+export interface AmapTextMoveEvent extends AmapPointOverlayMoveEvent<AmapTextInstance> {}
+
+/** 文本标记事件快捷属性 */
+export interface AmapTextEventShortcutProps extends AmapPointOverlayEventShortcutProps<AmapTextInstance> {}
+
+/** 灵活点标记鼠标事件 */
+export interface AmapElasticMarkerMouseEvent extends AmapPointOverlayMouseEvent<AmapElasticMarkerInstance> {}
+
+/** 灵活点标记交互坐标事件 */
+export interface AmapElasticMarkerInteractionEvent extends AmapPointOverlayInteractionEvent<AmapElasticMarkerInstance> {}
+
+/** 灵活点标记目标事件 */
+export interface AmapElasticMarkerTargetEvent extends AmapPointOverlayTargetEvent<AmapElasticMarkerInstance> {}
+
+/** 灵活点标记移动动画事件 */
+export interface AmapElasticMarkerMoveEvent extends AmapPointOverlayMoveEvent<AmapElasticMarkerInstance> {}
+
+/** 灵活点标记事件快捷属性 */
+export interface AmapElasticMarkerEventShortcutProps extends AmapPointOverlayEventShortcutProps<AmapElasticMarkerInstance> {}
+
+/** 标注图层鼠标事件 */
+export interface AmapLabelsLayerMouseEvent extends AmapPointOverlayMouseEvent<AmapLabelsLayerInstance> {}
+
+/** 标注图层交互坐标事件 */
+export interface AmapLabelsLayerInteractionEvent extends AmapPointOverlayInteractionEvent<AmapLabelsLayerInstance> {}
+
+/** 标注图层目标事件 */
+export interface AmapLabelsLayerTargetEvent extends AmapPointOverlayTargetEvent<AmapLabelsLayerInstance> {}
+
+/** 标注图层移动动画事件 */
+export interface AmapLabelsLayerMoveEvent extends AmapPointOverlayMoveEvent<AmapLabelsLayerInstance> {}
+
+/** 标注图层事件快捷属性 */
+export interface AmapLabelsLayerEventShortcutProps extends AmapPointOverlayEventShortcutProps<AmapLabelsLayerInstance> {}
+
+/** 标注鼠标事件 */
+export interface AmapLabelMarkerMouseEvent extends AmapPointOverlayMouseEvent<AmapLabelMarkerInstance> {}
+
+/** 标注交互坐标事件 */
+export interface AmapLabelMarkerInteractionEvent extends AmapPointOverlayInteractionEvent<AmapLabelMarkerInstance> {}
+
+/** 标注目标事件 */
+export interface AmapLabelMarkerTargetEvent extends AmapPointOverlayTargetEvent<AmapLabelMarkerInstance> {}
+
+/** 标注移动动画事件 */
+export interface AmapLabelMarkerMoveEvent extends AmapPointOverlayMoveEvent<AmapLabelMarkerInstance> {}
+
+/** 标注事件快捷属性 */
+export interface AmapLabelMarkerEventShortcutProps extends AmapPointOverlayEventShortcutProps<AmapLabelMarkerInstance> {}
+
+/** 海量点鼠标事件 */
+export interface AmapMassMarksMouseEvent extends AmapPointOverlayMouseEvent<AmapMassMarksInstance> {}
+
+/** 海量点交互坐标事件 */
+export interface AmapMassMarksInteractionEvent extends AmapPointOverlayInteractionEvent<AmapMassMarksInstance> {}
+
+/** 海量点目标事件 */
+export interface AmapMassMarksTargetEvent extends AmapPointOverlayTargetEvent<AmapMassMarksInstance> {}
+
+/** 海量点移动动画事件 */
+export interface AmapMassMarksMoveEvent extends AmapPointOverlayMoveEvent<AmapMassMarksInstance> {}
+
+/** 海量点事件快捷属性 */
+export interface AmapMassMarksEventShortcutProps extends AmapPointOverlayEventShortcutProps<AmapMassMarksInstance> {}
+
+/** 点聚合鼠标事件 */
+export interface AmapMarkerClusterMouseEvent extends AmapPointOverlayMouseEvent<AmapMarkerClusterInstance> {}
+
+/** 点聚合交互坐标事件 */
+export interface AmapMarkerClusterInteractionEvent extends AmapPointOverlayInteractionEvent<AmapMarkerClusterInstance> {}
+
+/** 点聚合目标事件 */
+export interface AmapMarkerClusterTargetEvent extends AmapPointOverlayTargetEvent<AmapMarkerClusterInstance> {}
+
+/** 点聚合移动动画事件 */
+export interface AmapMarkerClusterMoveEvent extends AmapPointOverlayMoveEvent<AmapMarkerClusterInstance> {}
+
+/** 点聚合事件快捷属性 */
+export interface AmapMarkerClusterEventShortcutProps extends AmapPointOverlayEventShortcutProps<AmapMarkerClusterInstance> {}
+
 /** 支持点标记扩展构造器的高德命名空间 */
 export interface AmapPointNamespace extends AmapNamespace {
     /** Text 构造器 */
@@ -586,7 +696,7 @@ export interface AmapPointEventTarget {
 }
 
 /** 文本标记组件属性 */
-export interface TextProps extends AmapTextBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapTextInstance>> {
+export interface TextProps extends AmapTextBaseOptions, AmapTextEventShortcutProps {
     /** 文本标记实例 ref */
     ref?: Ref<AmapTextInstance | null>
     /** 地图实例 */
@@ -604,9 +714,7 @@ export interface TextProps extends AmapTextBaseOptions, AmapEventShortcutProps<A
 }
 
 /** 灵活点标记组件属性 */
-export interface ElasticMarkerProps
-    extends AmapElasticMarkerBaseOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapElasticMarkerInstance>> {
+export interface ElasticMarkerProps extends AmapElasticMarkerBaseOptions, AmapElasticMarkerEventShortcutProps {
     /** 灵活点标记实例 ref */
     ref?: Ref<AmapElasticMarkerInstance | null>
     /** 地图实例 */
@@ -624,9 +732,7 @@ export interface ElasticMarkerProps
 }
 
 /** 标注图层组件属性 */
-export interface LabelsLayerProps
-    extends AmapLabelsLayerBaseOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapLabelsLayerInstance>> {
+export interface LabelsLayerProps extends AmapLabelsLayerBaseOptions, AmapLabelsLayerEventShortcutProps {
     /** 标注图层实例 ref */
     ref?: Ref<AmapLabelsLayerInstance | null>
     /** 地图实例 */
@@ -646,9 +752,7 @@ export interface LabelsLayerProps
 }
 
 /** 标注组件属性 */
-export interface LabelMarkerProps
-    extends AmapLabelMarkerBaseOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapLabelMarkerInstance>> {
+export interface LabelMarkerProps extends AmapLabelMarkerBaseOptions, AmapLabelMarkerEventShortcutProps {
     /** 标注实例 ref */
     ref?: Ref<AmapLabelMarkerInstance | null>
     /** 高德地图命名空间 */
@@ -664,7 +768,7 @@ export interface LabelMarkerProps
 }
 
 /** 海量点组件属性 */
-export interface MassMarksProps extends AmapMassMarksBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapMassMarksInstance>> {
+export interface MassMarksProps extends AmapMassMarksBaseOptions, AmapMassMarksEventShortcutProps {
     /** 海量点实例 ref */
     ref?: Ref<AmapMassMarksInstance | null>
     /** 地图实例 */
@@ -684,9 +788,7 @@ export interface MassMarksProps extends AmapMassMarksBaseOptions, AmapEventShort
 }
 
 /** 点聚合组件属性 */
-export interface MarkerClusterProps
-    extends AmapMarkerClusterBaseOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapMarkerClusterInstance>> {
+export interface MarkerClusterProps extends AmapMarkerClusterBaseOptions, AmapMarkerClusterEventShortcutProps {
     /** 点聚合实例 ref */
     ref?: Ref<AmapMarkerClusterInstance | null>
     /** 地图实例 */

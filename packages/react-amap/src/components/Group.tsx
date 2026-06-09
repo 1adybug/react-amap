@@ -4,9 +4,12 @@ import { type AmapEventHandler, type AmapMapInstance, type AmapNamespace, type A
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapEventMap,
-    type AmapEventShortcutProps,
+    type AmapMoveEvent,
+    type AmapOverlayEventMap,
+    type AmapOverlayEventShortcutProps,
+    type AmapOverlayInteractionEvent,
     type AmapOverlayMouseEvent,
+    type AmapTargetEvent,
     getAmapEventEntries,
     mergeAmapEvents,
     splitAmapEventShortcutProps,
@@ -21,7 +24,8 @@ export type AmapGroupChildSync = () => void
 export type AmapGroupChildSyncCleanup = () => void
 
 /** 群组事件映射 */
-export interface AmapGroupEvents<TInstance = AmapGroupInstance> extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
+export interface AmapGroupEvents<TInstance = AmapGroupInstance>
+    extends AmapOverlayEventMap<TInstance> {}
 
 /** 群组参数 */
 export interface AmapGroupOptions {
@@ -85,6 +89,52 @@ export interface AmapLayerGroupInstance extends AmapGroupInstance {
     getLayers?: () => unknown[]
 }
 
+/** 群组鼠标事件 */
+export interface AmapGroupMouseEvent<TInstance = AmapGroupInstance> extends AmapOverlayMouseEvent<TInstance> {}
+
+/** 群组交互坐标事件 */
+export interface AmapGroupInteractionEvent<TInstance = AmapGroupInstance> extends AmapOverlayInteractionEvent<TInstance> {}
+
+/** 群组目标事件 */
+export interface AmapGroupTargetEvent<TInstance = AmapGroupInstance> extends AmapTargetEvent<TInstance> {}
+
+/** 群组移动动画事件 */
+export interface AmapGroupMoveEvent<TInstance = AmapGroupInstance> extends AmapMoveEvent<TInstance> {}
+
+/** 群组事件快捷属性 */
+export interface AmapGroupEventShortcutProps<TInstance = AmapGroupInstance>
+    extends AmapOverlayEventShortcutProps<TInstance> {}
+
+/** 覆盖物群组鼠标事件 */
+export interface AmapOverlayGroupMouseEvent extends AmapGroupMouseEvent<AmapOverlayGroupInstance> {}
+
+/** 覆盖物群组交互坐标事件 */
+export interface AmapOverlayGroupInteractionEvent extends AmapGroupInteractionEvent<AmapOverlayGroupInstance> {}
+
+/** 覆盖物群组目标事件 */
+export interface AmapOverlayGroupTargetEvent extends AmapGroupTargetEvent<AmapOverlayGroupInstance> {}
+
+/** 覆盖物群组移动动画事件 */
+export interface AmapOverlayGroupMoveEvent extends AmapGroupMoveEvent<AmapOverlayGroupInstance> {}
+
+/** 覆盖物群组事件快捷属性 */
+export interface AmapOverlayGroupEventShortcutProps extends AmapGroupEventShortcutProps<AmapOverlayGroupInstance> {}
+
+/** 图层群组鼠标事件 */
+export interface AmapLayerGroupMouseEvent extends AmapGroupMouseEvent<AmapLayerGroupInstance> {}
+
+/** 图层群组交互坐标事件 */
+export interface AmapLayerGroupInteractionEvent extends AmapGroupInteractionEvent<AmapLayerGroupInstance> {}
+
+/** 图层群组目标事件 */
+export interface AmapLayerGroupTargetEvent extends AmapGroupTargetEvent<AmapLayerGroupInstance> {}
+
+/** 图层群组移动动画事件 */
+export interface AmapLayerGroupMoveEvent extends AmapGroupMoveEvent<AmapLayerGroupInstance> {}
+
+/** 图层群组事件快捷属性 */
+export interface AmapLayerGroupEventShortcutProps extends AmapGroupEventShortcutProps<AmapLayerGroupInstance> {}
+
 /** 支持群组构造器的高德命名空间 */
 export interface AmapGroupNamespace extends AmapNamespace {
     /** OverlayGroup 构造器 */
@@ -94,9 +144,7 @@ export interface AmapGroupNamespace extends AmapNamespace {
 }
 
 /** 覆盖物群组组件属性 */
-export interface OverlayGroupProps
-    extends AmapGroupOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapOverlayGroupInstance>> {
+export interface OverlayGroupProps extends AmapGroupOptions, AmapOverlayGroupEventShortcutProps {
     /** 群组实例 ref */
     ref?: Ref<AmapOverlayGroupInstance | null>
     /** 地图实例 */
@@ -114,7 +162,7 @@ export interface OverlayGroupProps
 }
 
 /** 图层群组组件属性 */
-export interface LayerGroupProps extends AmapGroupOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapLayerGroupInstance>> {
+export interface LayerGroupProps extends AmapGroupOptions, AmapLayerGroupEventShortcutProps {
     /** 群组实例 ref */
     ref?: Ref<AmapLayerGroupInstance | null>
     /** 地图实例 */

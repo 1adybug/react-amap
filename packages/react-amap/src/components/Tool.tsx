@@ -7,9 +7,12 @@ import { optionalFn } from "../utils/optionalFn"
 import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapEventMap,
-    type AmapEventShortcutProps,
+    type AmapMoveEvent,
+    type AmapOverlayEventMap,
+    type AmapOverlayEventShortcutProps,
+    type AmapOverlayInteractionEvent,
     type AmapOverlayMouseEvent,
+    type AmapTargetEvent,
     getAmapEventEntries,
     mergeAmapEvents,
     splitAmapEventShortcutProps,
@@ -19,8 +22,23 @@ export type AmapRangingToolOnLoad = (rangingTool: AmapRangingToolInstance) => vo
 
 export type AmapRangingToolOnDestroy = (rangingTool: AmapRangingToolInstance) => void
 
+/** 测距工具鼠标事件 */
+export interface AmapRangingToolMouseEvent extends AmapOverlayMouseEvent<AmapRangingToolInstance> {}
+
+/** 测距工具交互坐标事件 */
+export interface AmapRangingToolInteractionEvent extends AmapOverlayInteractionEvent<AmapRangingToolInstance> {}
+
+/** 测距工具目标事件 */
+export interface AmapRangingToolTargetEvent extends AmapTargetEvent<AmapRangingToolInstance> {}
+
+/** 测距工具移动动画事件 */
+export interface AmapRangingToolMoveEvent extends AmapMoveEvent<AmapRangingToolInstance> {}
+
+/** 测距工具事件快捷属性 */
+export interface AmapRangingToolEventShortcutProps extends AmapOverlayEventShortcutProps<AmapRangingToolInstance> {}
+
 /** 测距工具事件映射 */
-export interface AmapRangingToolEvents extends AmapEventMap<AmapOverlayMouseEvent<AmapRangingToolInstance>> {}
+export interface AmapRangingToolEvents extends AmapOverlayEventMap<AmapRangingToolInstance> {}
 
 /** 测距工具参数 */
 export interface AmapRangingToolOptions {
@@ -67,9 +85,7 @@ export interface AmapRangingToolNamespace extends AmapNamespace {
 }
 
 /** 测距工具组件属性 */
-export interface RangingToolProps
-    extends AmapRangingToolOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapRangingToolInstance>> {
+export interface RangingToolProps extends AmapRangingToolOptions, AmapRangingToolEventShortcutProps {
     /** 测距工具实例 ref */
     ref?: Ref<AmapRangingToolInstance | null>
     /** 地图实例 */

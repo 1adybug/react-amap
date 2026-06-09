@@ -6,9 +6,12 @@ import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
 
 import {
-    type AmapEventMap,
-    type AmapEventShortcutProps,
+    type AmapMoveEvent,
+    type AmapOverlayEventMap,
+    type AmapOverlayEventShortcutProps,
+    type AmapOverlayInteractionEvent,
     type AmapOverlayMouseEvent,
+    type AmapTargetEvent,
     getAmapEventEntries,
     mergeAmapEvents,
     splitAmapEventShortcutProps,
@@ -18,6 +21,38 @@ import { optionalFn } from "../utils/optionalFn"
 export type AmapControlOnLoad<TInstance extends AmapControlInstance = AmapControlInstance> = (control: TInstance) => void
 
 export type AmapControlOnDestroy<TInstance extends AmapControlInstance = AmapControlInstance> = (control: TInstance) => void
+
+/** 控件鼠标事件 */
+export interface AmapControlMouseEvent<TInstance = AmapControlInstance> extends AmapOverlayMouseEvent<TInstance> {}
+
+/** 控件交互坐标事件 */
+export interface AmapControlInteractionEvent<TInstance = AmapControlInstance>
+    extends AmapOverlayInteractionEvent<TInstance> {}
+
+/** 控件目标事件 */
+export interface AmapControlTargetEvent<TInstance = AmapControlInstance> extends AmapTargetEvent<TInstance> {}
+
+/** 控件移动动画事件 */
+export interface AmapControlMoveEvent<TInstance = AmapControlInstance> extends AmapMoveEvent<TInstance> {}
+
+/** 控件事件快捷属性 */
+export interface AmapControlEventShortcutProps<TInstance = AmapControlInstance>
+    extends AmapOverlayEventShortcutProps<TInstance> {}
+
+/** 地图类型控件鼠标事件 */
+export interface AmapMapTypeMouseEvent extends AmapControlMouseEvent<AmapMapTypeInstance> {}
+
+/** 地图类型控件交互坐标事件 */
+export interface AmapMapTypeInteractionEvent extends AmapControlInteractionEvent<AmapMapTypeInstance> {}
+
+/** 地图类型控件目标事件 */
+export interface AmapMapTypeTargetEvent extends AmapControlTargetEvent<AmapMapTypeInstance> {}
+
+/** 地图类型控件移动动画事件 */
+export interface AmapMapTypeMoveEvent extends AmapControlMoveEvent<AmapMapTypeInstance> {}
+
+/** 地图类型控件事件快捷属性 */
+export interface AmapMapTypeEventShortcutProps extends AmapControlEventShortcutProps<AmapMapTypeInstance> {}
 
 /** 控件停靠位置 */
 export const ControlPosition = {
@@ -68,7 +103,8 @@ export interface AmapControlBaseOptions {
 }
 
 /** 控件事件映射 */
-export interface AmapControlEvents<TInstance = AmapControlInstance> extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
+export interface AmapControlEvents<TInstance = AmapControlInstance>
+    extends AmapOverlayEventMap<TInstance> {}
 
 /** 控件实例 */
 export interface AmapControlInstance {
@@ -169,7 +205,7 @@ export interface AmapControlNamespace extends AmapNamespace {
 
 /** 内部控件组件属性 */
 export interface AmapControlProps<TInstance extends AmapControlInstance, TOptions extends AmapControlBaseOptions>
-    extends AmapEventShortcutProps<AmapOverlayMouseEvent<TInstance>> {
+    extends AmapControlEventShortcutProps<TInstance> {
     /** 控件实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
@@ -191,7 +227,7 @@ export interface AmapControlProps<TInstance extends AmapControlInstance, TOption
 }
 
 /** 比例尺组件属性 */
-export interface ScaleProps extends AmapControlBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapControlInstance>> {
+export interface ScaleProps extends AmapControlBaseOptions, AmapControlEventShortcutProps<AmapControlInstance> {
     /** 比例尺实例 ref */
     ref?: Ref<AmapControlInstance | null>
     /** 地图实例 */
@@ -212,9 +248,7 @@ export interface ScaleProps extends AmapControlBaseOptions, AmapEventShortcutPro
 export interface ToolBarProps extends ScaleProps {}
 
 /** 组合控件组件属性 */
-export interface ControlBarProps
-    extends AmapControlBarOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapControlInstance>> {
+export interface ControlBarProps extends AmapControlBarOptions, AmapControlEventShortcutProps<AmapControlInstance> {
     /** 组合控件实例 ref */
     ref?: Ref<AmapControlInstance | null>
     /** 地图实例 */
@@ -232,7 +266,7 @@ export interface ControlBarProps
 }
 
 /** 地图类型控件组件属性 */
-export interface MapTypeProps extends AmapMapTypeOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapMapTypeInstance>> {
+export interface MapTypeProps extends AmapMapTypeOptions, AmapMapTypeEventShortcutProps {
     /** 地图类型控件实例 ref */
     ref?: Ref<AmapMapTypeInstance | null>
     /** 地图实例 */
@@ -250,7 +284,7 @@ export interface MapTypeProps extends AmapMapTypeOptions, AmapEventShortcutProps
 }
 
 /** 鹰眼控件组件属性 */
-export interface HawkEyeProps extends AmapHawkEyeOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapControlInstance>> {
+export interface HawkEyeProps extends AmapHawkEyeOptions, AmapControlEventShortcutProps<AmapControlInstance> {
     /** 鹰眼控件实例 ref */
     ref?: Ref<AmapControlInstance | null>
     /** 地图实例 */

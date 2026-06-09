@@ -15,9 +15,12 @@ import type { AmapMarkerAnchor, AmapMarkerOffset, AmapMarkerPosition } from "./M
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapEventMap,
-    type AmapEventShortcutProps,
+    type AmapMoveEvent,
+    type AmapOverlayEventMap,
+    type AmapOverlayEventShortcutProps,
+    type AmapOverlayInteractionEvent,
     type AmapOverlayMouseEvent,
+    type AmapTargetEvent,
     getAmapEventEntries,
     mergeAmapEvents,
     splitAmapEventShortcutProps,
@@ -31,9 +34,56 @@ export type AmapContextMenuOnLoad = (contextMenu: AmapContextMenuInstance) => vo
 
 export type AmapContextMenuOnDestroy = (contextMenu: AmapContextMenuInstance) => void
 
+/** 交互覆盖物鼠标事件 */
+export interface AmapDomOverlayMouseEvent<TInstance = AmapDomOverlayEventTarget> extends AmapOverlayMouseEvent<TInstance> {}
+
+/** 交互覆盖物坐标事件 */
+export interface AmapDomOverlayInteractionEvent<TInstance = AmapDomOverlayEventTarget>
+    extends AmapOverlayInteractionEvent<TInstance> {}
+
+/** 交互覆盖物目标事件 */
+export interface AmapDomOverlayTargetEvent<TInstance = AmapDomOverlayEventTarget> extends AmapTargetEvent<TInstance> {}
+
+/** 交互覆盖物移动动画事件 */
+export interface AmapDomOverlayMoveEvent<TInstance = AmapDomOverlayEventTarget> extends AmapMoveEvent<TInstance> {}
+
+/** 交互覆盖物事件快捷属性 */
+export interface AmapDomOverlayEventShortcutProps<TInstance = AmapDomOverlayEventTarget>
+    extends AmapOverlayEventShortcutProps<TInstance> {}
+
+/** 信息窗体鼠标事件 */
+export interface AmapInfoWindowMouseEvent extends AmapDomOverlayMouseEvent<AmapInfoWindowInstance> {}
+
+/** 信息窗体坐标事件 */
+export interface AmapInfoWindowInteractionEvent extends AmapDomOverlayInteractionEvent<AmapInfoWindowInstance> {}
+
+/** 信息窗体目标事件 */
+export interface AmapInfoWindowTargetEvent extends AmapDomOverlayTargetEvent<AmapInfoWindowInstance> {}
+
+/** 信息窗体移动动画事件 */
+export interface AmapInfoWindowMoveEvent extends AmapDomOverlayMoveEvent<AmapInfoWindowInstance> {}
+
+/** 信息窗体事件快捷属性 */
+export interface AmapInfoWindowEventShortcutProps extends AmapDomOverlayEventShortcutProps<AmapInfoWindowInstance> {}
+
+/** 右键菜单鼠标事件 */
+export interface AmapContextMenuMouseEvent extends AmapDomOverlayMouseEvent<AmapContextMenuInstance> {}
+
+/** 右键菜单坐标事件 */
+export interface AmapContextMenuInteractionEvent extends AmapDomOverlayInteractionEvent<AmapContextMenuInstance> {}
+
+/** 右键菜单目标事件 */
+export interface AmapContextMenuTargetEvent extends AmapDomOverlayTargetEvent<AmapContextMenuInstance> {}
+
+/** 右键菜单移动动画事件 */
+export interface AmapContextMenuMoveEvent extends AmapDomOverlayMoveEvent<AmapContextMenuInstance> {}
+
+/** 右键菜单事件快捷属性 */
+export interface AmapContextMenuEventShortcutProps extends AmapDomOverlayEventShortcutProps<AmapContextMenuInstance> {}
+
 /** 交互覆盖物事件映射 */
 export interface AmapDomOverlayEvents<TInstance = AmapDomOverlayEventTarget>
-    extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
+    extends AmapOverlayEventMap<TInstance> {}
 
 /** 信息窗体参数 */
 export interface AmapInfoWindowOptions {
@@ -134,9 +184,7 @@ export interface UpdateAmapOverlayContentElementParams {
 }
 
 /** 信息窗体组件属性 */
-export interface InfoWindowProps
-    extends AmapInfoWindowOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapInfoWindowInstance>> {
+export interface InfoWindowProps extends AmapInfoWindowOptions, AmapInfoWindowEventShortcutProps {
     /** 信息窗体实例 ref */
     ref?: Ref<AmapInfoWindowInstance | null>
     /** 地图实例 */
@@ -164,9 +212,7 @@ export interface InfoWindowProps
 }
 
 /** 右键菜单组件属性 */
-export interface ContextMenuProps
-    extends AmapContextMenuOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapContextMenuInstance>> {
+export interface ContextMenuProps extends AmapContextMenuOptions, AmapContextMenuEventShortcutProps {
     /** 右键菜单实例 ref */
     ref?: Ref<AmapContextMenuInstance | null>
     /** 地图实例 */

@@ -14,9 +14,11 @@ import {
 
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapEventMap,
-    type AmapMapEventShortcutProps,
-    type AmapMapMouseEvent,
+    type AmapMapEventShortcuts,
+    type AmapMapEvents,
+    type AmapMapInteractionEvent as AmapMapInteractionEventBase,
+    type AmapMapMouseEvent as AmapMapMouseEventBase,
+    type AmapTargetEvent,
     getAmapEventEntries,
     mergeAmapEvents,
 } from "../utils/amapEvents"
@@ -144,8 +146,17 @@ export type AmapOnDestroy = (map: AmapMapInstance) => void
 
 export type AmapOnStatusChange = (status: AmapStatus, error?: unknown) => void
 
+/** 地图鼠标事件 */
+export interface AmapMapInstanceMouseEvent extends AmapMapMouseEventBase<AmapMapInstance> {}
+
+/** 地图交互坐标事件 */
+export interface AmapMapInstanceInteractionEvent extends AmapMapInteractionEventBase<AmapMapInstance> {}
+
+/** 地图目标事件 */
+export interface AmapMapInstanceTargetEvent extends AmapTargetEvent<AmapMapInstance> {}
+
 /** 地图事件映射 */
-export interface AmapEvents extends AmapEventMap<AmapMapMouseEvent<AmapMapInstance>> {}
+export interface AmapEvents extends AmapMapEvents<AmapMapInstance> {}
 
 /** 地图上下文数据 */
 export interface AmapContextValue {
@@ -501,7 +512,7 @@ declare global {
 export interface AmapProps
     extends Omit<ComponentProps<"div">, "ref">,
         AmapMapBaseOptions,
-        AmapMapEventShortcutProps<AmapMapMouseEvent<AmapMapInstance>> {
+        AmapMapEventShortcuts<AmapMapInstance> {
     /** 地图实例 ref */
     ref?: Ref<AmapMapInstance | null>
     /** 高德 Web 端开发者 Key */
@@ -860,16 +871,21 @@ export const Amap: FC<AmapProps> = ({
     onMapDragging,
     onMapMouseDown,
     onMapMouseMove,
+    onMapMouseWheel,
     onMapMouseOut,
     onMapMouseOver,
     onMapMouseUp,
     onMapMove,
     onMapMoveEnd,
+    onMapMoveStart,
     onMapResize,
     onMapRightClick,
     onMapRotateChange,
     onMapRotateEnd,
     onMapRotateStart,
+    onMapTouchEnd,
+    onMapTouchMove,
+    onMapTouchStart,
     onMapZoomChange,
     onMapZoomEnd,
     onMapZoomStart,
@@ -952,16 +968,21 @@ export const Amap: FC<AmapProps> = ({
             onMapDragging,
             onMapMouseDown,
             onMapMouseMove,
+            onMapMouseWheel,
             onMapMouseOut,
             onMapMouseOver,
             onMapMouseUp,
             onMapMove,
             onMapMoveEnd,
+            onMapMoveStart,
             onMapResize,
             onMapRightClick,
             onMapRotateChange,
             onMapRotateEnd,
             onMapRotateStart,
+            onMapTouchEnd,
+            onMapTouchMove,
+            onMapTouchStart,
             onMapZoomChange,
             onMapZoomEnd,
             onMapZoomStart,

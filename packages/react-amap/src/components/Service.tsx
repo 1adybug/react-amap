@@ -15,9 +15,12 @@ import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapEventMap,
-    type AmapEventShortcutProps,
+    type AmapMoveEvent,
+    type AmapOverlayEventMap,
+    type AmapOverlayEventShortcutProps,
+    type AmapOverlayInteractionEvent,
     type AmapOverlayMouseEvent,
+    type AmapTargetEvent,
     getAmapEventEntries,
     mergeAmapEvents,
 } from "../utils/amapEvents"
@@ -94,7 +97,23 @@ export const AmapCoordinateConvertType = {
 export type AmapCoordinateConvertType = (typeof AmapCoordinateConvertType)[keyof typeof AmapCoordinateConvertType] | string
 
 /** 服务事件映射 */
-export interface AmapServiceEvents<TInstance = AmapServiceInstance> extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
+export interface AmapServiceEvents<TInstance = AmapServiceInstance> extends AmapOverlayEventMap<TInstance> {}
+
+/** 服务鼠标事件 */
+export interface AmapServiceMouseEvent<TInstance = AmapServiceInstance> extends AmapOverlayMouseEvent<TInstance> {}
+
+/** 服务交互坐标事件 */
+export interface AmapServiceInteractionEvent<TInstance = AmapServiceInstance> extends AmapOverlayInteractionEvent<TInstance> {}
+
+/** 服务目标事件 */
+export interface AmapServiceTargetEvent<TInstance = AmapServiceInstance> extends AmapTargetEvent<TInstance> {}
+
+/** 服务移动动画事件 */
+export interface AmapServiceMoveEvent<TInstance = AmapServiceInstance> extends AmapMoveEvent<TInstance> {}
+
+/** 服务事件快捷属性 */
+export interface AmapServiceEventShortcutProps<TInstance = AmapServiceInstance>
+    extends AmapOverlayEventShortcutProps<TInstance> {}
 
 /** 服务基础参数 */
 export interface AmapServiceBaseOptions {
@@ -161,7 +180,7 @@ export type UpdateAmapService<TInstance extends AmapServiceInstance, TOptions ex
 
 /** 使用服务参数 */
 export interface UseAmapServiceParams<TInstance extends AmapServiceInstance, TOptions extends AmapServiceBaseOptions>
-    extends AmapEventShortcutProps<AmapOverlayMouseEvent<TInstance>> {
+    extends AmapServiceEventShortcutProps<TInstance> {
     /** 服务实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
@@ -192,7 +211,7 @@ export interface UseAmapServiceParams<TInstance extends AmapServiceInstance, TOp
 
 /** 服务组件通用属性 */
 export interface AmapServiceProps<TInstance extends AmapServiceInstance>
-    extends AmapEventShortcutProps<AmapOverlayMouseEvent<TInstance>> {
+    extends AmapServiceEventShortcutProps<TInstance> {
     /** 服务实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
@@ -772,6 +791,276 @@ export interface AmapServiceNamespace extends AmapNamespace {
         callback?: AmapServiceCallback
     ) => void
 }
+
+/** 地理编码鼠标事件 */
+export interface AmapGeocoderMouseEvent extends AmapServiceMouseEvent<AmapGeocoderInstance> {}
+
+/** 地理编码交互坐标事件 */
+export interface AmapGeocoderInteractionEvent extends AmapServiceInteractionEvent<AmapGeocoderInstance> {}
+
+/** 地理编码目标事件 */
+export interface AmapGeocoderTargetEvent extends AmapServiceTargetEvent<AmapGeocoderInstance> {}
+
+/** 地理编码移动动画事件 */
+export interface AmapGeocoderMoveEvent extends AmapServiceMoveEvent<AmapGeocoderInstance> {}
+
+/** 地理编码事件快捷属性 */
+export interface AmapGeocoderEventShortcutProps extends AmapServiceEventShortcutProps<AmapGeocoderInstance> {}
+
+/** 输入提示鼠标事件 */
+export interface AmapAutoCompleteMouseEvent extends AmapServiceMouseEvent<AmapAutoCompleteInstance> {}
+
+/** 输入提示交互坐标事件 */
+export interface AmapAutoCompleteInteractionEvent extends AmapServiceInteractionEvent<AmapAutoCompleteInstance> {}
+
+/** 输入提示目标事件 */
+export interface AmapAutoCompleteTargetEvent extends AmapServiceTargetEvent<AmapAutoCompleteInstance> {}
+
+/** 输入提示移动动画事件 */
+export interface AmapAutoCompleteMoveEvent extends AmapServiceMoveEvent<AmapAutoCompleteInstance> {}
+
+/** 输入提示事件快捷属性 */
+export interface AmapAutoCompleteEventShortcutProps extends AmapServiceEventShortcutProps<AmapAutoCompleteInstance> {}
+
+/** POI 搜索鼠标事件 */
+export interface AmapPlaceSearchMouseEvent extends AmapServiceMouseEvent<AmapPlaceSearchInstance> {}
+
+/** POI 搜索交互坐标事件 */
+export interface AmapPlaceSearchInteractionEvent extends AmapServiceInteractionEvent<AmapPlaceSearchInstance> {}
+
+/** POI 搜索目标事件 */
+export interface AmapPlaceSearchTargetEvent extends AmapServiceTargetEvent<AmapPlaceSearchInstance> {}
+
+/** POI 搜索移动动画事件 */
+export interface AmapPlaceSearchMoveEvent extends AmapServiceMoveEvent<AmapPlaceSearchInstance> {}
+
+/** POI 搜索事件快捷属性 */
+export interface AmapPlaceSearchEventShortcutProps extends AmapServiceEventShortcutProps<AmapPlaceSearchInstance> {}
+
+/** 云数据检索鼠标事件 */
+export interface AmapCloudDataSearchMouseEvent extends AmapServiceMouseEvent<AmapCloudDataSearchInstance> {}
+
+/** 云数据检索交互坐标事件 */
+export interface AmapCloudDataSearchInteractionEvent extends AmapServiceInteractionEvent<AmapCloudDataSearchInstance> {}
+
+/** 云数据检索目标事件 */
+export interface AmapCloudDataSearchTargetEvent extends AmapServiceTargetEvent<AmapCloudDataSearchInstance> {}
+
+/** 云数据检索移动动画事件 */
+export interface AmapCloudDataSearchMoveEvent extends AmapServiceMoveEvent<AmapCloudDataSearchInstance> {}
+
+/** 云数据检索事件快捷属性 */
+export interface AmapCloudDataSearchEventShortcutProps extends AmapServiceEventShortcutProps<AmapCloudDataSearchInstance> {}
+
+/** 驾车规划鼠标事件 */
+export interface AmapDrivingMouseEvent extends AmapServiceMouseEvent<AmapDrivingInstance> {}
+
+/** 驾车规划交互坐标事件 */
+export interface AmapDrivingInteractionEvent extends AmapServiceInteractionEvent<AmapDrivingInstance> {}
+
+/** 驾车规划目标事件 */
+export interface AmapDrivingTargetEvent extends AmapServiceTargetEvent<AmapDrivingInstance> {}
+
+/** 驾车规划移动动画事件 */
+export interface AmapDrivingMoveEvent extends AmapServiceMoveEvent<AmapDrivingInstance> {}
+
+/** 驾车规划事件快捷属性 */
+export interface AmapDrivingEventShortcutProps extends AmapServiceEventShortcutProps<AmapDrivingInstance> {}
+
+/** 货车规划鼠标事件 */
+export interface AmapTruckDrivingMouseEvent extends AmapServiceMouseEvent<AmapTruckDrivingInstance> {}
+
+/** 货车规划交互坐标事件 */
+export interface AmapTruckDrivingInteractionEvent extends AmapServiceInteractionEvent<AmapTruckDrivingInstance> {}
+
+/** 货车规划目标事件 */
+export interface AmapTruckDrivingTargetEvent extends AmapServiceTargetEvent<AmapTruckDrivingInstance> {}
+
+/** 货车规划移动动画事件 */
+export interface AmapTruckDrivingMoveEvent extends AmapServiceMoveEvent<AmapTruckDrivingInstance> {}
+
+/** 货车规划事件快捷属性 */
+export interface AmapTruckDrivingEventShortcutProps extends AmapServiceEventShortcutProps<AmapTruckDrivingInstance> {}
+
+/** 步行规划鼠标事件 */
+export interface AmapWalkingMouseEvent extends AmapServiceMouseEvent<AmapWalkingInstance> {}
+
+/** 步行规划交互坐标事件 */
+export interface AmapWalkingInteractionEvent extends AmapServiceInteractionEvent<AmapWalkingInstance> {}
+
+/** 步行规划目标事件 */
+export interface AmapWalkingTargetEvent extends AmapServiceTargetEvent<AmapWalkingInstance> {}
+
+/** 步行规划移动动画事件 */
+export interface AmapWalkingMoveEvent extends AmapServiceMoveEvent<AmapWalkingInstance> {}
+
+/** 步行规划事件快捷属性 */
+export interface AmapWalkingEventShortcutProps extends AmapServiceEventShortcutProps<AmapWalkingInstance> {}
+
+/** 公交规划鼠标事件 */
+export interface AmapTransferMouseEvent extends AmapServiceMouseEvent<AmapTransferInstance> {}
+
+/** 公交规划交互坐标事件 */
+export interface AmapTransferInteractionEvent extends AmapServiceInteractionEvent<AmapTransferInstance> {}
+
+/** 公交规划目标事件 */
+export interface AmapTransferTargetEvent extends AmapServiceTargetEvent<AmapTransferInstance> {}
+
+/** 公交规划移动动画事件 */
+export interface AmapTransferMoveEvent extends AmapServiceMoveEvent<AmapTransferInstance> {}
+
+/** 公交规划事件快捷属性 */
+export interface AmapTransferEventShortcutProps extends AmapServiceEventShortcutProps<AmapTransferInstance> {}
+
+/** 骑行规划鼠标事件 */
+export interface AmapRidingMouseEvent extends AmapServiceMouseEvent<AmapRidingInstance> {}
+
+/** 骑行规划交互坐标事件 */
+export interface AmapRidingInteractionEvent extends AmapServiceInteractionEvent<AmapRidingInstance> {}
+
+/** 骑行规划目标事件 */
+export interface AmapRidingTargetEvent extends AmapServiceTargetEvent<AmapRidingInstance> {}
+
+/** 骑行规划移动动画事件 */
+export interface AmapRidingMoveEvent extends AmapServiceMoveEvent<AmapRidingInstance> {}
+
+/** 骑行规划事件快捷属性 */
+export interface AmapRidingEventShortcutProps extends AmapServiceEventShortcutProps<AmapRidingInstance> {}
+
+/** 拖拽路线鼠标事件 */
+export interface AmapDragRouteMouseEvent extends AmapServiceMouseEvent<AmapDragRouteInstance> {}
+
+/** 拖拽路线交互坐标事件 */
+export interface AmapDragRouteInteractionEvent extends AmapServiceInteractionEvent<AmapDragRouteInstance> {}
+
+/** 拖拽路线目标事件 */
+export interface AmapDragRouteTargetEvent extends AmapServiceTargetEvent<AmapDragRouteInstance> {}
+
+/** 拖拽路线移动动画事件 */
+export interface AmapDragRouteMoveEvent extends AmapServiceMoveEvent<AmapDragRouteInstance> {}
+
+/** 拖拽路线事件快捷属性 */
+export interface AmapDragRouteEventShortcutProps extends AmapServiceEventShortcutProps<AmapDragRouteInstance> {}
+
+/** 货车拖拽路线鼠标事件 */
+export interface AmapDragRouteTruckMouseEvent extends AmapServiceMouseEvent<AmapDragRouteTruckInstance> {}
+
+/** 货车拖拽路线交互坐标事件 */
+export interface AmapDragRouteTruckInteractionEvent extends AmapServiceInteractionEvent<AmapDragRouteTruckInstance> {}
+
+/** 货车拖拽路线目标事件 */
+export interface AmapDragRouteTruckTargetEvent extends AmapServiceTargetEvent<AmapDragRouteTruckInstance> {}
+
+/** 货车拖拽路线移动动画事件 */
+export interface AmapDragRouteTruckMoveEvent extends AmapServiceMoveEvent<AmapDragRouteTruckInstance> {}
+
+/** 货车拖拽路线事件快捷属性 */
+export interface AmapDragRouteTruckEventShortcutProps extends AmapServiceEventShortcutProps<AmapDragRouteTruckInstance> {}
+
+/** 轨迹纠偏鼠标事件 */
+export interface AmapGraspRoadMouseEvent extends AmapServiceMouseEvent<AmapGraspRoadInstance> {}
+
+/** 轨迹纠偏交互坐标事件 */
+export interface AmapGraspRoadInteractionEvent extends AmapServiceInteractionEvent<AmapGraspRoadInstance> {}
+
+/** 轨迹纠偏目标事件 */
+export interface AmapGraspRoadTargetEvent extends AmapServiceTargetEvent<AmapGraspRoadInstance> {}
+
+/** 轨迹纠偏移动动画事件 */
+export interface AmapGraspRoadMoveEvent extends AmapServiceMoveEvent<AmapGraspRoadInstance> {}
+
+/** 轨迹纠偏事件快捷属性 */
+export interface AmapGraspRoadEventShortcutProps extends AmapServiceEventShortcutProps<AmapGraspRoadInstance> {}
+
+/** 行政区查询鼠标事件 */
+export interface AmapDistrictSearchMouseEvent extends AmapServiceMouseEvent<AmapDistrictSearchInstance> {}
+
+/** 行政区查询交互坐标事件 */
+export interface AmapDistrictSearchInteractionEvent extends AmapServiceInteractionEvent<AmapDistrictSearchInstance> {}
+
+/** 行政区查询目标事件 */
+export interface AmapDistrictSearchTargetEvent extends AmapServiceTargetEvent<AmapDistrictSearchInstance> {}
+
+/** 行政区查询移动动画事件 */
+export interface AmapDistrictSearchMoveEvent extends AmapServiceMoveEvent<AmapDistrictSearchInstance> {}
+
+/** 行政区查询事件快捷属性 */
+export interface AmapDistrictSearchEventShortcutProps extends AmapServiceEventShortcutProps<AmapDistrictSearchInstance> {}
+
+/** 天气查询鼠标事件 */
+export interface AmapWeatherMouseEvent extends AmapServiceMouseEvent<AmapWeatherInstance> {}
+
+/** 天气查询交互坐标事件 */
+export interface AmapWeatherInteractionEvent extends AmapServiceInteractionEvent<AmapWeatherInstance> {}
+
+/** 天气查询目标事件 */
+export interface AmapWeatherTargetEvent extends AmapServiceTargetEvent<AmapWeatherInstance> {}
+
+/** 天气查询移动动画事件 */
+export interface AmapWeatherMoveEvent extends AmapServiceMoveEvent<AmapWeatherInstance> {}
+
+/** 天气查询事件快捷属性 */
+export interface AmapWeatherEventShortcutProps extends AmapServiceEventShortcutProps<AmapWeatherInstance> {}
+
+/** 公交站点查询鼠标事件 */
+export interface AmapStationSearchMouseEvent extends AmapServiceMouseEvent<AmapStationSearchInstance> {}
+
+/** 公交站点查询交互坐标事件 */
+export interface AmapStationSearchInteractionEvent extends AmapServiceInteractionEvent<AmapStationSearchInstance> {}
+
+/** 公交站点查询目标事件 */
+export interface AmapStationSearchTargetEvent extends AmapServiceTargetEvent<AmapStationSearchInstance> {}
+
+/** 公交站点查询移动动画事件 */
+export interface AmapStationSearchMoveEvent extends AmapServiceMoveEvent<AmapStationSearchInstance> {}
+
+/** 公交站点查询事件快捷属性 */
+export interface AmapStationSearchEventShortcutProps extends AmapServiceEventShortcutProps<AmapStationSearchInstance> {}
+
+/** 公交线路查询鼠标事件 */
+export interface AmapLineSearchMouseEvent extends AmapServiceMouseEvent<AmapLineSearchInstance> {}
+
+/** 公交线路查询交互坐标事件 */
+export interface AmapLineSearchInteractionEvent extends AmapServiceInteractionEvent<AmapLineSearchInstance> {}
+
+/** 公交线路查询目标事件 */
+export interface AmapLineSearchTargetEvent extends AmapServiceTargetEvent<AmapLineSearchInstance> {}
+
+/** 公交线路查询移动动画事件 */
+export interface AmapLineSearchMoveEvent extends AmapServiceMoveEvent<AmapLineSearchInstance> {}
+
+/** 公交线路查询事件快捷属性 */
+export interface AmapLineSearchEventShortcutProps extends AmapServiceEventShortcutProps<AmapLineSearchInstance> {}
+
+/** 定位鼠标事件 */
+export interface AmapGeolocationMouseEvent extends AmapServiceMouseEvent<AmapGeolocationInstance> {}
+
+/** 定位交互坐标事件 */
+export interface AmapGeolocationInteractionEvent extends AmapServiceInteractionEvent<AmapGeolocationInstance> {}
+
+/** 定位目标事件 */
+export interface AmapGeolocationTargetEvent extends AmapServiceTargetEvent<AmapGeolocationInstance> {}
+
+/** 定位移动动画事件 */
+export interface AmapGeolocationMoveEvent extends AmapServiceMoveEvent<AmapGeolocationInstance> {}
+
+/** 定位事件快捷属性 */
+export interface AmapGeolocationEventShortcutProps extends AmapServiceEventShortcutProps<AmapGeolocationInstance> {}
+
+/** 城市查询鼠标事件 */
+export interface AmapCitySearchMouseEvent extends AmapServiceMouseEvent<AmapCitySearchInstance> {}
+
+/** 城市查询交互坐标事件 */
+export interface AmapCitySearchInteractionEvent extends AmapServiceInteractionEvent<AmapCitySearchInstance> {}
+
+/** 城市查询目标事件 */
+export interface AmapCitySearchTargetEvent extends AmapServiceTargetEvent<AmapCitySearchInstance> {}
+
+/** 城市查询移动动画事件 */
+export interface AmapCitySearchMoveEvent extends AmapServiceMoveEvent<AmapCitySearchInstance> {}
+
+/** 城市查询事件快捷属性 */
+export interface AmapCitySearchEventShortcutProps extends AmapServiceEventShortcutProps<AmapCitySearchInstance> {}
 
 /** 服务 Hook 基础参数 */
 export interface UseAmapServiceBaseParams<TInstance extends AmapServiceInstance> extends AmapServiceProps<TInstance> {}

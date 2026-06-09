@@ -24,9 +24,12 @@ import { loadAmapPlugin } from "../utils/amapPlugin"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapEventMap,
-    type AmapEventShortcutProps,
+    type AmapMoveEvent,
+    type AmapOverlayEventMap,
+    type AmapOverlayEventShortcutProps,
+    type AmapOverlayInteractionEvent,
     type AmapOverlayMouseEvent,
+    type AmapTargetEvent,
     getAmapEventEntries,
     mergeAmapEvents,
     splitAmapEventShortcutProps,
@@ -36,8 +39,54 @@ export type AmapLayerOnLoad<TInstance extends AmapLayerInstance = AmapLayerInsta
 
 export type AmapLayerOnDestroy<TInstance extends AmapLayerInstance = AmapLayerInstance> = (layer: TInstance) => void
 
+/** 图层鼠标事件 */
+export interface AmapLayerMouseEvent<TInstance = AmapLayerInstance> extends AmapOverlayMouseEvent<TInstance> {}
+
+/** 图层交互坐标事件 */
+export interface AmapLayerInteractionEvent<TInstance = AmapLayerInstance> extends AmapOverlayInteractionEvent<TInstance> {}
+
+/** 图层目标事件 */
+export interface AmapLayerTargetEvent<TInstance = AmapLayerInstance> extends AmapTargetEvent<TInstance> {}
+
+/** 图层移动动画事件 */
+export interface AmapLayerMoveEvent<TInstance = AmapLayerInstance> extends AmapMoveEvent<TInstance> {}
+
+/** 图层事件快捷属性 */
+export interface AmapLayerEventShortcutProps<TInstance = AmapLayerInstance>
+    extends AmapOverlayEventShortcutProps<TInstance> {}
+
+/** 热力图鼠标事件 */
+export interface AmapHeatMapMouseEvent extends AmapLayerMouseEvent<AmapLayerInstance> {}
+
+/** 热力图交互坐标事件 */
+export interface AmapHeatMapInteractionEvent extends AmapLayerInteractionEvent<AmapLayerInstance> {}
+
+/** 热力图目标事件 */
+export interface AmapHeatMapTargetEvent extends AmapLayerTargetEvent<AmapLayerInstance> {}
+
+/** 热力图移动动画事件 */
+export interface AmapHeatMapMoveEvent extends AmapLayerMoveEvent<AmapLayerInstance> {}
+
+/** 热力图事件快捷属性 */
+export interface AmapHeatMapEventShortcutProps extends AmapLayerEventShortcutProps<AmapLayerInstance> {}
+
+/** 矢量图层鼠标事件 */
+export interface AmapVectorLayerMouseEvent extends AmapLayerMouseEvent<AmapLayerInstance> {}
+
+/** 矢量图层交互坐标事件 */
+export interface AmapVectorLayerInteractionEvent extends AmapLayerInteractionEvent<AmapLayerInstance> {}
+
+/** 矢量图层目标事件 */
+export interface AmapVectorLayerTargetEvent extends AmapLayerTargetEvent<AmapLayerInstance> {}
+
+/** 矢量图层移动动画事件 */
+export interface AmapVectorLayerMoveEvent extends AmapLayerMoveEvent<AmapLayerInstance> {}
+
+/** 矢量图层事件快捷属性 */
+export interface AmapVectorLayerEventShortcutProps extends AmapLayerEventShortcutProps<AmapLayerInstance> {}
+
 /** 图层事件映射 */
-export interface AmapLayerEvents<TInstance = AmapLayerInstance> extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
+export interface AmapLayerEvents<TInstance = AmapLayerInstance> extends AmapOverlayEventMap<TInstance> {}
 
 /** 图层基础参数 */
 export interface AmapLayerBaseOptions {
@@ -387,7 +436,7 @@ export interface AmapLayerProps<TInstance extends AmapLayerInstance, TOptions ex
     /** 销毁前回调 */
     onDestroy?: AmapLayerOnDestroy<TInstance>
     /** 图层事件快捷属性 */
-    eventShortcuts?: AmapEventShortcutProps<AmapOverlayMouseEvent<TInstance>>
+    eventShortcuts?: AmapLayerEventShortcutProps<TInstance>
     /** 子覆盖物 */
     children?: ReactNode
     /** 是否向子覆盖物提供矢量图层上下文 */
@@ -408,7 +457,7 @@ export interface UseAmapLayerPluginParams {
 
 /** 通用图层组件属性 */
 export interface LayerProps<TOptions extends AmapLayerBaseOptions = AmapLayerBaseOptions>
-    extends AmapEventShortcutProps<AmapOverlayMouseEvent<AmapLayerInstance>> {
+    extends AmapLayerEventShortcutProps<AmapLayerInstance> {
     /** 图层实例 ref */
     ref?: Ref<AmapLayerInstance | null>
     /** 地图实例 */
@@ -426,7 +475,7 @@ export interface LayerProps<TOptions extends AmapLayerBaseOptions = AmapLayerBas
 }
 
 /** 热力图组件属性 */
-export interface HeatMapProps extends AmapHeatMapOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapLayerInstance>> {
+export interface HeatMapProps extends AmapHeatMapOptions, AmapHeatMapEventShortcutProps {
     /** 热力图实例 ref */
     ref?: Ref<AmapLayerInstance | null>
     /** 地图实例 */
@@ -446,7 +495,7 @@ export interface HeatMapProps extends AmapHeatMapOptions, AmapEventShortcutProps
 }
 
 /** 矢量图层组件属性 */
-export interface VectorLayerProps extends LayerProps<AmapVectorLayerOptions> {
+export interface VectorLayerProps extends LayerProps<AmapVectorLayerOptions>, AmapVectorLayerEventShortcutProps {
     /** 子矢量覆盖物 */
     children?: ReactNode
 }

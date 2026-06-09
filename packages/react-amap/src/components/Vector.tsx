@@ -12,9 +12,12 @@ import { useVectorLayerContext } from "./Layer"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapEventMap,
-    type AmapEventShortcutProps,
+    type AmapMoveEvent,
+    type AmapOverlayEventMap,
+    type AmapOverlayEventShortcutProps,
+    type AmapOverlayInteractionEvent,
     type AmapOverlayMouseEvent,
+    type AmapTargetEvent,
     getAmapEventEntries,
     mergeAmapEvents,
     splitAmapEventShortcutProps,
@@ -42,9 +45,26 @@ export type AmapVectorOverlayOnDestroy<TInstance extends AmapVectorOverlayInstan
     overlay: TInstance
 ) => void
 
+/** 矢量覆盖物鼠标事件 */
+export interface AmapVectorOverlayMouseEvent<TInstance = AmapVectorOverlayInstance> extends AmapOverlayMouseEvent<TInstance> {}
+
+/** 矢量覆盖物交互坐标事件 */
+export interface AmapVectorOverlayInteractionEvent<TInstance = AmapVectorOverlayInstance>
+    extends AmapOverlayInteractionEvent<TInstance> {}
+
+/** 矢量覆盖物目标事件 */
+export interface AmapVectorOverlayTargetEvent<TInstance = AmapVectorOverlayInstance> extends AmapTargetEvent<TInstance> {}
+
+/** 矢量覆盖物移动动画事件 */
+export interface AmapVectorOverlayMoveEvent<TInstance = AmapVectorOverlayInstance> extends AmapMoveEvent<TInstance> {}
+
+/** 矢量覆盖物事件快捷属性 */
+export interface AmapVectorOverlayEventShortcutProps<TInstance = AmapVectorOverlayInstance>
+    extends AmapOverlayEventShortcutProps<TInstance> {}
+
 /** 矢量覆盖物事件映射 */
 export interface AmapVectorOverlayEvents<TInstance = AmapVectorOverlayInstance>
-    extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
+    extends AmapOverlayEventMap<TInstance> {}
 
 /** 矢量覆盖物基础参数 */
 export interface AmapVectorOverlayBaseOptions {
@@ -274,6 +294,126 @@ export interface AmapGeoJSONInstance extends AmapVectorOverlayInstance {
     toGeoJSON?: () => Record<string, unknown>
 }
 
+/** 多边形鼠标事件 */
+export interface AmapPolygonMouseEvent extends AmapVectorOverlayMouseEvent<AmapPolygonInstance> {}
+
+/** 多边形交互坐标事件 */
+export interface AmapPolygonInteractionEvent extends AmapVectorOverlayInteractionEvent<AmapPolygonInstance> {}
+
+/** 多边形目标事件 */
+export interface AmapPolygonTargetEvent extends AmapVectorOverlayTargetEvent<AmapPolygonInstance> {}
+
+/** 多边形移动动画事件 */
+export interface AmapPolygonMoveEvent extends AmapVectorOverlayMoveEvent<AmapPolygonInstance> {}
+
+/** 多边形事件快捷属性 */
+export interface AmapPolygonEventShortcutProps extends AmapVectorOverlayEventShortcutProps<AmapPolygonInstance> {}
+
+/** 折线鼠标事件 */
+export interface AmapPolylineMouseEvent extends AmapVectorOverlayMouseEvent<AmapPolylineInstance> {}
+
+/** 折线交互坐标事件 */
+export interface AmapPolylineInteractionEvent extends AmapVectorOverlayInteractionEvent<AmapPolylineInstance> {}
+
+/** 折线目标事件 */
+export interface AmapPolylineTargetEvent extends AmapVectorOverlayTargetEvent<AmapPolylineInstance> {}
+
+/** 折线移动动画事件 */
+export interface AmapPolylineMoveEvent extends AmapVectorOverlayMoveEvent<AmapPolylineInstance> {}
+
+/** 折线事件快捷属性 */
+export interface AmapPolylineEventShortcutProps extends AmapVectorOverlayEventShortcutProps<AmapPolylineInstance> {}
+
+/** 贝塞尔曲线鼠标事件 */
+export interface AmapBezierCurveMouseEvent extends AmapVectorOverlayMouseEvent<AmapBezierCurveInstance> {}
+
+/** 贝塞尔曲线交互坐标事件 */
+export interface AmapBezierCurveInteractionEvent extends AmapVectorOverlayInteractionEvent<AmapBezierCurveInstance> {}
+
+/** 贝塞尔曲线目标事件 */
+export interface AmapBezierCurveTargetEvent extends AmapVectorOverlayTargetEvent<AmapBezierCurveInstance> {}
+
+/** 贝塞尔曲线移动动画事件 */
+export interface AmapBezierCurveMoveEvent extends AmapVectorOverlayMoveEvent<AmapBezierCurveInstance> {}
+
+/** 贝塞尔曲线事件快捷属性 */
+export interface AmapBezierCurveEventShortcutProps extends AmapVectorOverlayEventShortcutProps<AmapBezierCurveInstance> {}
+
+/** 圆形鼠标事件 */
+export interface AmapCircleMouseEvent extends AmapVectorOverlayMouseEvent<AmapCircleInstance> {}
+
+/** 圆形交互坐标事件 */
+export interface AmapCircleInteractionEvent extends AmapVectorOverlayInteractionEvent<AmapCircleInstance> {}
+
+/** 圆形目标事件 */
+export interface AmapCircleTargetEvent extends AmapVectorOverlayTargetEvent<AmapCircleInstance> {}
+
+/** 圆形移动动画事件 */
+export interface AmapCircleMoveEvent extends AmapVectorOverlayMoveEvent<AmapCircleInstance> {}
+
+/** 圆形事件快捷属性 */
+export interface AmapCircleEventShortcutProps extends AmapVectorOverlayEventShortcutProps<AmapCircleInstance> {}
+
+/** 圆点标记鼠标事件 */
+export interface AmapCircleMarkerMouseEvent extends AmapVectorOverlayMouseEvent<AmapCircleMarkerInstance> {}
+
+/** 圆点标记交互坐标事件 */
+export interface AmapCircleMarkerInteractionEvent extends AmapVectorOverlayInteractionEvent<AmapCircleMarkerInstance> {}
+
+/** 圆点标记目标事件 */
+export interface AmapCircleMarkerTargetEvent extends AmapVectorOverlayTargetEvent<AmapCircleMarkerInstance> {}
+
+/** 圆点标记移动动画事件 */
+export interface AmapCircleMarkerMoveEvent extends AmapVectorOverlayMoveEvent<AmapCircleMarkerInstance> {}
+
+/** 圆点标记事件快捷属性 */
+export interface AmapCircleMarkerEventShortcutProps extends AmapVectorOverlayEventShortcutProps<AmapCircleMarkerInstance> {}
+
+/** 椭圆鼠标事件 */
+export interface AmapEllipseMouseEvent extends AmapVectorOverlayMouseEvent<AmapEllipseInstance> {}
+
+/** 椭圆交互坐标事件 */
+export interface AmapEllipseInteractionEvent extends AmapVectorOverlayInteractionEvent<AmapEllipseInstance> {}
+
+/** 椭圆目标事件 */
+export interface AmapEllipseTargetEvent extends AmapVectorOverlayTargetEvent<AmapEllipseInstance> {}
+
+/** 椭圆移动动画事件 */
+export interface AmapEllipseMoveEvent extends AmapVectorOverlayMoveEvent<AmapEllipseInstance> {}
+
+/** 椭圆事件快捷属性 */
+export interface AmapEllipseEventShortcutProps extends AmapVectorOverlayEventShortcutProps<AmapEllipseInstance> {}
+
+/** 矩形鼠标事件 */
+export interface AmapRectangleMouseEvent extends AmapVectorOverlayMouseEvent<AmapRectangleInstance> {}
+
+/** 矩形交互坐标事件 */
+export interface AmapRectangleInteractionEvent extends AmapVectorOverlayInteractionEvent<AmapRectangleInstance> {}
+
+/** 矩形目标事件 */
+export interface AmapRectangleTargetEvent extends AmapVectorOverlayTargetEvent<AmapRectangleInstance> {}
+
+/** 矩形移动动画事件 */
+export interface AmapRectangleMoveEvent extends AmapVectorOverlayMoveEvent<AmapRectangleInstance> {}
+
+/** 矩形事件快捷属性 */
+export interface AmapRectangleEventShortcutProps extends AmapVectorOverlayEventShortcutProps<AmapRectangleInstance> {}
+
+/** GeoJSON 鼠标事件 */
+export interface AmapGeoJSONMouseEvent extends AmapVectorOverlayMouseEvent<AmapGeoJSONInstance> {}
+
+/** GeoJSON 交互坐标事件 */
+export interface AmapGeoJSONInteractionEvent extends AmapVectorOverlayInteractionEvent<AmapGeoJSONInstance> {}
+
+/** GeoJSON 目标事件 */
+export interface AmapGeoJSONTargetEvent extends AmapVectorOverlayTargetEvent<AmapGeoJSONInstance> {}
+
+/** GeoJSON 移动动画事件 */
+export interface AmapGeoJSONMoveEvent extends AmapVectorOverlayMoveEvent<AmapGeoJSONInstance> {}
+
+/** GeoJSON 事件快捷属性 */
+export interface AmapGeoJSONEventShortcutProps extends AmapVectorOverlayEventShortcutProps<AmapGeoJSONInstance> {}
+
 /** 矢量覆盖物构造器 */
 export interface AmapVectorOverlayConstructor<
     TInstance extends AmapVectorOverlayInstance,
@@ -359,7 +499,7 @@ export interface UpdateAmapVectorOverlayParams<
 export interface AmapVectorOverlayProps<
     TInstance extends AmapVectorOverlayInstance,
     TOptions extends AmapVectorOverlayBaseOptions,
-> extends AmapEventShortcutProps<AmapOverlayMouseEvent<TInstance>> {
+> extends AmapVectorOverlayEventShortcutProps<TInstance> {
     /** 覆盖物实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
@@ -379,7 +519,7 @@ export interface AmapVectorOverlayProps<
 }
 
 /** 多边形组件属性 */
-export interface PolygonProps extends AmapPolygonBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapPolygonInstance>> {
+export interface PolygonProps extends AmapPolygonBaseOptions, AmapPolygonEventShortcutProps {
     /** 多边形实例 ref */
     ref?: Ref<AmapPolygonInstance | null>
     /** 地图实例 */
@@ -397,7 +537,7 @@ export interface PolygonProps extends AmapPolygonBaseOptions, AmapEventShortcutP
 }
 
 /** 折线组件属性 */
-export interface PolylineProps extends AmapPolylineBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapPolylineInstance>> {
+export interface PolylineProps extends AmapPolylineBaseOptions, AmapPolylineEventShortcutProps {
     /** 折线实例 ref */
     ref?: Ref<AmapPolylineInstance | null>
     /** 地图实例 */
@@ -415,7 +555,7 @@ export interface PolylineProps extends AmapPolylineBaseOptions, AmapEventShortcu
 }
 
 /** 贝塞尔曲线组件属性 */
-export interface BezierCurveProps extends AmapBezierCurveBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapBezierCurveInstance>> {
+export interface BezierCurveProps extends AmapBezierCurveBaseOptions, AmapBezierCurveEventShortcutProps {
     /** 贝塞尔曲线实例 ref */
     ref?: Ref<AmapBezierCurveInstance | null>
     /** 地图实例 */
@@ -433,7 +573,7 @@ export interface BezierCurveProps extends AmapBezierCurveBaseOptions, AmapEventS
 }
 
 /** 圆形组件属性 */
-export interface CircleProps extends AmapCircleBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapCircleInstance>> {
+export interface CircleProps extends AmapCircleBaseOptions, AmapCircleEventShortcutProps {
     /** 圆形实例 ref */
     ref?: Ref<AmapCircleInstance | null>
     /** 地图实例 */
@@ -451,7 +591,7 @@ export interface CircleProps extends AmapCircleBaseOptions, AmapEventShortcutPro
 }
 
 /** 圆点标记组件属性 */
-export interface CircleMarkerProps extends AmapCircleMarkerBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapCircleMarkerInstance>> {
+export interface CircleMarkerProps extends AmapCircleMarkerBaseOptions, AmapCircleMarkerEventShortcutProps {
     /** 圆点标记实例 ref */
     ref?: Ref<AmapCircleMarkerInstance | null>
     /** 地图实例 */
@@ -469,7 +609,7 @@ export interface CircleMarkerProps extends AmapCircleMarkerBaseOptions, AmapEven
 }
 
 /** 椭圆组件属性 */
-export interface EllipseProps extends AmapEllipseBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapEllipseInstance>> {
+export interface EllipseProps extends AmapEllipseBaseOptions, AmapEllipseEventShortcutProps {
     /** 椭圆实例 ref */
     ref?: Ref<AmapEllipseInstance | null>
     /** 地图实例 */
@@ -487,7 +627,7 @@ export interface EllipseProps extends AmapEllipseBaseOptions, AmapEventShortcutP
 }
 
 /** 矩形组件属性 */
-export interface RectangleProps extends AmapRectangleBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapRectangleInstance>> {
+export interface RectangleProps extends AmapRectangleBaseOptions, AmapRectangleEventShortcutProps {
     /** 矩形实例 ref */
     ref?: Ref<AmapRectangleInstance | null>
     /** 地图实例 */
@@ -505,7 +645,7 @@ export interface RectangleProps extends AmapRectangleBaseOptions, AmapEventShort
 }
 
 /** GeoJSON 组件属性 */
-export interface GeoJSONProps extends AmapGeoJSONBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapGeoJSONInstance>> {
+export interface GeoJSONProps extends AmapGeoJSONBaseOptions, AmapGeoJSONEventShortcutProps {
     /** GeoJSON 实例 ref */
     ref?: Ref<AmapGeoJSONInstance | null>
     /** 地图实例 */

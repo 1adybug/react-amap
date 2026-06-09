@@ -23,9 +23,12 @@ import { optionalFn } from "../utils/optionalFn"
 import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapEventMap,
-    type AmapEventShortcutProps,
+    type AmapMoveEvent,
+    type AmapOverlayEventMap,
+    type AmapOverlayEventShortcutProps,
+    type AmapOverlayInteractionEvent,
     type AmapOverlayMouseEvent,
+    type AmapTargetEvent,
     getAmapEventEntries,
     mergeAmapEvents,
     splitAmapEventShortcutProps,
@@ -43,7 +46,7 @@ export type AmapVectorEditorOnDestroy<TInstance extends AmapVectorEditorInstance
 
 /** 矢量编辑器事件映射 */
 export interface AmapVectorEditorEvents<TInstance = AmapVectorEditorInstance>
-    extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
+    extends AmapOverlayEventMap<TInstance> {}
 
 /** 矢量编辑器基础参数 */
 export interface AmapVectorEditorBaseOptions {
@@ -170,6 +173,130 @@ export interface AmapEllipseEditorInstance extends AmapVectorEditorInstance<Amap
 /** 矩形编辑器实例 */
 export interface AmapRectangleEditorInstance extends AmapVectorEditorInstance<AmapRectangleInstance> {}
 
+/** 矢量编辑器鼠标事件 */
+export interface AmapVectorEditorMouseEvent<TInstance = AmapVectorEditorInstance> extends AmapOverlayMouseEvent<TInstance> {}
+
+/** 矢量编辑器交互坐标事件 */
+export interface AmapVectorEditorInteractionEvent<TInstance = AmapVectorEditorInstance>
+    extends AmapOverlayInteractionEvent<TInstance> {}
+
+/** 矢量编辑器目标事件 */
+export interface AmapVectorEditorTargetEvent<TInstance = AmapVectorEditorInstance> extends AmapTargetEvent<TInstance> {}
+
+/** 矢量编辑器移动动画事件 */
+export interface AmapVectorEditorMoveEvent<TInstance = AmapVectorEditorInstance> extends AmapMoveEvent<TInstance> {}
+
+/** 矢量编辑器事件快捷属性 */
+export interface AmapVectorEditorEventShortcutProps<TInstance = AmapVectorEditorInstance>
+    extends AmapOverlayEventShortcutProps<TInstance> {}
+
+/** 多边形编辑器鼠标事件 */
+export interface AmapPolygonEditorMouseEvent extends AmapVectorEditorMouseEvent<AmapPolygonEditorInstance> {}
+
+/** 多边形编辑器交互坐标事件 */
+export interface AmapPolygonEditorInteractionEvent extends AmapVectorEditorInteractionEvent<AmapPolygonEditorInstance> {}
+
+/** 多边形编辑器目标事件 */
+export interface AmapPolygonEditorTargetEvent extends AmapVectorEditorTargetEvent<AmapPolygonEditorInstance> {}
+
+/** 多边形编辑器移动动画事件 */
+export interface AmapPolygonEditorMoveEvent extends AmapVectorEditorMoveEvent<AmapPolygonEditorInstance> {}
+
+/** 多边形编辑器事件快捷属性 */
+export interface AmapPolygonEditorEventShortcutProps extends AmapVectorEditorEventShortcutProps<AmapPolygonEditorInstance> {}
+
+/** 折线编辑器鼠标事件 */
+export interface AmapPolylineEditorMouseEvent extends AmapVectorEditorMouseEvent<AmapPolylineEditorInstance> {}
+
+/** 折线编辑器交互坐标事件 */
+export interface AmapPolylineEditorInteractionEvent extends AmapVectorEditorInteractionEvent<AmapPolylineEditorInstance> {}
+
+/** 折线编辑器目标事件 */
+export interface AmapPolylineEditorTargetEvent extends AmapVectorEditorTargetEvent<AmapPolylineEditorInstance> {}
+
+/** 折线编辑器移动动画事件 */
+export interface AmapPolylineEditorMoveEvent extends AmapVectorEditorMoveEvent<AmapPolylineEditorInstance> {}
+
+/** 折线编辑器事件快捷属性 */
+export interface AmapPolylineEditorEventShortcutProps extends AmapVectorEditorEventShortcutProps<AmapPolylineEditorInstance> {}
+
+/** 通用 PolyEditor 鼠标事件 */
+export interface AmapPolyEditorMouseEvent extends AmapVectorEditorMouseEvent<AmapPolyEditorInstance> {}
+
+/** 通用 PolyEditor 交互坐标事件 */
+export interface AmapPolyEditorInteractionEvent extends AmapVectorEditorInteractionEvent<AmapPolyEditorInstance> {}
+
+/** 通用 PolyEditor 目标事件 */
+export interface AmapPolyEditorTargetEvent extends AmapVectorEditorTargetEvent<AmapPolyEditorInstance> {}
+
+/** 通用 PolyEditor 移动动画事件 */
+export interface AmapPolyEditorMoveEvent extends AmapVectorEditorMoveEvent<AmapPolyEditorInstance> {}
+
+/** 通用 PolyEditor 事件快捷属性 */
+export interface AmapPolyEditorEventShortcutProps extends AmapVectorEditorEventShortcutProps<AmapPolyEditorInstance> {}
+
+/** 圆形编辑器鼠标事件 */
+export interface AmapCircleEditorMouseEvent extends AmapVectorEditorMouseEvent<AmapCircleEditorInstance> {}
+
+/** 圆形编辑器交互坐标事件 */
+export interface AmapCircleEditorInteractionEvent extends AmapVectorEditorInteractionEvent<AmapCircleEditorInstance> {}
+
+/** 圆形编辑器目标事件 */
+export interface AmapCircleEditorTargetEvent extends AmapVectorEditorTargetEvent<AmapCircleEditorInstance> {}
+
+/** 圆形编辑器移动动画事件 */
+export interface AmapCircleEditorMoveEvent extends AmapVectorEditorMoveEvent<AmapCircleEditorInstance> {}
+
+/** 圆形编辑器事件快捷属性 */
+export interface AmapCircleEditorEventShortcutProps extends AmapVectorEditorEventShortcutProps<AmapCircleEditorInstance> {}
+
+/** 贝塞尔曲线编辑器鼠标事件 */
+export interface AmapBezierCurveEditorMouseEvent extends AmapVectorEditorMouseEvent<AmapBezierCurveEditorInstance> {}
+
+/** 贝塞尔曲线编辑器交互坐标事件 */
+export interface AmapBezierCurveEditorInteractionEvent extends AmapVectorEditorInteractionEvent<AmapBezierCurveEditorInstance> {}
+
+/** 贝塞尔曲线编辑器目标事件 */
+export interface AmapBezierCurveEditorTargetEvent extends AmapVectorEditorTargetEvent<AmapBezierCurveEditorInstance> {}
+
+/** 贝塞尔曲线编辑器移动动画事件 */
+export interface AmapBezierCurveEditorMoveEvent extends AmapVectorEditorMoveEvent<AmapBezierCurveEditorInstance> {}
+
+/** 贝塞尔曲线编辑器事件快捷属性 */
+export interface AmapBezierCurveEditorEventShortcutProps
+    extends AmapVectorEditorEventShortcutProps<AmapBezierCurveEditorInstance> {}
+
+/** 椭圆编辑器鼠标事件 */
+export interface AmapEllipseEditorMouseEvent extends AmapVectorEditorMouseEvent<AmapEllipseEditorInstance> {}
+
+/** 椭圆编辑器交互坐标事件 */
+export interface AmapEllipseEditorInteractionEvent extends AmapVectorEditorInteractionEvent<AmapEllipseEditorInstance> {}
+
+/** 椭圆编辑器目标事件 */
+export interface AmapEllipseEditorTargetEvent extends AmapVectorEditorTargetEvent<AmapEllipseEditorInstance> {}
+
+/** 椭圆编辑器移动动画事件 */
+export interface AmapEllipseEditorMoveEvent extends AmapVectorEditorMoveEvent<AmapEllipseEditorInstance> {}
+
+/** 椭圆编辑器事件快捷属性 */
+export interface AmapEllipseEditorEventShortcutProps extends AmapVectorEditorEventShortcutProps<AmapEllipseEditorInstance> {}
+
+/** 矩形编辑器鼠标事件 */
+export interface AmapRectangleEditorMouseEvent extends AmapVectorEditorMouseEvent<AmapRectangleEditorInstance> {}
+
+/** 矩形编辑器交互坐标事件 */
+export interface AmapRectangleEditorInteractionEvent extends AmapVectorEditorInteractionEvent<AmapRectangleEditorInstance> {}
+
+/** 矩形编辑器目标事件 */
+export interface AmapRectangleEditorTargetEvent extends AmapVectorEditorTargetEvent<AmapRectangleEditorInstance> {}
+
+/** 矩形编辑器移动动画事件 */
+export interface AmapRectangleEditorMoveEvent extends AmapVectorEditorMoveEvent<AmapRectangleEditorInstance> {}
+
+/** 矩形编辑器事件快捷属性 */
+export interface AmapRectangleEditorEventShortcutProps
+    extends AmapVectorEditorEventShortcutProps<AmapRectangleEditorInstance> {}
+
 /** 矢量编辑器构造器 */
 export interface AmapVectorEditorConstructor<
     TInstance extends AmapVectorEditorInstance<TTarget>,
@@ -270,7 +397,7 @@ export interface AmapVectorEditorProps<
     TInstance extends AmapVectorEditorInstance<TTarget>,
     TTarget,
     TOptions extends AmapVectorEditorBaseOptions,
-> extends AmapEventShortcutProps<AmapOverlayMouseEvent<TInstance>> {
+> extends AmapVectorEditorEventShortcutProps<TInstance> {
     /** 编辑器实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
@@ -296,9 +423,7 @@ export interface AmapVectorEditorProps<
 }
 
 /** 多边形编辑器组件属性 */
-export interface PolygonEditorProps
-    extends AmapPolygonEditorOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapPolygonEditorInstance>> {
+export interface PolygonEditorProps extends AmapPolygonEditorOptions, AmapPolygonEditorEventShortcutProps {
     /** 编辑器实例 ref */
     ref?: Ref<AmapPolygonEditorInstance | null>
     /** 地图实例 */
@@ -320,9 +445,7 @@ export interface PolygonEditorProps
 }
 
 /** 折线编辑器组件属性 */
-export interface PolylineEditorProps
-    extends AmapPolylineEditorOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapPolylineEditorInstance>> {
+export interface PolylineEditorProps extends AmapPolylineEditorOptions, AmapPolylineEditorEventShortcutProps {
     /** 编辑器实例 ref */
     ref?: Ref<AmapPolylineEditorInstance | null>
     /** 地图实例 */
@@ -344,9 +467,7 @@ export interface PolylineEditorProps
 }
 
 /** 通用 PolyEditor 组件属性 */
-export interface PolyEditorProps
-    extends AmapPolyEditorOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapPolyEditorInstance>> {
+export interface PolyEditorProps extends AmapPolyEditorOptions, AmapPolyEditorEventShortcutProps {
     /** 编辑器实例 ref */
     ref?: Ref<AmapPolyEditorInstance | null>
     /** 地图实例 */
@@ -368,9 +489,7 @@ export interface PolyEditorProps
 }
 
 /** 圆形编辑器组件属性 */
-export interface CircleEditorProps
-    extends AmapCircleEditorOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapCircleEditorInstance>> {
+export interface CircleEditorProps extends AmapCircleEditorOptions, AmapCircleEditorEventShortcutProps {
     /** 编辑器实例 ref */
     ref?: Ref<AmapCircleEditorInstance | null>
     /** 地图实例 */
@@ -392,9 +511,7 @@ export interface CircleEditorProps
 }
 
 /** 贝塞尔曲线编辑器组件属性 */
-export interface BezierCurveEditorProps
-    extends AmapBezierCurveEditorOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapBezierCurveEditorInstance>> {
+export interface BezierCurveEditorProps extends AmapBezierCurveEditorOptions, AmapBezierCurveEditorEventShortcutProps {
     /** 编辑器实例 ref */
     ref?: Ref<AmapBezierCurveEditorInstance | null>
     /** 地图实例 */
@@ -416,9 +533,7 @@ export interface BezierCurveEditorProps
 }
 
 /** 椭圆编辑器组件属性 */
-export interface EllipseEditorProps
-    extends AmapEllipseEditorOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapEllipseEditorInstance>> {
+export interface EllipseEditorProps extends AmapEllipseEditorOptions, AmapEllipseEditorEventShortcutProps {
     /** 编辑器实例 ref */
     ref?: Ref<AmapEllipseEditorInstance | null>
     /** 地图实例 */
@@ -440,9 +555,7 @@ export interface EllipseEditorProps
 }
 
 /** 矩形编辑器组件属性 */
-export interface RectangleEditorProps
-    extends AmapRectangleEditorOptions,
-        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapRectangleEditorInstance>> {
+export interface RectangleEditorProps extends AmapRectangleEditorOptions, AmapRectangleEditorEventShortcutProps {
     /** 编辑器实例 ref */
     ref?: Ref<AmapRectangleEditorInstance | null>
     /** 地图实例 */
