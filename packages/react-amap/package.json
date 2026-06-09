@@ -1,6 +1,6 @@
 {
     "name": "@1adybug/react-amap",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "type": "module",
     "exports": {
         ".": {
@@ -15,7 +15,7 @@
     "sideEffects": false,
     "publishConfig": {
         "access": "public",
-        "registry": "https://registry.npmjs.com/"
+        "registry": "https://registry.npmjs.org/"
     },
     "files": [
         "dist"

@@ -1,6 +1,7 @@
 import { type FC, type Ref, useEffectEvent, useRef } from "react"
 
 import {
+    AmapPlugin,
     type AmapEventHandler,
     type AmapMapInstance,
     type AmapNamespace,
@@ -15,6 +16,7 @@ import type {
 import { optionalFn } from "../utils/optionalFn"
 import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
+import { type AmapEventShortcutProps, mergeAmapEvents } from "../utils/amapEvents"
 
 /** 鼠标工具绘制模式 */
 export const AmapMouseToolMode = {
@@ -142,7 +144,7 @@ export interface OpenAmapMouseToolModeParams extends GetAmapMouseToolModeOptions
 }
 
 /** MouseTool 组件属性 */
-export interface MouseToolProps {
+export interface MouseToolProps extends AmapEventShortcutProps {
     /** MouseTool 实例 ref */
     ref?: Ref<AmapMouseToolInstance | null>
     /** 地图实例 */
@@ -341,6 +343,7 @@ export const MouseTool: FC<MouseToolProps> = ({
     onDraw,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
+    ...eventShortcuts
 }) => {
     const context = useAmapContext()
     const mouseToolRef = useRef<AmapMouseToolInstance | null>(null)
@@ -349,11 +352,15 @@ export const MouseTool: FC<MouseToolProps> = ({
     const pluginLoaded = useAmapPlugin({
         map: currentMap,
         AMap: currentAMap,
-        pluginName: "AMap.MouseTool",
+        pluginName: AmapPlugin.MouseTool,
         constructorName: "MouseTool",
     })
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapMouseToolEvents
 
     useStableEffect(() => {
         if (!currentMap || !currentAMap || !pluginLoaded) return
@@ -429,10 +436,10 @@ export const MouseTool: FC<MouseToolProps> = ({
 
         return bindAmapMouseToolEvents({
             mouseTool: mouseToolRef.current,
-            events,
+            events: currentEvents,
             onDraw,
         })
-    }, [currentAMap, currentMap, events, onDraw, pluginLoaded, ref])
+    }, [currentAMap, currentEvents, currentMap, onDraw, pluginLoaded, ref])
 
     return null
 }

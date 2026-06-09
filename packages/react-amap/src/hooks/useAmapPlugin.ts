@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-import type { AmapMapInstance, AmapNamespace } from "../components/Amap"
+import type { AmapMapInstance, AmapNamespace, AmapPlugin } from "../components/Amap"
 import { hasAmapConstructor, loadAmapPlugin } from "../utils/amapPlugin"
 
 /** 使用高德插件参数 */
@@ -10,7 +10,7 @@ export interface UseAmapPluginParams {
     /** 高德地图命名空间 */
     AMap?: AmapNamespace | null
     /** 插件名称 */
-    pluginName: string
+    pluginName: AmapPlugin
     /** 插件加载后应存在的构造器名称 */
     constructorName: string
 }

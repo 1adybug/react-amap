@@ -20,6 +20,7 @@ import {
 } from "./Amap"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
+import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
 
 export type AmapVector2 = AMap.Vector2
 
@@ -27,7 +28,31 @@ export type AmapMarkerPosition = AmapLngLatLike
 
 export type AmapMarkerOffset = AmapVector2 | AmapPixelInstance
 
-export type AmapMarkerAnchor = string | AmapVector2
+/** 覆盖物锚点 */
+export const AmapMarkerAnchor = {
+    左上角: "top-left",
+    顶部居中: "top-center",
+    右上角: "top-right",
+    左侧居中: "middle-left",
+    居中: "center",
+    右侧居中: "middle-right",
+    左下角: "bottom-left",
+    底部居中: "bottom-center",
+    右下角: "bottom-right",
+} as const
+
+export type AmapMarkerAnchor = (typeof AmapMarkerAnchor)[keyof typeof AmapMarkerAnchor] | AmapVector2
+
+/** 文本标注方位 */
+export const AmapMarkerLabelDirection = {
+    上方: "top",
+    右侧: "right",
+    下方: "bottom",
+    左侧: "left",
+    居中: "center",
+} as const
+
+export type AmapMarkerLabelDirection = (typeof AmapMarkerLabelDirection)[keyof typeof AmapMarkerLabelDirection]
 
 export type AmapMarkerIcon = string | AmapIconInstance
 
@@ -50,7 +75,13 @@ export interface AmapMarkerLabelOptions {
     /** 文本标注偏移量 */
     offset?: AmapMarkerOffset | number[]
     /** 文本标注方位 */
-    direction?: string
+    direction?: AmapMarkerLabelDirection
+}
+
+/** 点标记实例文本标注参数 */
+export interface AmapMarkerInstanceLabelOptions extends Omit<AmapMarkerLabelOptions, "direction"> {
+    /** 文本标注方位 */
+    direction?: AmapMarkerLabelDirection | string
 }
 
 /** 点标记基础参数 */
@@ -125,7 +156,7 @@ export interface AmapMarkerInstance extends AMap.Marker {
     /** 设置图标 */
     setIcon(icon: AmapMarkerIcon): void
     /** 设置文本标注 */
-    setLabel(label: AmapMarkerLabelOptions): void
+    setLabel(label: AmapMarkerInstanceLabelOptions): void
     /** 设置可点击状态 */
     setClickable(clickable: boolean): void
     /** 设置可拖拽状态 */
@@ -139,7 +170,7 @@ export interface AmapMarkerInstance extends AMap.Marker {
     /** 设置偏移量 */
     setOffset(offset: AmapMarkerOffset): void
     /** 设置锚点 */
-    setAnchor(anchor: AmapMarkerAnchor): void
+    setAnchor(anchor: string): void
     /** 设置旋转角度 */
     setAngle(angle: number): void
     /** 设置叠加层级 */
@@ -196,7 +227,7 @@ export interface UpdateAmapMarkerContentElementParams {
 }
 
 /** 点标记组件属性 */
-export interface MarkerProps extends AmapMarkerBaseOptions {
+export interface MarkerProps extends AmapMarkerBaseOptions, AmapEventShortcutProps {
     /** 点标记实例 ref */
     ref?: Ref<AmapMarkerInstance | null>
     /** 高德地图命名空间 */
@@ -298,7 +329,7 @@ function updateAmapMarker(marker: AmapMarkerInstance, options: AmapMarkerOptions
     if (options.extData !== undefined) marker.setExtData?.(options.extData)
     if (options.title !== undefined) marker.setTitle?.(options.title)
     if (options.offset !== undefined) marker.setOffset?.(options.offset)
-    if (options.anchor !== undefined) marker.setAnchor?.(options.anchor)
+    if (typeof options.anchor === "string") marker.setAnchor?.(options.anchor)
     if (options.angle !== undefined) marker.setAngle?.(options.angle)
     if (options.zIndex !== undefined) marker.setzIndex?.(options.zIndex)
     if (options.content !== undefined) marker.setContent?.(options.content)
@@ -341,7 +372,7 @@ export const Marker: FC<MarkerProps> = ({
     topWhenClick,
     label,
     extData,
-    ...restOptions
+    ...restProps
 }) => {
     const context = useAmapContext()
     const markerRef = useRef<AmapMarkerInstance | null>(null)
@@ -349,7 +380,12 @@ export const Marker: FC<MarkerProps> = ({
     const hasChildrenContent = children !== undefined && children !== null && typeof children !== "boolean"
     const currentMap = map ?? context.map
     const currentAMap = (AMap ?? context.AMap) as AmapMarkerNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
     const extraOptions = restOptions as AmapMarkerOptions
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapMarkerEvents
     const currentMarkerOptions = mergeAmapMarkerOptions({
         markerOptions,
         extraOptions,
@@ -440,9 +476,9 @@ export const Marker: FC<MarkerProps> = ({
 
         return bindAmapMarkerEvents({
             marker: markerRef.current,
-            events,
+            events: currentEvents,
         })
-    }, [contentElement, currentAMap, currentMap, events, hasChildrenContent, ref])
+    }, [contentElement, currentAMap, currentEvents, currentMap, hasChildrenContent, ref])
 
     if (hasChildrenContent && contentElement) return createPortal(children, contentElement)
 

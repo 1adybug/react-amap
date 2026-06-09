@@ -10,6 +10,7 @@ import {
 } from "react"
 
 import {
+    AmapPlugin,
     type AmapEventHandler,
     type AmapLngLatLike,
     type AmapMapInstance,
@@ -19,6 +20,7 @@ import {
 } from "./Amap"
 import type {
     AmapMarkerAnchor,
+    AmapMarkerLabelDirection,
     AmapMarkerOffset,
     AmapMarkerPosition,
     AmapMarkerEvents,
@@ -26,10 +28,26 @@ import type {
 import { optionalFn } from "../utils/optionalFn"
 import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
+import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
 
 export type AmapTextStyle = Record<string, string | number>
 
 export type AmapLabelMarkerPosition = AmapLngLatLike
+
+/** 灵活点标记文本位置 */
+export const AmapElasticMarkerLabelPosition = {
+    左下角: "BL",
+    底部居中: "BM",
+    右下角: "BR",
+    左侧居中: "ML",
+    右侧居中: "MR",
+    左上角: "TL",
+    顶部居中: "TM",
+    右上角: "TR",
+} as const
+
+export type AmapElasticMarkerLabelPosition =
+    (typeof AmapElasticMarkerLabelPosition)[keyof typeof AmapElasticMarkerLabelPosition]
 
 export type AmapPointOverlayOnLoad<TInstance extends AmapPointOverlayInstance = AmapPointOverlayInstance> = (
     overlay: TInstance
@@ -168,7 +186,7 @@ export interface AmapElasticMarkerLabelOptions {
     /** 文本内容 */
     content?: string
     /** 文本位置 */
-    position?: string
+    position?: AmapElasticMarkerLabelPosition
     /** 文本偏移量 */
     offset?: AmapMarkerOffset
     /** 最小显示级别 */
@@ -262,7 +280,7 @@ export interface AmapLabelMarkerTextOptions {
     /** 文本内容 */
     content?: string
     /** 文本方向 */
-    direction?: string
+    direction?: AmapMarkerLabelDirection
     /** 文本偏移量 */
     offset?: AmapMarkerOffset
     /** 文本样式 */
@@ -519,6 +537,10 @@ export interface AmapMarkerClusterInstance {
     setMap?: (map: AmapMapInstance | null) => void
     /** 获取地图 */
     getMap?: () => AmapMapInstance | null
+    /** 绑定事件 */
+    on?: (eventName: string, handler: AmapEventHandler) => void
+    /** 解绑事件 */
+    off?: (eventName: string, handler: AmapEventHandler) => void
     [key: string]: unknown
 }
 
@@ -567,7 +589,7 @@ export interface AmapPointEventTarget {
 }
 
 /** 文本标记组件属性 */
-export interface TextProps extends AmapTextBaseOptions {
+export interface TextProps extends AmapTextBaseOptions, AmapEventShortcutProps {
     /** 文本标记实例 ref */
     ref?: Ref<AmapTextInstance | null>
     /** 地图实例 */
@@ -585,7 +607,7 @@ export interface TextProps extends AmapTextBaseOptions {
 }
 
 /** 灵活点标记组件属性 */
-export interface ElasticMarkerProps extends AmapElasticMarkerBaseOptions {
+export interface ElasticMarkerProps extends AmapElasticMarkerBaseOptions, AmapEventShortcutProps {
     /** 灵活点标记实例 ref */
     ref?: Ref<AmapElasticMarkerInstance | null>
     /** 地图实例 */
@@ -603,7 +625,7 @@ export interface ElasticMarkerProps extends AmapElasticMarkerBaseOptions {
 }
 
 /** 标注图层组件属性 */
-export interface LabelsLayerProps extends AmapLabelsLayerBaseOptions {
+export interface LabelsLayerProps extends AmapLabelsLayerBaseOptions, AmapEventShortcutProps {
     /** 标注图层实例 ref */
     ref?: Ref<AmapLabelsLayerInstance | null>
     /** 地图实例 */
@@ -623,7 +645,7 @@ export interface LabelsLayerProps extends AmapLabelsLayerBaseOptions {
 }
 
 /** 标注组件属性 */
-export interface LabelMarkerProps extends AmapLabelMarkerBaseOptions {
+export interface LabelMarkerProps extends AmapLabelMarkerBaseOptions, AmapEventShortcutProps {
     /** 标注实例 ref */
     ref?: Ref<AmapLabelMarkerInstance | null>
     /** 标注图层实例 */
@@ -641,7 +663,7 @@ export interface LabelMarkerProps extends AmapLabelMarkerBaseOptions {
 }
 
 /** 海量点组件属性 */
-export interface MassMarksProps extends AmapMassMarksBaseOptions {
+export interface MassMarksProps extends AmapMassMarksBaseOptions, AmapEventShortcutProps {
     /** 海量点实例 ref */
     ref?: Ref<AmapMassMarksInstance | null>
     /** 地图实例 */
@@ -661,7 +683,7 @@ export interface MassMarksProps extends AmapMassMarksBaseOptions {
 }
 
 /** 点聚合组件属性 */
-export interface MarkerClusterProps extends AmapMarkerClusterBaseOptions {
+export interface MarkerClusterProps extends AmapMarkerClusterBaseOptions, AmapEventShortcutProps {
     /** 点聚合实例 ref */
     ref?: Ref<AmapMarkerClusterInstance | null>
     /** 地图实例 */
@@ -672,6 +694,8 @@ export interface MarkerClusterProps extends AmapMarkerClusterBaseOptions {
     data?: AmapMarkerClusterData[]
     /** 点聚合额外参数 */
     markerClusterOptions?: AmapMarkerClusterOptions
+    /** 点聚合事件映射 */
+    events?: AmapMarkerEvents
     /** 创建完成回调 */
     onLoad?: (markerCluster: AmapMarkerClusterInstance) => void
     /** 销毁前回调 */
@@ -856,13 +880,18 @@ export const Text: FC<TextProps> = ({
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
-    ...restOptions
+    ...restProps
 }) => {
     const context = useAmapContext()
     const textRef = useRef<AmapTextInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = (AMap ?? context.AMap) as AmapPointNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
     const currentOptions = mergeAmapPointOptions(textOptions, restOptions as AmapTextOptions)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapMarkerEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -903,9 +932,9 @@ export const Text: FC<TextProps> = ({
 
         return bindAmapPointEvents({
             instance: textRef.current,
-            events,
+            events: currentEvents,
         })
-    }, [currentAMap, currentMap, events, ref])
+    }, [currentAMap, currentEvents, currentMap, ref])
 
     return null
 }
@@ -918,19 +947,24 @@ export const ElasticMarker: FC<ElasticMarkerProps> = ({
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
-    ...restOptions
+    ...restProps
 }) => {
     const context = useAmapContext()
     const markerRef = useRef<AmapElasticMarkerInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = (AMap ?? context.AMap) as AmapPointNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
     const pluginLoaded = useAmapPlugin({
         map: currentMap,
         AMap: currentAMap,
-        pluginName: "AMap.ElasticMarker",
+        pluginName: AmapPlugin.ElasticMarker,
         constructorName: "ElasticMarker",
     })
     const currentOptions = mergeAmapPointOptions(elasticMarkerOptions, restOptions as AmapElasticMarkerOptions)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapMarkerEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -971,9 +1005,9 @@ export const ElasticMarker: FC<ElasticMarkerProps> = ({
 
         return bindAmapPointEvents({
             instance: markerRef.current,
-            events,
+            events: currentEvents,
         })
-    }, [currentAMap, currentMap, events, pluginLoaded, ref])
+    }, [currentAMap, currentEvents, currentMap, pluginLoaded, ref])
 
     return null
 }
@@ -987,14 +1021,19 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
-    ...restOptions
+    ...restProps
 }) => {
     const context = useAmapContext()
     const layerRef = useRef<AmapLabelsLayerInstance | null>(null)
     const [contextLayer, setContextLayer] = useState<AmapLabelsLayerInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = (AMap ?? context.AMap) as AmapPointNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
     const currentOptions = mergeAmapPointOptions(labelsLayerOptions, restOptions as AmapLabelsLayerOptions)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapMarkerEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -1037,9 +1076,9 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
 
         return bindAmapPointEvents({
             instance: layerRef.current,
-            events,
+            events: currentEvents,
         })
-    }, [currentAMap, currentMap, events, ref])
+    }, [currentAMap, currentEvents, currentMap, ref])
 
     return <LabelsLayerContext value={contextLayer}>{children}</LabelsLayerContext>
 }
@@ -1052,14 +1091,19 @@ export const LabelMarker: FC<LabelMarkerProps> = ({
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
-    ...restOptions
+    ...restProps
 }) => {
     const context = useAmapContext()
     const contextLayer = useLabelsLayerContext()
     const markerRef = useRef<AmapLabelMarkerInstance | null>(null)
     const currentLayer = layer ?? contextLayer
     const currentAMap = (AMap ?? context.AMap) as AmapPointNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
     const currentOptions = mergeAmapPointOptions(labelMarkerOptions, restOptions as AmapLabelMarkerOptions)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapMarkerEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -1105,9 +1149,9 @@ export const LabelMarker: FC<LabelMarkerProps> = ({
 
         return bindAmapPointEvents({
             instance: markerRef.current,
-            events,
+            events: currentEvents,
         })
-    }, [currentAMap, currentLayer, events, ref])
+    }, [currentAMap, currentEvents, currentLayer, ref])
 
     return null
 }
@@ -1121,13 +1165,18 @@ export const MassMarks: FC<MassMarksProps> = ({
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
-    ...restOptions
+    ...restProps
 }) => {
     const context = useAmapContext()
     const massMarksRef = useRef<AmapMassMarksInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = (AMap ?? context.AMap) as AmapPointNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
     const currentOptions = mergeAmapPointOptions(massMarksOptions, restOptions as AmapMassMarksOptions)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapMarkerEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -1176,9 +1225,9 @@ export const MassMarks: FC<MassMarksProps> = ({
 
         return bindAmapPointEvents({
             instance: massMarksRef.current,
-            events,
+            events: currentEvents,
         })
-    }, [currentAMap, currentMap, events, ref])
+    }, [currentAMap, currentEvents, currentMap, ref])
 
     return null
 }
@@ -1189,21 +1238,27 @@ export const MarkerCluster: FC<MarkerClusterProps> = ({
     AMap,
     data = [],
     markerClusterOptions,
+    events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
-    ...restOptions
+    ...restProps
 }) => {
     const context = useAmapContext()
     const markerClusterRef = useRef<AmapMarkerClusterInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = (AMap ?? context.AMap) as AmapPointNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
     const pluginLoaded = useAmapPlugin({
         map: currentMap,
         AMap: currentAMap,
-        pluginName: "AMap.MarkerCluster",
+        pluginName: AmapPlugin.MarkerCluster,
         constructorName: "MarkerCluster",
     })
     const currentOptions = mergeAmapPointOptions(markerClusterOptions, restOptions as AmapMarkerClusterOptions)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapMarkerEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -1244,6 +1299,15 @@ export const MarkerCluster: FC<MarkerClusterProps> = ({
 
         updateAmapMarkerCluster(markerClusterRef.current, data, currentOptions)
     }, [currentOptions, data])
+
+    useStableEffect(() => {
+        if (!markerClusterRef.current) return
+
+        return bindAmapPointEvents({
+            instance: markerClusterRef.current,
+            events: currentEvents,
+        })
+    }, [currentAMap, currentEvents, currentMap, pluginLoaded, ref])
 
     return null
 }

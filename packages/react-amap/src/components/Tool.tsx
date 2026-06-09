@@ -1,11 +1,12 @@
 import { type FC, type Ref, useEffectEvent, useRef } from "react"
 
-import { type AmapEventHandler, type AmapMapInstance, type AmapNamespace, useAmapContext } from "./Amap"
+import { AmapPlugin, type AmapEventHandler, type AmapMapInstance, type AmapNamespace, useAmapContext } from "./Amap"
 import type { AmapMarkerOptions } from "./Marker"
 import type { AmapPolylineOptions } from "./Vector"
 import { optionalFn } from "../utils/optionalFn"
 import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
+import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
 
 export type AmapRangingToolOnLoad = (rangingTool: AmapRangingToolInstance) => void
 
@@ -63,7 +64,7 @@ export interface AmapRangingToolNamespace extends AmapNamespace {
 }
 
 /** 测距工具组件属性 */
-export interface RangingToolProps extends AmapRangingToolOptions {
+export interface RangingToolProps extends AmapRangingToolOptions, AmapEventShortcutProps {
     /** 测距工具实例 ref */
     ref?: Ref<AmapRangingToolInstance | null>
     /** 地图实例 */
@@ -127,19 +128,24 @@ export const RangingTool: FC<RangingToolProps> = ({
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
-    ...restOptions
+    ...restProps
 }) => {
     const context = useAmapContext()
     const rangingToolRef = useRef<AmapRangingToolInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = (AMap ?? context.AMap) as AmapRangingToolNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
     const pluginLoaded = useAmapPlugin({
         map: currentMap,
         AMap: currentAMap,
-        pluginName: "AMap.RangingTool",
+        pluginName: AmapPlugin.RangingTool,
         constructorName: "RangingTool",
     })
     const currentOptions = mergeAmapRangingToolOptions(rangingToolOptions, restOptions as AmapRangingToolOptions)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapRangingToolEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -180,8 +186,8 @@ export const RangingTool: FC<RangingToolProps> = ({
     useStableEffect(() => {
         if (!rangingToolRef.current) return
 
-        return bindAmapRangingToolEvents(rangingToolRef.current, events)
-    }, [currentAMap, currentMap, events, pluginLoaded, ref])
+        return bindAmapRangingToolEvents(rangingToolRef.current, currentEvents)
+    }, [currentAMap, currentEvents, currentMap, pluginLoaded, ref])
 
     return null
 }

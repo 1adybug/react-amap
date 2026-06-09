@@ -9,6 +9,7 @@ import {
 } from "./Amap"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
+import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
 
 export type AmapVectorPosition = AmapLngLatLike
 
@@ -359,7 +360,7 @@ export interface UpdateAmapVectorOverlayParams<
 export interface AmapVectorOverlayProps<
     TInstance extends AmapVectorOverlayInstance,
     TOptions extends AmapVectorOverlayBaseOptions,
-> {
+> extends AmapEventShortcutProps {
     /** 覆盖物实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
@@ -379,7 +380,7 @@ export interface AmapVectorOverlayProps<
 }
 
 /** 多边形组件属性 */
-export interface PolygonProps extends AmapPolygonBaseOptions {
+export interface PolygonProps extends AmapPolygonBaseOptions, AmapEventShortcutProps {
     /** 多边形实例 ref */
     ref?: Ref<AmapPolygonInstance | null>
     /** 地图实例 */
@@ -397,7 +398,7 @@ export interface PolygonProps extends AmapPolygonBaseOptions {
 }
 
 /** 折线组件属性 */
-export interface PolylineProps extends AmapPolylineBaseOptions {
+export interface PolylineProps extends AmapPolylineBaseOptions, AmapEventShortcutProps {
     /** 折线实例 ref */
     ref?: Ref<AmapPolylineInstance | null>
     /** 地图实例 */
@@ -415,7 +416,7 @@ export interface PolylineProps extends AmapPolylineBaseOptions {
 }
 
 /** 贝塞尔曲线组件属性 */
-export interface BezierCurveProps extends AmapBezierCurveBaseOptions {
+export interface BezierCurveProps extends AmapBezierCurveBaseOptions, AmapEventShortcutProps {
     /** 贝塞尔曲线实例 ref */
     ref?: Ref<AmapBezierCurveInstance | null>
     /** 地图实例 */
@@ -433,7 +434,7 @@ export interface BezierCurveProps extends AmapBezierCurveBaseOptions {
 }
 
 /** 圆形组件属性 */
-export interface CircleProps extends AmapCircleBaseOptions {
+export interface CircleProps extends AmapCircleBaseOptions, AmapEventShortcutProps {
     /** 圆形实例 ref */
     ref?: Ref<AmapCircleInstance | null>
     /** 地图实例 */
@@ -451,7 +452,7 @@ export interface CircleProps extends AmapCircleBaseOptions {
 }
 
 /** 圆点标记组件属性 */
-export interface CircleMarkerProps extends AmapCircleMarkerBaseOptions {
+export interface CircleMarkerProps extends AmapCircleMarkerBaseOptions, AmapEventShortcutProps {
     /** 圆点标记实例 ref */
     ref?: Ref<AmapCircleMarkerInstance | null>
     /** 地图实例 */
@@ -469,7 +470,7 @@ export interface CircleMarkerProps extends AmapCircleMarkerBaseOptions {
 }
 
 /** 椭圆组件属性 */
-export interface EllipseProps extends AmapEllipseBaseOptions {
+export interface EllipseProps extends AmapEllipseBaseOptions, AmapEventShortcutProps {
     /** 椭圆实例 ref */
     ref?: Ref<AmapEllipseInstance | null>
     /** 地图实例 */
@@ -487,7 +488,7 @@ export interface EllipseProps extends AmapEllipseBaseOptions {
 }
 
 /** 矩形组件属性 */
-export interface RectangleProps extends AmapRectangleBaseOptions {
+export interface RectangleProps extends AmapRectangleBaseOptions, AmapEventShortcutProps {
     /** 矩形实例 ref */
     ref?: Ref<AmapRectangleInstance | null>
     /** 地图实例 */
@@ -505,7 +506,7 @@ export interface RectangleProps extends AmapRectangleBaseOptions {
 }
 
 /** GeoJSON 组件属性 */
-export interface GeoJSONProps extends AmapGeoJSONBaseOptions {
+export interface GeoJSONProps extends AmapGeoJSONBaseOptions, AmapEventShortcutProps {
     /** GeoJSON 实例 ref */
     ref?: Ref<AmapGeoJSONInstance | null>
     /** 地图实例 */
@@ -633,6 +634,7 @@ function AmapVectorOverlay<
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
+    ...eventShortcuts
 }: AmapVectorOverlayProps<TInstance, TOptions>) {
     const context = useAmapContext()
     const overlayRef = useRef<TInstance | null>(null)
@@ -641,6 +643,10 @@ function AmapVectorOverlay<
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => options)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapVectorOverlayEvents
 
     useStableEffect(() => {
         if (!currentMap || !currentAMap) return
@@ -695,9 +701,9 @@ function AmapVectorOverlay<
 
         return bindAmapVectorOverlayEvents({
             overlay: overlayRef.current,
-            events,
+            events: currentEvents,
         })
-    }, [constructorName, currentAMap, currentMap, events, ref])
+    }, [constructorName, currentAMap, currentEvents, currentMap, ref])
 
     return null
 }
@@ -712,9 +718,10 @@ export const Polygon: FC<PolygonProps> = ({
     onDestroy,
     ...restOptions
 }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
     const currentOptions = mergeAmapVectorOverlayOptions({
         overlayOptions: polygonOptions,
-        extraOptions: restOptions as AmapPolygonOptions,
+        extraOptions: restProps as AmapPolygonOptions,
     })
 
     return (
@@ -727,6 +734,7 @@ export const Polygon: FC<PolygonProps> = ({
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
@@ -741,9 +749,10 @@ export const Polyline: FC<PolylineProps> = ({
     onDestroy,
     ...restOptions
 }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
     const currentOptions = mergeAmapVectorOverlayOptions({
         overlayOptions: polylineOptions,
-        extraOptions: restOptions as AmapPolylineOptions,
+        extraOptions: restProps as AmapPolylineOptions,
     })
 
     return (
@@ -756,6 +765,7 @@ export const Polyline: FC<PolylineProps> = ({
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
@@ -770,9 +780,10 @@ export const BezierCurve: FC<BezierCurveProps> = ({
     onDestroy,
     ...restOptions
 }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
     const currentOptions = mergeAmapVectorOverlayOptions({
         overlayOptions: bezierCurveOptions,
-        extraOptions: restOptions as AmapBezierCurveOptions,
+        extraOptions: restProps as AmapBezierCurveOptions,
     })
 
     return (
@@ -785,6 +796,7 @@ export const BezierCurve: FC<BezierCurveProps> = ({
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
@@ -802,9 +814,10 @@ export const Circle: FC<CircleProps> = ({
     onDestroy,
     ...restOptions
 }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
     const currentOptions = mergeAmapVectorOverlayOptions({
         overlayOptions: circleOptions,
-        extraOptions: restOptions as AmapCircleOptions,
+        extraOptions: restProps as AmapCircleOptions,
     })
 
     return (
@@ -817,6 +830,7 @@ export const Circle: FC<CircleProps> = ({
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
@@ -831,9 +845,10 @@ export const CircleMarker: FC<CircleMarkerProps> = ({
     onDestroy,
     ...restOptions
 }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
     const currentOptions = mergeAmapVectorOverlayOptions({
         overlayOptions: circleMarkerOptions,
-        extraOptions: restOptions as AmapCircleMarkerOptions,
+        extraOptions: restProps as AmapCircleMarkerOptions,
     })
 
     return (
@@ -846,6 +861,7 @@ export const CircleMarker: FC<CircleMarkerProps> = ({
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
@@ -860,9 +876,10 @@ export const Ellipse: FC<EllipseProps> = ({
     onDestroy,
     ...restOptions
 }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
     const currentOptions = mergeAmapVectorOverlayOptions({
         overlayOptions: ellipseOptions,
-        extraOptions: restOptions as AmapEllipseOptions,
+        extraOptions: restProps as AmapEllipseOptions,
     })
 
     return (
@@ -875,6 +892,7 @@ export const Ellipse: FC<EllipseProps> = ({
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
@@ -889,9 +907,10 @@ export const Rectangle: FC<RectangleProps> = ({
     onDestroy,
     ...restOptions
 }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
     const currentOptions = mergeAmapVectorOverlayOptions({
         overlayOptions: rectangleOptions,
-        extraOptions: restOptions as AmapRectangleOptions,
+        extraOptions: restProps as AmapRectangleOptions,
     })
 
     return (
@@ -904,6 +923,7 @@ export const Rectangle: FC<RectangleProps> = ({
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
@@ -918,9 +938,10 @@ export const GeoJSON: FC<GeoJSONProps> = ({
     onDestroy,
     ...restOptions
 }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
     const currentOptions = mergeAmapVectorOverlayOptions({
         overlayOptions: geoJSONOptions,
-        extraOptions: restOptions as AmapGeoJSONOptions,
+        extraOptions: restProps as AmapGeoJSONOptions,
     })
 
     return (
@@ -933,6 +954,7 @@ export const GeoJSON: FC<GeoJSONProps> = ({
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }

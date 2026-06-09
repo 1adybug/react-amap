@@ -13,6 +13,7 @@ import {
 } from "react"
 
 import { useStableEffect } from "../hooks/useStableEffect"
+import { type AmapMapEventShortcutProps, mergeAmapEvents } from "../utils/amapEvents"
 
 import "@amap/amap-jsapi-types"
 
@@ -21,9 +22,6 @@ const DEFAULT_LOADER_URL = "https://webapi.amap.com/loader.js"
 
 /** 默认应用标识 */
 const DEFAULT_APP_NAME = "react-amap"
-
-/** 默认插件列表 */
-const DEFAULT_PLUGINS: string[] = []
 
 /** 默认 Loader 等待时间 */
 const DEFAULT_LOADER_TIMEOUT = 15000
@@ -71,6 +69,52 @@ export const AmapStatus = {
 
 export type AmapStatus = (typeof AmapStatus)[keyof typeof AmapStatus]
 
+/** 高德 JSAPI 插件 */
+export const AmapPlugin = {
+    Scale: "AMap.Scale",
+    ToolBar: "AMap.ToolBar",
+    ControlBar: "AMap.ControlBar",
+    MapType: "AMap.MapType",
+    HawkEye: "AMap.HawkEye",
+    Geocoder: "AMap.Geocoder",
+    AutoComplete: "AMap.AutoComplete",
+    PlaceSearch: "AMap.PlaceSearch",
+    CloudDataSearch: "AMap.CloudDataSearch",
+    Driving: "AMap.Driving",
+    TruckDriving: "AMap.TruckDriving",
+    Walking: "AMap.Walking",
+    Transfer: "AMap.Transfer",
+    Riding: "AMap.Riding",
+    DragRoute: "AMap.DragRoute",
+    DragRouteTruck: "AMap.DragRouteTruck",
+    GraspRoad: "AMap.GraspRoad",
+    DistrictSearch: "AMap.DistrictSearch",
+    Weather: "AMap.Weather",
+    StationSearch: "AMap.StationSearch",
+    LineSearch: "AMap.LineSearch",
+    Geolocation: "AMap.Geolocation",
+    CitySearch: "AMap.CitySearch",
+    IndoorMap: "AMap.IndoorMap",
+    HeatMap: "AMap.HeatMap",
+    ElasticMarker: "AMap.ElasticMarker",
+    MarkerCluster: "AMap.MarkerCluster",
+    MoveAnimation: "AMap.MoveAnimation",
+    MouseTool: "AMap.MouseTool",
+    RangingTool: "AMap.RangingTool",
+    PolygonEditor: "AMap.PolygonEditor",
+    PolylineEditor: "AMap.PolylineEditor",
+    PolyEditor: "AMap.PolyEditor",
+    CircleEditor: "AMap.CircleEditor",
+    BezierCurveEditor: "AMap.BezierCurveEditor",
+    EllipseEditor: "AMap.EllipseEditor",
+    RectangleEditor: "AMap.RectangleEditor",
+} as const
+
+export type AmapPlugin = (typeof AmapPlugin)[keyof typeof AmapPlugin]
+
+/** 默认插件列表 */
+const DEFAULT_PLUGINS: AmapPlugin[] = []
+
 export type AmapLngLat = AMap.Vector2
 
 export type AmapZoomRange = AMap.Vector2
@@ -88,6 +132,11 @@ export type AmapOnMapError = (error: unknown) => void
 export type AmapOnDestroy = (map: AmapMapInstance) => void
 
 export type AmapOnStatusChange = (status: AmapStatus, error?: unknown) => void
+
+/** 地图事件映射 */
+export interface AmapEvents {
+    [eventName: string]: AmapEventHandler
+}
 
 /** 地图上下文数据 */
 export interface AmapContextValue {
@@ -274,7 +323,7 @@ export interface AmapMapInstance extends AMap.Map {
     /** 移除控件 */
     removeControl(control: unknown): void
     /** 加载 JSAPI 插件 */
-    plugin?: (plugins: string | string[], callback?: () => void) => void
+    plugin?: (plugins: AmapPlugin | AmapPlugin[], callback?: () => void) => void
 }
 
 /** 高德地图命名空间配置 */
@@ -293,7 +342,7 @@ export interface AmapNamespace {
     /** 获取 JSAPI 配置 */
     getConfig?: () => AmapNamespaceConfig
     /** 加载 JSAPI 插件 */
-    plugin?: (plugins: string | string[], callback?: () => void) => void
+    plugin?: (plugins: AmapPlugin | AmapPlugin[], callback?: () => void) => void
     [key: string]: unknown
 }
 
@@ -327,7 +376,7 @@ export interface AmapLoaderOptions {
     /** JSAPI 版本 */
     version: string
     /** 预加载插件列表 */
-    plugins?: string[]
+    plugins?: AmapPlugin[]
     /** AMapUI 加载配置 */
     AMapUI?: AmapUiLoaderOptions
     /** Loca 加载配置 */
@@ -410,6 +459,14 @@ export interface SyncAmapMapRuntimeOptionsParams {
     previousOptions: AmapMapRuntimeOptions
 }
 
+/** 绑定地图事件参数 */
+export interface BindAmapMapEventsParams {
+    /** 地图实例 */
+    map: AmapMapInstance
+    /** 事件映射 */
+    events?: AmapEvents
+}
+
 /** 获取变化的地图运行状态参数 */
 export interface GetChangedAmapMapStatusOptionsParams {
     /** 当前地图参数 */
@@ -439,7 +496,7 @@ declare global {
 }
 
 /** 地图组件属性 */
-export interface AmapProps extends Omit<ComponentProps<"div">, "ref">, AmapMapBaseOptions {
+export interface AmapProps extends Omit<ComponentProps<"div">, "ref">, AmapMapBaseOptions, AmapMapEventShortcutProps {
     /** 地图实例 ref */
     ref?: Ref<AmapMapInstance | null>
     /** 高德 Web 端开发者 Key */
@@ -453,7 +510,7 @@ export interface AmapProps extends Omit<ComponentProps<"div">, "ref">, AmapMapBa
     /** JSAPI 版本 */
     version?: string
     /** 预加载插件列表 */
-    plugins?: string[]
+    plugins?: AmapPlugin[]
     /** Loader 脚本地址 */
     loaderUrl?: string
     /** Loader 额外参数 */
@@ -464,6 +521,8 @@ export interface AmapProps extends Omit<ComponentProps<"div">, "ref">, AmapMapBa
     appName?: string
     /** 额外地图初始化参数 */
     mapOptions?: AmapMapOptions
+    /** 地图事件映射 */
+    events?: AmapEvents
     /** 地图加载完成回调 */
     onMapLoad?: AmapOnMapLoad
     /** 地图加载失败回调 */
@@ -609,6 +668,16 @@ function destroyAmapMap(map: AmapMapInstance, onDestroy?: AmapOnDestroy) {
         onDestroy?.(map)
     } finally {
         map.destroy()
+    }
+}
+
+function bindAmapMapEvents({ map, events }: BindAmapMapEventsParams) {
+    const eventEntries = Object.entries(events ?? {})
+
+    eventEntries.forEach(([eventName, handler]) => void map.on?.(eventName, handler))
+
+    return function unbindAmapMapEvents() {
+        eventEntries.forEach(([eventName, handler]) => void map.off?.(eventName, handler))
     }
 }
 
@@ -769,10 +838,32 @@ export const Amap: FC<AmapProps> = ({
     showIndoorMap,
     skyColor,
     WebGLParams,
+    events,
     onMapLoad: _onMapLoad,
     onMapError: _onMapError,
     onDestroy: _onDestroy,
     onStatusChange: _onStatusChange,
+    onMapClick,
+    onMapComplete,
+    onMapDblClick,
+    onMapDragEnd,
+    onMapDragStart,
+    onMapDragging,
+    onMapMouseDown,
+    onMapMouseMove,
+    onMapMouseOut,
+    onMapMouseOver,
+    onMapMouseUp,
+    onMapMove,
+    onMapMoveEnd,
+    onMapResize,
+    onMapRightClick,
+    onMapRotateChange,
+    onMapRotateEnd,
+    onMapRotateStart,
+    onMapZoomChange,
+    onMapZoomEnd,
+    onMapZoomStart,
     ...rest
 }) => {
     const containerRef = useRef<HTMLDivElement>(null)
@@ -840,6 +931,33 @@ export const Amap: FC<AmapProps> = ({
     }
 
     currentMapOptions.viewMode ??= AmapViewMode.ThreeDimensional
+
+    const currentEvents = mergeAmapEvents({
+        events,
+        mapEventShortcuts: {
+            onMapClick,
+            onMapComplete,
+            onMapDblClick,
+            onMapDragEnd,
+            onMapDragStart,
+            onMapDragging,
+            onMapMouseDown,
+            onMapMouseMove,
+            onMapMouseOut,
+            onMapMouseOver,
+            onMapMouseUp,
+            onMapMove,
+            onMapMoveEnd,
+            onMapResize,
+            onMapRightClick,
+            onMapRotateChange,
+            onMapRotateEnd,
+            onMapRotateStart,
+            onMapZoomChange,
+            onMapZoomEnd,
+            onMapZoomStart,
+        },
+    }) as AmapEvents
 
     const getPlugins = useEffectEvent(() => plugins)
     const getMapOptions = useEffectEvent(() => currentMapOptions)
@@ -997,6 +1115,15 @@ export const Amap: FC<AmapProps> = ({
         zoomEnable,
         zooms,
     ])
+
+    useStableEffect(() => {
+        if (!mapRef.current) return
+
+        return bindAmapMapEvents({
+            map: mapRef.current,
+            events: currentEvents,
+        })
+    }, [contextValue.status, currentEvents])
 
     return (
         <AmapContext value={contextValue}>

@@ -1,15 +1,42 @@
 import { type FC, type Ref, useEffectEvent, useRef } from "react"
 
-import { type AmapEventHandler, type AmapMapInstance, type AmapNamespace, useAmapContext } from "./Amap"
-import { optionalFn } from "../utils/optionalFn"
+import { AmapPlugin, type AmapEventHandler, type AmapMapInstance, type AmapNamespace, useAmapContext } from "./Amap"
+
 import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
 
+import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
+import { optionalFn } from "../utils/optionalFn"
+
 export type AmapControlOnLoad<TInstance extends AmapControlInstance = AmapControlInstance> = (control: TInstance) => void
 
-export type AmapControlOnDestroy<TInstance extends AmapControlInstance = AmapControlInstance> = (
-    control: TInstance
-) => void
+export type AmapControlOnDestroy<TInstance extends AmapControlInstance = AmapControlInstance> = (control: TInstance) => void
+
+/** 控件停靠位置 */
+export const ControlPosition = {
+    左上角: "LT",
+    右上角: "RT",
+    左下角: "LB",
+    右下角: "RB",
+} as const
+
+export type ControlPosition = (typeof ControlPosition)[keyof typeof ControlPosition]
+
+/** 地图类型图层类型 */
+export const MapTypeLayerType = {
+    底图: "base",
+    叠加图层: "overlay",
+} as const
+
+export type MapTypeLayerType = (typeof MapTypeLayerType)[keyof typeof MapTypeLayerType]
+
+/** MapType 初始化默认图层类型 */
+export const MapTypeDefaultType = {
+    默认底图: 0,
+    卫星图: 1,
+} as const
+
+export type MapTypeDefaultType = (typeof MapTypeDefaultType)[keyof typeof MapTypeDefaultType]
 
 /** 控件停靠位置 */
 export interface AmapControlPositionObject {
@@ -26,7 +53,7 @@ export interface AmapControlPositionObject {
 /** 控件基础参数 */
 export interface AmapControlBaseOptions {
     /** 控件停靠位置 */
-    position?: string | AmapControlPositionObject
+    position?: ControlPosition | AmapControlPositionObject
     /** 控件偏移量 */
     offset?: [number, number]
     /** 是否可见 */
@@ -72,7 +99,7 @@ export interface AmapMapTypeLayerInfo {
     /** 图层名称 */
     name?: string
     /** 图层类型 */
-    type?: string
+    type?: MapTypeLayerType
     /** 图层对象 */
     layer?: unknown
     /** 是否显示 */
@@ -83,7 +110,7 @@ export interface AmapMapTypeLayerInfo {
 /** MapType 控件参数 */
 export interface AmapMapTypeOptions extends AmapControlBaseOptions {
     /** 初始化默认图层类型 */
-    defaultType?: number
+    defaultType?: MapTypeDefaultType
     /** 是否展示交通图层 */
     showTraffic?: boolean
     /** 是否展示路网图层 */
@@ -139,7 +166,7 @@ export interface AmapControlNamespace extends AmapNamespace {
 }
 
 /** 内部控件组件属性 */
-export interface AmapControlProps<TInstance extends AmapControlInstance, TOptions extends AmapControlBaseOptions> {
+export interface AmapControlProps<TInstance extends AmapControlInstance, TOptions extends AmapControlBaseOptions> extends AmapEventShortcutProps {
     /** 控件实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
@@ -147,7 +174,7 @@ export interface AmapControlProps<TInstance extends AmapControlInstance, TOption
     /** 高德地图命名空间 */
     AMap?: AmapNamespace
     /** 插件名称 */
-    pluginName: string
+    pluginName: AmapPlugin
     /** 构造器名称 */
     constructorName: string
     /** 控件参数 */
@@ -161,7 +188,7 @@ export interface AmapControlProps<TInstance extends AmapControlInstance, TOption
 }
 
 /** 比例尺组件属性 */
-export interface ScaleProps extends AmapControlBaseOptions {
+export interface ScaleProps extends AmapControlBaseOptions, AmapEventShortcutProps {
     /** 比例尺实例 ref */
     ref?: Ref<AmapControlInstance | null>
     /** 地图实例 */
@@ -248,7 +275,7 @@ function setAmapControlRef<TInstance extends AmapControlInstance>(ref: Ref<TInst
 
 function getAmapControlConstructor<TInstance extends AmapControlInstance, TOptions extends AmapControlBaseOptions>(
     AMap: AmapNamespace,
-    constructorName: string
+    constructorName: string,
 ) {
     const constructor = (AMap as Record<string, unknown>)[constructorName]
 
@@ -279,10 +306,7 @@ function mergeAmapControlOptions<TOptions extends AmapControlBaseOptions>(contro
     return nextOptions
 }
 
-function updateAmapControl<TInstance extends AmapControlInstance, TOptions extends AmapControlBaseOptions>(
-    control: TInstance,
-    options: TOptions
-) {
+function updateAmapControl<TInstance extends AmapControlInstance, TOptions extends AmapControlBaseOptions>(control: TInstance, options: TOptions) {
     if (options.visible === undefined) return
 
     if (options.visible) {
@@ -293,21 +317,13 @@ function updateAmapControl<TInstance extends AmapControlInstance, TOptions exten
     control.hide?.()
 }
 
-function removeAmapControl<TInstance extends AmapControlInstance>(
-    map: AmapMapInstance,
-    control: TInstance,
-    onDestroy?: AmapControlOnDestroy<TInstance>
-) {
+function removeAmapControl<TInstance extends AmapControlInstance>(map: AmapMapInstance, control: TInstance, onDestroy?: AmapControlOnDestroy<TInstance>) {
     try {
         onDestroy?.(control)
     } finally {
-        if (map.removeControl) {
-            map.removeControl(control)
-        } else if (control.removeFrom) {
-            control.removeFrom(map)
-        } else {
-            control.remove?.()
-        }
+        if (map.removeControl) map.removeControl(control)
+        else if (control.removeFrom) control.removeFrom(map)
+        else control.remove?.()
     }
 }
 
@@ -321,20 +337,27 @@ function AmapControl<TInstance extends AmapControlInstance, TOptions extends Ama
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
+    ...eventShortcuts
 }: AmapControlProps<TInstance, TOptions>) {
     const context = useAmapContext()
     const controlRef = useRef<TInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = AMap ?? context.AMap
+
     const pluginLoaded = useAmapPlugin({
         map: currentMap,
         AMap: currentAMap,
         pluginName,
         constructorName,
     })
+
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getOptions = useEffectEvent(() => options)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapControlEvents
 
     useStableEffect(() => {
         if (!currentMap || !currentAMap || !pluginLoaded) return
@@ -368,143 +391,108 @@ function AmapControl<TInstance extends AmapControlInstance, TOptions extends Ama
     useStableEffect(() => {
         if (!controlRef.current) return
 
-        return bindAmapControlEvents(controlRef.current, events)
-    }, [constructorName, currentAMap, currentMap, events, pluginLoaded, ref])
+        return bindAmapControlEvents(controlRef.current, currentEvents)
+    }, [constructorName, currentAMap, currentEvents, currentMap, pluginLoaded, ref])
 
     return null
 }
 
-export const Scale: FC<ScaleProps> = ({
-    ref,
-    map,
-    AMap,
-    controlOptions,
-    events,
-    onLoad,
-    onDestroy,
-    ...restOptions
-}) => {
-    const currentOptions = mergeAmapControlOptions(controlOptions, restOptions as AmapControlBaseOptions)
+export const Scale: FC<ScaleProps> = ({ ref, map, AMap, controlOptions, events, onLoad, onDestroy, ...restOptions }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
+    const currentOptions = mergeAmapControlOptions(controlOptions, restProps as AmapControlBaseOptions)
 
     return (
         <AmapControl
             ref={ref}
             map={map}
             AMap={AMap}
-            pluginName="AMap.Scale"
+            pluginName={AmapPlugin.Scale}
             constructorName="Scale"
             options={currentOptions}
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
 
-export const ToolBar: FC<ToolBarProps> = ({
-    ref,
-    map,
-    AMap,
-    controlOptions,
-    events,
-    onLoad,
-    onDestroy,
-    ...restOptions
-}) => {
-    const currentOptions = mergeAmapControlOptions(controlOptions, restOptions as AmapControlBaseOptions)
+export const ToolBar: FC<ToolBarProps> = ({ ref, map, AMap, controlOptions, events, onLoad, onDestroy, ...restOptions }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
+    const currentOptions = mergeAmapControlOptions(controlOptions, restProps as AmapControlBaseOptions)
 
     return (
         <AmapControl
             ref={ref}
             map={map}
             AMap={AMap}
-            pluginName="AMap.ToolBar"
+            pluginName={AmapPlugin.ToolBar}
             constructorName="ToolBar"
             options={currentOptions}
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
 
-export const ControlBar: FC<ControlBarProps> = ({
-    ref,
-    map,
-    AMap,
-    controlOptions,
-    events,
-    onLoad,
-    onDestroy,
-    ...restOptions
-}) => {
-    const currentOptions = mergeAmapControlOptions(controlOptions, restOptions as AmapControlBarOptions)
+export const ControlBar: FC<ControlBarProps> = ({ ref, map, AMap, controlOptions, events, onLoad, onDestroy, ...restOptions }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
+    const currentOptions = mergeAmapControlOptions(controlOptions, restProps as AmapControlBarOptions)
 
     return (
         <AmapControl
             ref={ref}
             map={map}
             AMap={AMap}
-            pluginName="AMap.ControlBar"
+            pluginName={AmapPlugin.ControlBar}
             constructorName="ControlBar"
             options={currentOptions}
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
 
-export const MapType: FC<MapTypeProps> = ({
-    ref,
-    map,
-    AMap,
-    controlOptions,
-    events,
-    onLoad,
-    onDestroy,
-    ...restOptions
-}) => {
-    const currentOptions = mergeAmapControlOptions(controlOptions, restOptions as AmapMapTypeOptions)
+export const MapType: FC<MapTypeProps> = ({ ref, map, AMap, controlOptions, events, onLoad, onDestroy, ...restOptions }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
+    const currentOptions = mergeAmapControlOptions(controlOptions, restProps as AmapMapTypeOptions)
 
     return (
         <AmapControl
             ref={ref}
             map={map}
             AMap={AMap}
-            pluginName="AMap.MapType"
+            pluginName={AmapPlugin.MapType}
             constructorName="MapType"
             options={currentOptions}
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
 
-export const HawkEye: FC<HawkEyeProps> = ({
-    ref,
-    map,
-    AMap,
-    controlOptions,
-    events,
-    onLoad,
-    onDestroy,
-    ...restOptions
-}) => {
-    const currentOptions = mergeAmapControlOptions(controlOptions, restOptions as AmapHawkEyeOptions)
+export const HawkEye: FC<HawkEyeProps> = ({ ref, map, AMap, controlOptions, events, onLoad, onDestroy, ...restOptions }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
+    const currentOptions = mergeAmapControlOptions(controlOptions, restProps as AmapHawkEyeOptions)
 
     return (
         <AmapControl
             ref={ref}
             map={map}
             AMap={AMap}
-            pluginName="AMap.HawkEye"
+            pluginName={AmapPlugin.HawkEye}
             constructorName="HawkEye"
             options={currentOptions}
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }

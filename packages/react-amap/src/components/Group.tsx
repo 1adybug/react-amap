@@ -3,6 +3,7 @@ import { type FC, type Ref, useEffectEvent, useRef } from "react"
 import { type AmapEventHandler, type AmapMapInstance, type AmapNamespace, type AmapZoomRange, useAmapContext } from "./Amap"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
+import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
 
 export type AmapGroupOnLoad<TInstance extends AmapGroupInstance = AmapGroupInstance> = (group: TInstance) => void
 
@@ -84,7 +85,7 @@ export interface AmapGroupNamespace extends AmapNamespace {
 }
 
 /** 覆盖物群组组件属性 */
-export interface OverlayGroupProps extends AmapGroupOptions {
+export interface OverlayGroupProps extends AmapGroupOptions, AmapEventShortcutProps {
     /** 群组实例 ref */
     ref?: Ref<AmapOverlayGroupInstance | null>
     /** 地图实例 */
@@ -102,7 +103,7 @@ export interface OverlayGroupProps extends AmapGroupOptions {
 }
 
 /** 图层群组组件属性 */
-export interface LayerGroupProps extends AmapGroupOptions {
+export interface LayerGroupProps extends AmapGroupOptions, AmapEventShortcutProps {
     /** 群组实例 ref */
     ref?: Ref<AmapLayerGroupInstance | null>
     /** 地图实例 */
@@ -161,12 +162,17 @@ export const OverlayGroup: FC<OverlayGroupProps> = ({
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
-    ...restOptions
+    ...restProps
 }) => {
     const context = useAmapContext()
     const groupRef = useRef<AmapOverlayGroupInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = (AMap ?? context.AMap) as AmapGroupNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapGroupEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOverlays = useEffectEvent(() => overlays)
@@ -213,8 +219,8 @@ export const OverlayGroup: FC<OverlayGroupProps> = ({
     useStableEffect(() => {
         if (!groupRef.current) return
 
-        return bindAmapGroupEvents(groupRef.current, events)
-    }, [currentAMap, currentMap, events, ref])
+        return bindAmapGroupEvents(groupRef.current, currentEvents)
+    }, [currentAMap, currentEvents, currentMap, ref])
 
     return null
 }
@@ -227,12 +233,17 @@ export const LayerGroup: FC<LayerGroupProps> = ({
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
-    ...restOptions
+    ...restProps
 }) => {
     const context = useAmapContext()
     const groupRef = useRef<AmapLayerGroupInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = (AMap ?? context.AMap) as AmapGroupNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapGroupEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialLayers = useEffectEvent(() => layers)
@@ -279,8 +290,8 @@ export const LayerGroup: FC<LayerGroupProps> = ({
     useStableEffect(() => {
         if (!groupRef.current) return
 
-        return bindAmapGroupEvents(groupRef.current, events)
-    }, [currentAMap, currentMap, events, ref])
+        return bindAmapGroupEvents(groupRef.current, currentEvents)
+    }, [currentAMap, currentEvents, currentMap, ref])
 
     return null
 }

@@ -11,9 +11,10 @@ import {
 import { createPortal } from "react-dom"
 
 import { type AmapEventHandler, type AmapMapInstance, type AmapNamespace, useAmapContext } from "./Amap"
-import type { AmapMarkerOffset, AmapMarkerPosition } from "./Marker"
+import type { AmapMarkerAnchor, AmapMarkerOffset, AmapMarkerPosition } from "./Marker"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
+import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
 
 export type AmapInfoWindowOnLoad = (infoWindow: AmapInfoWindowInstance) => void
 
@@ -43,7 +44,7 @@ export interface AmapInfoWindowOptions {
     /** 信息窗体尺寸 */
     size?: unknown
     /** 锚点 */
-    anchor?: string
+    anchor?: AmapMarkerAnchor
     /** 偏移量 */
     offset?: AmapMarkerOffset
     /** 显示位置 */
@@ -66,7 +67,7 @@ export interface AmapInfoWindowInstance {
     /** 设置内容 */
     setContent?: (content: string | HTMLElement) => void
     /** 设置锚点 */
-    setAnchor?: (anchor: string) => void
+    setAnchor?: (anchor: AmapMarkerAnchor) => void
     /** 设置自定义数据 */
     setExtData?: (extData: unknown) => void
     /** 绑定事件 */
@@ -131,7 +132,7 @@ export interface UpdateAmapOverlayContentElementParams {
 }
 
 /** 信息窗体组件属性 */
-export interface InfoWindowProps extends AmapInfoWindowOptions {
+export interface InfoWindowProps extends AmapInfoWindowOptions, AmapEventShortcutProps {
     /** 信息窗体实例 ref */
     ref?: Ref<AmapInfoWindowInstance | null>
     /** 地图实例 */
@@ -159,7 +160,7 @@ export interface InfoWindowProps extends AmapInfoWindowOptions {
 }
 
 /** 右键菜单组件属性 */
-export interface ContextMenuProps extends AmapContextMenuOptions {
+export interface ContextMenuProps extends AmapContextMenuOptions, AmapEventShortcutProps {
     /** 右键菜单实例 ref */
     ref?: Ref<AmapContextMenuInstance | null>
     /** 地图实例 */
@@ -265,7 +266,7 @@ export const InfoWindow: FC<InfoWindowProps> = ({
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
-    ...restOptions
+    ...restProps
 }) => {
     const context = useAmapContext()
     const infoWindowRef = useRef<AmapInfoWindowInstance | null>(null)
@@ -273,7 +274,12 @@ export const InfoWindow: FC<InfoWindowProps> = ({
     const currentAMap = (AMap ?? context.AMap) as AmapDomOverlayNamespace | null
     const [contentElement, setContentElement] = useState<HTMLElement | null>(null)
     const hasChildrenContent = children !== undefined && children !== null && typeof children !== "boolean"
+    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
     const currentOptions = mergeAmapDomOverlayOptions(infoWindowOptions, restOptions as AmapInfoWindowOptions)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapDomOverlayEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -352,8 +358,8 @@ export const InfoWindow: FC<InfoWindowProps> = ({
     useStableEffect(() => {
         if (!infoWindowRef.current) return
 
-        return bindAmapDomOverlayEvents(infoWindowRef.current, events)
-    }, [contentElement, currentAMap, currentMap, events, hasChildrenContent, ref])
+        return bindAmapDomOverlayEvents(infoWindowRef.current, currentEvents)
+    }, [contentElement, currentAMap, currentEvents, currentMap, hasChildrenContent, ref])
 
     if (hasChildrenContent && contentElement) return createPortal(children, contentElement)
 
@@ -373,7 +379,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
-    ...restOptions
+    ...restProps
 }) => {
     const context = useAmapContext()
     const contextMenuRef = useRef<AmapContextMenuInstance | null>(null)
@@ -381,7 +387,12 @@ export const ContextMenu: FC<ContextMenuProps> = ({
     const currentAMap = (AMap ?? context.AMap) as AmapDomOverlayNamespace | null
     const [contentElement, setContentElement] = useState<HTMLElement | null>(null)
     const hasChildrenContent = children !== undefined && children !== null && typeof children !== "boolean"
+    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
     const currentOptions = mergeAmapDomOverlayOptions(contextMenuOptions, restOptions as AmapContextMenuOptions)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapDomOverlayEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -457,8 +468,8 @@ export const ContextMenu: FC<ContextMenuProps> = ({
     useStableEffect(() => {
         if (!contextMenuRef.current) return
 
-        return bindAmapDomOverlayEvents(contextMenuRef.current, events)
-    }, [contentElement, currentAMap, currentMap, events, hasChildrenContent, ref])
+        return bindAmapDomOverlayEvents(contextMenuRef.current, currentEvents)
+    }, [contentElement, currentAMap, currentEvents, currentMap, hasChildrenContent, ref])
 
     if (hasChildrenContent && contentElement) return createPortal(children, contentElement)
 

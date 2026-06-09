@@ -1,9 +1,9 @@
-import type { AmapMapInstance, AmapNamespace } from "../components/Amap"
+import type { AmapMapInstance, AmapNamespace, AmapPlugin } from "../components/Amap"
 
 /** 支持插件加载的高德对象 */
 export interface AmapPluginLoader {
     /** 加载 JSAPI 插件 */
-    plugin?: (plugins: string | string[], callback?: () => void) => void
+    plugin?: (plugins: AmapPlugin | AmapPlugin[], callback?: () => void) => void
 }
 
 /** 检查高德构造器参数 */
@@ -25,7 +25,7 @@ export interface GetAmapPluginLoaderParams {
 /** 加载高德插件参数 */
 export interface LoadAmapPluginParams extends GetAmapPluginLoaderParams {
     /** 插件名称 */
-    pluginName: string
+    pluginName: AmapPlugin
     /** 插件加载后应存在的构造器名称 */
     constructorName: string
 }

@@ -1,10 +1,18 @@
 import { type FC, type Ref, useEffect, useEffectEvent, useRef, useState } from "react"
 
-import { type AmapEventHandler, type AmapMapInstance, type AmapNamespace, type AmapZoomRange, useAmapContext } from "./Amap"
+import {
+    AmapPlugin,
+    type AmapEventHandler,
+    type AmapMapInstance,
+    type AmapNamespace,
+    type AmapZoomRange,
+    useAmapContext,
+} from "./Amap"
 import type { AmapBoundsLike } from "./Vector"
 import { loadAmapPlugin } from "../utils/amapPlugin"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
+import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
 
 export type AmapLayerOnLoad<TInstance extends AmapLayerInstance = AmapLayerInstance> = (layer: TInstance) => void
 
@@ -36,6 +44,29 @@ export interface AmapTileLayerOptions extends AmapLayerBaseOptions {
     dataZooms?: AmapZoomRange
     /** 切片大小 */
     tileSize?: number
+}
+
+/** 灵活切片创建成功回调 */
+export type AmapFlexibleLayerCreateTileSuccess = (tile: HTMLImageElement | HTMLCanvasElement) => void
+
+/** 灵活切片创建失败回调 */
+export type AmapFlexibleLayerCreateTileFail = () => void
+
+/** 灵活切片创建函数 */
+export type AmapFlexibleLayerCreateTile = (
+    x: number,
+    y: number,
+    z: number,
+    success: AmapFlexibleLayerCreateTileSuccess,
+    fail: AmapFlexibleLayerCreateTileFail
+) => void
+
+/** 灵活切片图层参数 */
+export interface AmapFlexibleLayerOptions extends AmapTileLayerOptions {
+    /** 缓存瓦片数量 */
+    cacheSize?: number
+    /** 创建切片 */
+    createTile?: AmapFlexibleLayerCreateTile
 }
 
 /** 交通图层参数 */
@@ -137,6 +168,32 @@ export interface AmapWMTSLayerOptions extends AmapTileLayerOptions {
     params?: Record<string, unknown>
 }
 
+/** Mapbox 矢量瓦片样式 */
+export interface AmapMapboxVectorTileLayerStyles {
+    /** 面样式 */
+    polygon?: Record<string, unknown>
+    /** 线样式 */
+    line?: Record<string, unknown>
+    /** 点样式 */
+    point?: Record<string, unknown>
+    /** 多面体样式 */
+    polyhedron?: Record<string, unknown>
+    [key: string]: unknown
+}
+
+/** Mapbox 矢量瓦片图层参数 */
+export interface AmapMapboxVectorTileLayerOptions extends AmapTileLayerOptions {
+    /** MVT 数据地址 */
+    url?: string
+    /** 样式配置 */
+    styles?: AmapMapboxVectorTileLayerStyles
+}
+
+/** 矢量图层参数 */
+export interface AmapVectorLayerOptions extends AmapLayerBaseOptions {
+    [key: string]: unknown
+}
+
 /** 热力图参数 */
 export interface AmapHeatMapOptions extends AmapLayerBaseOptions {
     /** 热力图半径 */
@@ -188,6 +245,10 @@ export interface AmapLayerInstance {
     setZooms?: (zooms: AmapZoomRange) => void
     /** 设置切片地址 */
     setTileUrl?: (url: string) => void
+    /** 设置数据地址 */
+    setUrl?: (url: string) => void
+    /** 设置图层范围 */
+    setBounds?: (bounds: AmapBoundsLike) => void
     /** 设置楼块样式 */
     setStyle?: (style: unknown) => void
     /** 设置行政区样式 */
@@ -212,6 +273,18 @@ export interface AmapLayerInstance {
     hideLabels?: () => void
     /** 设置热力图数据 */
     setDataSet?: (dataSet: AmapHeatMapDataSet) => void
+    /** 添加矢量覆盖物 */
+    add?: (vectors: unknown | unknown[]) => void
+    /** 移除矢量覆盖物 */
+    remove?: (vectors: unknown | unknown[]) => void
+    /** 判断矢量覆盖物是否在图层中 */
+    has?: (vector: unknown) => boolean
+    /** 清空矢量覆盖物 */
+    clear?: () => void
+    /** 查询矢量覆盖物 */
+    query?: (geometry: unknown) => unknown
+    /** 获取图层范围 */
+    getBounds?: () => unknown
     [key: string]: unknown
 }
 
@@ -245,6 +318,12 @@ export interface AmapLayerNamespace extends AmapNamespace {
     GLCustomLayer?: new (options?: AmapLayerBaseOptions) => AmapLayerInstance
     /** HeatMap 构造器 */
     HeatMap?: AmapHeatMapConstructor
+    /** 灵活切片图层构造器 */
+    Flexible?: new (options?: AmapFlexibleLayerOptions) => AmapLayerInstance
+    /** Mapbox 矢量瓦片图层构造器 */
+    MapboxVectorTileLayer?: new (options?: AmapMapboxVectorTileLayerOptions) => AmapLayerInstance
+    /** 矢量图层构造器 */
+    VectorLayer?: new (options?: AmapVectorLayerOptions) => AmapLayerInstance
 }
 
 /** 内部图层组件属性 */
@@ -258,7 +337,7 @@ export interface AmapLayerProps<TInstance extends AmapLayerInstance, TOptions ex
     /** 构造器路径 */
     constructorPath: string[]
     /** 插件名称 */
-    pluginName?: string
+    pluginName?: AmapPlugin
     /** 插件构造器名称 */
     pluginConstructorName?: string
     /** 图层参数 */
@@ -269,6 +348,8 @@ export interface AmapLayerProps<TInstance extends AmapLayerInstance, TOptions ex
     onLoad?: AmapLayerOnLoad<TInstance>
     /** 销毁前回调 */
     onDestroy?: AmapLayerOnDestroy<TInstance>
+    /** 图层事件快捷属性 */
+    eventShortcuts?: AmapEventShortcutProps
 }
 
 /** 使用图层插件参数 */
@@ -278,13 +359,13 @@ export interface UseAmapLayerPluginParams {
     /** 高德地图命名空间 */
     AMap?: AmapNamespace | null
     /** 插件名称 */
-    pluginName?: string
+    pluginName?: AmapPlugin
     /** 插件构造器名称 */
     pluginConstructorName?: string
 }
 
 /** 通用图层组件属性 */
-export interface LayerProps<TOptions extends AmapLayerBaseOptions = AmapLayerBaseOptions> {
+export interface LayerProps<TOptions extends AmapLayerBaseOptions = AmapLayerBaseOptions> extends AmapEventShortcutProps {
     /** 图层实例 ref */
     ref?: Ref<AmapLayerInstance | null>
     /** 地图实例 */
@@ -303,7 +384,7 @@ export interface LayerProps<TOptions extends AmapLayerBaseOptions = AmapLayerBas
 }
 
 /** 热力图组件属性 */
-export interface HeatMapProps extends AmapHeatMapOptions {
+export interface HeatMapProps extends AmapHeatMapOptions, AmapEventShortcutProps {
     /** 热力图实例 ref */
     ref?: Ref<AmapLayerInstance | null>
     /** 地图实例 */
@@ -456,6 +537,8 @@ function updateAmapLayer<TInstance extends AmapLayerInstance, TOptions extends A
     if (typeof options.zIndex === "number") layer.setzIndex?.(options.zIndex)
     if (options.zooms) layer.setZooms?.(options.zooms)
     if (typeof options.tileUrl === "string") layer.setTileUrl?.(options.tileUrl)
+    if (typeof options.url === "string") layer.setUrl?.(options.url)
+    if (options.bounds !== undefined) layer.setBounds?.(options.bounds as AmapBoundsLike)
     if (options.styleOpts) layer.setStyle?.(options.styleOpts)
     if (options.styles) layer.setStyles?.(options.styles)
     if (typeof options.SOC === "string") layer.setSOC?.(options.SOC)
@@ -507,6 +590,7 @@ function AmapLayer<TInstance extends AmapLayerInstance, TOptions extends AmapLay
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
+    eventShortcuts,
 }: AmapLayerProps<TInstance, TOptions>) {
     const context = useAmapContext()
     const layerRef = useRef<TInstance | null>(null)
@@ -521,6 +605,10 @@ function AmapLayer<TInstance extends AmapLayerInstance, TOptions extends AmapLay
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => options)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapLayerEvents
 
     useStableEffect(() => {
         if (!currentMap || !currentAMap || !pluginLoaded) return
@@ -554,8 +642,8 @@ function AmapLayer<TInstance extends AmapLayerInstance, TOptions extends AmapLay
     useStableEffect(() => {
         if (!layerRef.current) return
 
-        return bindAmapLayerEvents(layerRef.current, events)
-    }, [constructorPath, currentAMap, currentMap, events, pluginLoaded, ref])
+        return bindAmapLayerEvents(layerRef.current, currentEvents)
+    }, [constructorPath, currentAMap, currentEvents, currentMap, pluginLoaded, ref])
 
     return null
 }
@@ -569,8 +657,9 @@ function createLayerComponent<TOptions extends AmapLayerBaseOptions>(constructor
         events,
         onLoad,
         onDestroy,
-        ...restOptions
+        ...restProps
     }) => {
+        const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
         const currentOptions = mergeAmapLayerOptions(layerOptions, restOptions as TOptions)
 
         return (
@@ -583,6 +672,7 @@ function createLayerComponent<TOptions extends AmapLayerBaseOptions>(constructor
                 events={events}
                 onLoad={onLoad}
                 onDestroy={onDestroy}
+                eventShortcuts={eventShortcuts}
             />
         )
     }
@@ -603,6 +693,11 @@ export const RoadNetLayer = createLayerComponent<AmapTileLayerOptions>(["TileLay
 export const WMSLayer = createLayerComponent<AmapWMSLayerOptions>(["TileLayer", "WMS"], "WMSLayer")
 
 export const WMTSLayer = createLayerComponent<AmapWMTSLayerOptions>(["TileLayer", "WMTS"], "WMTSLayer")
+
+export const MapboxVectorTileLayer = createLayerComponent<AmapMapboxVectorTileLayerOptions>(
+    ["MapboxVectorTileLayer"],
+    "MapboxVectorTileLayer"
+)
 
 export const BuildingsLayer = createLayerComponent<AmapBuildingsLayerOptions>(["Buildings"], "BuildingsLayer")
 
@@ -625,6 +720,8 @@ export const DistrictLayerProvince = createLayerComponent<AmapDistrictLayerOptio
 
 export const IndoorMap = createLayerComponent<AmapIndoorMapOptions>(["IndoorMap"], "IndoorMap")
 
+export const FlexibleLayer = createLayerComponent<AmapFlexibleLayerOptions>(["TileLayer", "Flexible"], "FlexibleLayer")
+
 export const ImageLayer = createLayerComponent<AmapImageLayerOptions>(["ImageLayer"], "ImageLayer")
 
 export const CanvasLayer = createLayerComponent<AmapCanvasLayerOptions>(["CanvasLayer"], "CanvasLayer")
@@ -632,6 +729,8 @@ export const CanvasLayer = createLayerComponent<AmapCanvasLayerOptions>(["Canvas
 export const CustomLayer = createLayerComponent<AmapCustomLayerOptions>(["CustomLayer"], "CustomLayer")
 
 export const GLCustomLayer = createLayerComponent<AmapLayerBaseOptions>(["GLCustomLayer"], "GLCustomLayer")
+
+export const VectorLayer = createLayerComponent<AmapVectorLayerOptions>(["VectorLayer"], "VectorLayer")
 
 export const HeatMap: FC<HeatMapProps> = ({
     ref,
@@ -642,19 +741,24 @@ export const HeatMap: FC<HeatMapProps> = ({
     events,
     onLoad,
     onDestroy,
-    ...restOptions
+    ...restProps
 }) => {
     const context = useAmapContext()
     const heatMapRef = useRef<AmapLayerInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = AMap ?? context.AMap
+    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
     const pluginLoaded = useAmapLayerPlugin({
         map: currentMap,
         AMap: currentAMap,
-        pluginName: "AMap.HeatMap",
+        pluginName: AmapPlugin.HeatMap,
         pluginConstructorName: "HeatMap",
     })
     const currentOptions = mergeAmapLayerOptions(heatMapOptions, restOptions as AmapHeatMapOptions)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapLayerEvents
     const onLoadAction = useEffectEvent(optionalFn(onLoad))
     const onDestroyAction = useEffectEvent(optionalFn(onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -694,8 +798,8 @@ export const HeatMap: FC<HeatMapProps> = ({
     useStableEffect(() => {
         if (!heatMapRef.current) return
 
-        return bindAmapLayerEvents(heatMapRef.current, events)
-    }, [currentAMap, currentMap, events, pluginLoaded, ref])
+        return bindAmapLayerEvents(heatMapRef.current, currentEvents)
+    }, [currentAMap, currentEvents, currentMap, pluginLoaded, ref])
 
     return null
 }

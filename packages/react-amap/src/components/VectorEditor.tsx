@@ -1,6 +1,7 @@
 import { type FC, type Ref, useEffectEvent, useRef } from "react"
 
 import {
+    AmapPlugin,
     type AmapEventHandler,
     type AmapMapInstance,
     type AmapNamespace,
@@ -21,6 +22,7 @@ import type { AmapMarkerOptions } from "./Marker"
 import { optionalFn } from "../utils/optionalFn"
 import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
+import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
 
 export type AmapPolyEditorTarget = AmapPolygonInstance | AmapPolylineInstance
 
@@ -264,7 +266,7 @@ export interface AmapVectorEditorProps<
     TInstance extends AmapVectorEditorInstance<TTarget>,
     TTarget,
     TOptions extends AmapVectorEditorBaseOptions,
-> {
+> extends AmapEventShortcutProps {
     /** 编辑器实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
@@ -276,7 +278,7 @@ export interface AmapVectorEditorProps<
     /** 是否开启编辑 */
     active?: boolean
     /** 插件名称 */
-    pluginName: string
+    pluginName: AmapPlugin
     /** 构造器名称 */
     constructorName: string
     /** 编辑器参数 */
@@ -290,7 +292,7 @@ export interface AmapVectorEditorProps<
 }
 
 /** 多边形编辑器组件属性 */
-export interface PolygonEditorProps extends AmapPolygonEditorOptions {
+export interface PolygonEditorProps extends AmapPolygonEditorOptions, AmapEventShortcutProps {
     /** 编辑器实例 ref */
     ref?: Ref<AmapPolygonEditorInstance | null>
     /** 地图实例 */
@@ -312,7 +314,7 @@ export interface PolygonEditorProps extends AmapPolygonEditorOptions {
 }
 
 /** 折线编辑器组件属性 */
-export interface PolylineEditorProps extends AmapPolylineEditorOptions {
+export interface PolylineEditorProps extends AmapPolylineEditorOptions, AmapEventShortcutProps {
     /** 编辑器实例 ref */
     ref?: Ref<AmapPolylineEditorInstance | null>
     /** 地图实例 */
@@ -334,7 +336,7 @@ export interface PolylineEditorProps extends AmapPolylineEditorOptions {
 }
 
 /** 通用 PolyEditor 组件属性 */
-export interface PolyEditorProps extends AmapPolyEditorOptions {
+export interface PolyEditorProps extends AmapPolyEditorOptions, AmapEventShortcutProps {
     /** 编辑器实例 ref */
     ref?: Ref<AmapPolyEditorInstance | null>
     /** 地图实例 */
@@ -356,7 +358,7 @@ export interface PolyEditorProps extends AmapPolyEditorOptions {
 }
 
 /** 圆形编辑器组件属性 */
-export interface CircleEditorProps extends AmapCircleEditorOptions {
+export interface CircleEditorProps extends AmapCircleEditorOptions, AmapEventShortcutProps {
     /** 编辑器实例 ref */
     ref?: Ref<AmapCircleEditorInstance | null>
     /** 地图实例 */
@@ -378,7 +380,7 @@ export interface CircleEditorProps extends AmapCircleEditorOptions {
 }
 
 /** 贝塞尔曲线编辑器组件属性 */
-export interface BezierCurveEditorProps extends AmapBezierCurveEditorOptions {
+export interface BezierCurveEditorProps extends AmapBezierCurveEditorOptions, AmapEventShortcutProps {
     /** 编辑器实例 ref */
     ref?: Ref<AmapBezierCurveEditorInstance | null>
     /** 地图实例 */
@@ -400,7 +402,7 @@ export interface BezierCurveEditorProps extends AmapBezierCurveEditorOptions {
 }
 
 /** 椭圆编辑器组件属性 */
-export interface EllipseEditorProps extends AmapEllipseEditorOptions {
+export interface EllipseEditorProps extends AmapEllipseEditorOptions, AmapEventShortcutProps {
     /** 编辑器实例 ref */
     ref?: Ref<AmapEllipseEditorInstance | null>
     /** 地图实例 */
@@ -422,7 +424,7 @@ export interface EllipseEditorProps extends AmapEllipseEditorOptions {
 }
 
 /** 矩形编辑器组件属性 */
-export interface RectangleEditorProps extends AmapRectangleEditorOptions {
+export interface RectangleEditorProps extends AmapRectangleEditorOptions, AmapEventShortcutProps {
     /** 编辑器实例 ref */
     ref?: Ref<AmapRectangleEditorInstance | null>
     /** 地图实例 */
@@ -524,6 +526,7 @@ function AmapVectorEditor<
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
+    ...eventShortcuts
 }: AmapVectorEditorProps<TInstance, TTarget, TOptions>) {
     const context = useAmapContext()
     const editorRef = useRef<TInstance | null>(null)
@@ -540,6 +543,10 @@ function AmapVectorEditor<
     const getInitialTarget = useEffectEvent(() => target)
     const getInitialOptions = useEffectEvent(() => options)
     const getInitialActive = useEffectEvent(() => active)
+    const currentEvents = mergeAmapEvents({
+        eventShortcuts,
+        events,
+    }) as AmapVectorEditorEvents
 
     useStableEffect(() => {
         if (!currentMap || !currentAMap || !pluginLoaded) return
@@ -598,9 +605,9 @@ function AmapVectorEditor<
 
         return bindAmapVectorEditorEvents({
             editor: editorRef.current,
-            events,
+            events: currentEvents,
         })
-    }, [constructorName, currentAMap, currentMap, events, pluginLoaded, ref])
+    }, [constructorName, currentAMap, currentEvents, currentMap, pluginLoaded, ref])
 
     return null
 }
@@ -617,9 +624,10 @@ export const PolygonEditor: FC<PolygonEditorProps> = ({
     onDestroy,
     ...restOptions
 }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
     const currentOptions = mergeAmapVectorEditorOptions({
         editorOptions,
-        extraOptions: restOptions as AmapPolygonEditorOptions,
+        extraOptions: restProps as AmapPolygonEditorOptions,
     })
 
     return (
@@ -629,12 +637,13 @@ export const PolygonEditor: FC<PolygonEditorProps> = ({
             AMap={AMap}
             target={target}
             active={active}
-            pluginName="AMap.PolygonEditor"
+            pluginName={AmapPlugin.PolygonEditor}
             constructorName="PolygonEditor"
             options={currentOptions}
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
@@ -651,9 +660,10 @@ export const PolylineEditor: FC<PolylineEditorProps> = ({
     onDestroy,
     ...restOptions
 }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
     const currentOptions = mergeAmapVectorEditorOptions({
         editorOptions,
-        extraOptions: restOptions as AmapPolylineEditorOptions,
+        extraOptions: restProps as AmapPolylineEditorOptions,
     })
 
     return (
@@ -663,12 +673,13 @@ export const PolylineEditor: FC<PolylineEditorProps> = ({
             AMap={AMap}
             target={target}
             active={active}
-            pluginName="AMap.PolylineEditor"
+            pluginName={AmapPlugin.PolylineEditor}
             constructorName="PolylineEditor"
             options={currentOptions}
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
@@ -685,9 +696,10 @@ export const PolyEditor: FC<PolyEditorProps> = ({
     onDestroy,
     ...restOptions
 }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
     const currentOptions = mergeAmapVectorEditorOptions({
         editorOptions,
-        extraOptions: restOptions as AmapPolyEditorOptions,
+        extraOptions: restProps as AmapPolyEditorOptions,
     })
 
     return (
@@ -697,12 +709,13 @@ export const PolyEditor: FC<PolyEditorProps> = ({
             AMap={AMap}
             target={target}
             active={active}
-            pluginName="AMap.PolyEditor"
+            pluginName={AmapPlugin.PolyEditor}
             constructorName="PolyEditor"
             options={currentOptions}
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
@@ -719,9 +732,10 @@ export const CircleEditor: FC<CircleEditorProps> = ({
     onDestroy,
     ...restOptions
 }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
     const currentOptions = mergeAmapVectorEditorOptions({
         editorOptions,
-        extraOptions: restOptions as AmapCircleEditorOptions,
+        extraOptions: restProps as AmapCircleEditorOptions,
     })
 
     return (
@@ -731,12 +745,13 @@ export const CircleEditor: FC<CircleEditorProps> = ({
             AMap={AMap}
             target={target}
             active={active}
-            pluginName="AMap.CircleEditor"
+            pluginName={AmapPlugin.CircleEditor}
             constructorName="CircleEditor"
             options={currentOptions}
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
@@ -753,9 +768,10 @@ export const BezierCurveEditor: FC<BezierCurveEditorProps> = ({
     onDestroy,
     ...restOptions
 }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
     const currentOptions = mergeAmapVectorEditorOptions({
         editorOptions,
-        extraOptions: restOptions as AmapBezierCurveEditorOptions,
+        extraOptions: restProps as AmapBezierCurveEditorOptions,
     })
 
     return (
@@ -765,12 +781,13 @@ export const BezierCurveEditor: FC<BezierCurveEditorProps> = ({
             AMap={AMap}
             target={target}
             active={active}
-            pluginName="AMap.BezierCurveEditor"
+            pluginName={AmapPlugin.BezierCurveEditor}
             constructorName="BezierCurveEditor"
             options={currentOptions}
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
@@ -787,9 +804,10 @@ export const EllipseEditor: FC<EllipseEditorProps> = ({
     onDestroy,
     ...restOptions
 }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
     const currentOptions = mergeAmapVectorEditorOptions({
         editorOptions,
-        extraOptions: restOptions as AmapEllipseEditorOptions,
+        extraOptions: restProps as AmapEllipseEditorOptions,
     })
 
     return (
@@ -799,12 +817,13 @@ export const EllipseEditor: FC<EllipseEditorProps> = ({
             AMap={AMap}
             target={target}
             active={active}
-            pluginName="AMap.EllipseEditor"
+            pluginName={AmapPlugin.EllipseEditor}
             constructorName="EllipseEditor"
             options={currentOptions}
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
@@ -821,9 +840,10 @@ export const RectangleEditor: FC<RectangleEditorProps> = ({
     onDestroy,
     ...restOptions
 }) => {
+    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
     const currentOptions = mergeAmapVectorEditorOptions({
         editorOptions,
-        extraOptions: restOptions as AmapRectangleEditorOptions,
+        extraOptions: restProps as AmapRectangleEditorOptions,
     })
 
     return (
@@ -833,12 +853,13 @@ export const RectangleEditor: FC<RectangleEditorProps> = ({
             AMap={AMap}
             target={target}
             active={active}
-            pluginName="AMap.RectangleEditor"
+            pluginName={AmapPlugin.RectangleEditor}
             constructorName="RectangleEditor"
             options={currentOptions}
             events={events}
             onLoad={onLoad}
             onDestroy={onDestroy}
+            {...eventShortcuts}
         />
     )
 }
