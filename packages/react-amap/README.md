@@ -642,7 +642,9 @@ const markerRef = useRef<AmapMarkerInstance | null>(null)
 `VectorLayer` 创建 `AMap.VectorLayer`，用于承载矢量覆盖物。
 
 ```tsx
-<VectorLayer zIndex={20} onLoad={layer => layer.add?.(polygonInstance)} />
+<VectorLayer zIndex={20}>
+    <Polygon path={path} strokeColor="#1677ff" fillColor="#1677ff" fillOpacity={0.2} />
+</VectorLayer>
 ```
 
 ### HeatMap
@@ -735,24 +737,26 @@ const markerRef = useRef<AmapMarkerInstance | null>(null)
 `OverlayGroup` 创建 `AMap.OverlayGroup`，用于统一管理覆盖物。
 
 ```tsx
-<OverlayGroup
-    overlays={[markerInstance, polygonInstance]}
-    visible
-    opacity={0.8}
-/>
+<OverlayGroup visible opacity={0.8}>
+    <Marker position={[116.397428, 39.90923]} title="天安门" />
+    <Circle center={[116.397428, 39.90923]} radius={500} />
+</OverlayGroup>
 ```
 
-常用 props：`overlays`、`visible`、`opacity`、`zIndex`、`zooms`。
+常用 props：`children`、`visible`、`opacity`、`zIndex`、`zooms`。
 
 ### LayerGroup
 
 `LayerGroup` 创建 `AMap.LayerGroup`，用于统一管理图层。
 
 ```tsx
-<LayerGroup layers={[satelliteLayer, roadNetLayer]} visible />
+<LayerGroup visible>
+    <SatelliteLayer />
+    <RoadNetLayer />
+</LayerGroup>
 ```
 
-常用 props：`layers`、`visible`、`opacity`、`zIndex`、`zooms`。
+常用 props：`children`、`visible`、`opacity`、`zIndex`、`zooms`。
 
 ## MouseTool
 

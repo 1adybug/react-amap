@@ -1,4 +1,14 @@
-import { type FC, type Ref, useEffect, useEffectEvent, useRef, useState } from "react"
+import {
+    type FC,
+    type ReactNode,
+    type Ref,
+    createContext,
+    useContext,
+    useEffect,
+    useEffectEvent,
+    useRef,
+    useState,
+} from "react"
 
 import {
     AmapPlugin,
@@ -8,6 +18,7 @@ import {
     type AmapZoomRange,
     useAmapContext,
 } from "./Amap"
+import { useLayerGroupContext } from "./Group"
 import type { AmapBoundsLike } from "./Vector"
 import { loadAmapPlugin } from "../utils/amapPlugin"
 import { optionalFn } from "../utils/optionalFn"
@@ -355,6 +366,10 @@ export interface AmapLayerProps<TInstance extends AmapLayerInstance, TOptions ex
     onDestroy?: AmapLayerOnDestroy<TInstance>
     /** 图层事件快捷属性 */
     eventShortcuts?: AmapEventShortcutProps<AmapOverlayMouseEvent<TInstance>>
+    /** 子覆盖物 */
+    children?: ReactNode
+    /** 是否向子覆盖物提供矢量图层上下文 */
+    provideVectorLayerContext?: boolean
 }
 
 /** 使用图层插件参数 */
@@ -407,6 +422,19 @@ export interface HeatMapProps extends AmapHeatMapOptions, AmapEventShortcutProps
     onLoad?: AmapLayerOnLoad
     /** 销毁前回调 */
     onDestroy?: AmapLayerOnDestroy
+}
+
+/** 矢量图层组件属性 */
+export interface VectorLayerProps extends LayerProps<AmapVectorLayerOptions> {
+    /** 子矢量覆盖物 */
+    children?: ReactNode
+}
+
+/** 矢量图层上下文 */
+export const VectorLayerContext = createContext<AmapLayerInstance | null>(null)
+
+export function useVectorLayerContext() {
+    return useContext(VectorLayerContext)
 }
 
 function getAmapObjectByPath(root: unknown, path: string[]) {
@@ -597,11 +625,16 @@ function AmapLayer<TInstance extends AmapLayerInstance, TOptions extends AmapLay
     onLoad: _onLoad,
     onDestroy: _onDestroy,
     eventShortcuts,
+    children,
+    provideVectorLayerContext,
 }: AmapLayerProps<TInstance, TOptions>) {
     const context = useAmapContext()
+    const contextGroup = useLayerGroupContext()
     const layerRef = useRef<TInstance | null>(null)
+    const [contextLayer, setContextLayer] = useState<TInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = AMap ?? context.AMap
+    const currentGroup = map ? null : contextGroup
     const pluginLoaded = useAmapLayerPlugin({
         map: currentMap,
         AMap: currentAMap,
@@ -626,18 +659,35 @@ function AmapLayer<TInstance extends AmapLayerInstance, TOptions extends AmapLay
         const initialOptions = getInitialOptions()
         const layer = new LayerConstructor(initialOptions)
 
-        addAmapLayer(currentMap, layer)
+        if (currentGroup) currentGroup.addLayer?.(layer)
+        else addAmapLayer(currentMap, layer)
+
         layerRef.current = layer
+        setContextLayer(layer)
         setAmapLayerRef(ref, layer)
         updateAmapLayer(layer, initialOptions)
         onLoad(layer)
 
         return () => {
             layerRef.current = null
+            setContextLayer(null)
             setAmapLayerRef(ref, null)
+
+            if (currentGroup) {
+                try {
+                    onDestroy(layer)
+                } finally {
+                    currentGroup.removeLayer?.(layer)
+                    layer.setMap?.(null)
+                    layer.destroy?.()
+                }
+
+                return
+            }
+
             removeAmapLayer(currentMap, layer, onDestroy)
         }
-    }, [constructorPath, currentAMap, currentMap, pluginLoaded, ref])
+    }, [constructorPath, currentAMap, currentGroup, currentMap, pluginLoaded, ref])
 
     useStableEffect(() => {
         if (!layerRef.current) return
@@ -649,7 +699,10 @@ function AmapLayer<TInstance extends AmapLayerInstance, TOptions extends AmapLay
         if (!layerRef.current) return
 
         return bindAmapLayerEvents(layerRef.current, currentEvents)
-    }, [constructorPath, currentAMap, currentEvents, currentMap, pluginLoaded, ref])
+    }, [constructorPath, currentAMap, currentEvents, currentGroup, currentMap, pluginLoaded, ref])
+
+    if (provideVectorLayerContext)
+        return <VectorLayerContext value={contextLayer}>{contextLayer ? children : null}</VectorLayerContext>
 
     return null
 }
@@ -736,7 +789,38 @@ export const CustomLayer = createLayerComponent<AmapCustomLayerOptions>(["Custom
 
 export const GLCustomLayer = createLayerComponent<AmapLayerBaseOptions>(["GLCustomLayer"], "GLCustomLayer")
 
-export const VectorLayer = createLayerComponent<AmapVectorLayerOptions>(["VectorLayer"], "VectorLayer")
+export const VectorLayer: FC<VectorLayerProps> = ({
+    ref,
+    map,
+    AMap,
+    children,
+    layerOptions,
+    events,
+    onLoad,
+    onDestroy,
+    ...restProps
+}) => {
+    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
+    const currentOptions = mergeAmapLayerOptions(layerOptions, restOptions as AmapVectorLayerOptions)
+
+    return (
+        <AmapLayer
+            ref={ref}
+            map={map}
+            AMap={AMap}
+            constructorPath={["VectorLayer"]}
+            options={currentOptions}
+            events={events}
+            onLoad={onLoad}
+            onDestroy={onDestroy}
+            eventShortcuts={eventShortcuts}
+            children={children}
+            provideVectorLayerContext
+        />
+    )
+}
+
+VectorLayer.displayName = "VectorLayer"
 
 export const HeatMap: FC<HeatMapProps> = ({
     ref,
@@ -750,9 +834,11 @@ export const HeatMap: FC<HeatMapProps> = ({
     ...restProps
 }) => {
     const context = useAmapContext()
+    const contextGroup = useLayerGroupContext()
     const heatMapRef = useRef<AmapLayerInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = AMap ?? context.AMap
+    const currentGroup = map ? null : contextGroup
     const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
     const pluginLoaded = useAmapLayerPlugin({
         map: currentMap,
@@ -780,6 +866,7 @@ export const HeatMap: FC<HeatMapProps> = ({
         const initialOptions = getInitialOptions()
         const heatMap = new (HeatMapConstructor as AmapHeatMapConstructor)(currentMap, initialOptions)
 
+        currentGroup?.addLayer?.(heatMap)
         heatMapRef.current = heatMap
         setAmapLayerRef(ref, heatMap)
         updateAmapLayer(heatMap, initialOptions)
@@ -789,9 +876,22 @@ export const HeatMap: FC<HeatMapProps> = ({
         return () => {
             heatMapRef.current = null
             setAmapLayerRef(ref, null)
+
+            if (currentGroup) {
+                try {
+                    onDestroyAction(heatMap)
+                } finally {
+                    currentGroup.removeLayer?.(heatMap)
+                    heatMap.setMap?.(null)
+                    heatMap.destroy?.()
+                }
+
+                return
+            }
+
             removeAmapLayer(currentMap, heatMap, onDestroyAction)
         }
-    }, [currentAMap, currentMap, pluginLoaded, ref])
+    }, [currentAMap, currentGroup, currentMap, pluginLoaded, ref])
 
     useStableEffect(() => {
         if (!heatMapRef.current) return
@@ -805,7 +905,7 @@ export const HeatMap: FC<HeatMapProps> = ({
         if (!heatMapRef.current) return
 
         return bindAmapLayerEvents(heatMapRef.current, currentEvents)
-    }, [currentAMap, currentEvents, currentMap, pluginLoaded, ref])
+    }, [currentAMap, currentEvents, currentGroup, currentMap, pluginLoaded, ref])
 
     return null
 }

@@ -18,6 +18,7 @@ import {
     type AmapZoomRange,
     useAmapContext,
 } from "./Amap"
+import { useLayerGroupContext } from "./Group"
 import type {
     AmapMarkerAnchor,
     AmapMarkerLabelDirection,
@@ -660,8 +661,6 @@ export interface LabelMarkerProps
         AmapEventShortcutProps<AmapOverlayMouseEvent<AmapLabelMarkerInstance>> {
     /** 标注实例 ref */
     ref?: Ref<AmapLabelMarkerInstance | null>
-    /** 标注图层实例 */
-    layer?: AmapLabelsLayerInstance
     /** 高德地图命名空间 */
     AMap?: AmapNamespace
     /** 标注额外参数 */
@@ -1038,10 +1037,12 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
     ...restProps
 }) => {
     const context = useAmapContext()
+    const contextGroup = useLayerGroupContext()
     const layerRef = useRef<AmapLabelsLayerInstance | null>(null)
     const [contextLayer, setContextLayer] = useState<AmapLabelsLayerInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = (AMap ?? context.AMap) as AmapPointNamespace | null
+    const currentGroup = map ? null : contextGroup
     const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
     const currentOptions = mergeAmapPointOptions(labelsLayerOptions, restOptions as AmapLabelsLayerOptions)
     const currentEvents = mergeAmapEvents({
@@ -1058,7 +1059,9 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
         const initialOptions = getInitialOptions()
         const layer = new currentAMap.LabelsLayer(initialOptions)
 
-        currentMap.add?.(layer)
+        if (currentGroup) currentGroup.addLayer?.(layer)
+        else currentMap.add?.(layer)
+
         layerRef.current = layer
         setContextLayer(layer)
         setAmapPointRef({
@@ -1075,9 +1078,22 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
                 ref,
                 instance: null,
             })
+
+            if (currentGroup) {
+                try {
+                    onDestroy(layer)
+                } finally {
+                    currentGroup.removeLayer?.(layer)
+                    layer.clear?.()
+                    layer.setMap?.(null)
+                }
+
+                return
+            }
+
             removeAmapLabelsLayer(layer, onDestroy)
         }
-    }, [currentAMap, currentMap, ref])
+    }, [currentAMap, currentGroup, currentMap, ref])
 
     useStableEffect(() => {
         if (!layerRef.current) return
@@ -1092,14 +1108,13 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
             instance: layerRef.current,
             events: currentEvents,
         })
-    }, [currentAMap, currentEvents, currentMap, ref])
+    }, [currentAMap, currentEvents, currentGroup, currentMap, ref])
 
     return <LabelsLayerContext value={contextLayer}>{children}</LabelsLayerContext>
 }
 
 export const LabelMarker: FC<LabelMarkerProps> = ({
     ref,
-    layer,
     AMap,
     labelMarkerOptions,
     events,
@@ -1110,7 +1125,7 @@ export const LabelMarker: FC<LabelMarkerProps> = ({
     const context = useAmapContext()
     const contextLayer = useLabelsLayerContext()
     const markerRef = useRef<AmapLabelMarkerInstance | null>(null)
-    const currentLayer = layer ?? contextLayer
+    const currentLayer = contextLayer
     const currentAMap = (AMap ?? context.AMap) as AmapPointNamespace | null
     const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
     const currentOptions = mergeAmapPointOptions(labelMarkerOptions, restOptions as AmapLabelMarkerOptions)

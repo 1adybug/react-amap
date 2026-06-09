@@ -1,5 +1,11 @@
 # @1adybug/react-amap
 
+## 0.3.0
+
+### Minor Changes
+
+- feat(react-amap): use children for group registration; BREAKING CHANGE: remove OverlayGroup overlays, LayerGroup layers, and LabelMarker layer props; use nested components for registration instead.
+
 ## 0.2.1
 
 ### Patch Changes

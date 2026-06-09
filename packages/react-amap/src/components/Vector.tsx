@@ -7,6 +7,8 @@ import {
     type AmapNamespace,
     useAmapContext,
 } from "./Amap"
+import { useOverlayGroupContext } from "./Group"
+import { useVectorLayerContext } from "./Layer"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
@@ -643,9 +645,13 @@ function AmapVectorOverlay<
     ...eventShortcuts
 }: AmapVectorOverlayProps<TInstance, TOptions>) {
     const context = useAmapContext()
+    const contextGroup = useOverlayGroupContext()
+    const contextLayer = useVectorLayerContext()
     const overlayRef = useRef<TInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = AMap ?? context.AMap
+    const currentGroup = map ? null : contextGroup
+    const currentLayer = map ? null : contextLayer
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => options)
@@ -667,7 +673,10 @@ function AmapVectorOverlay<
         const initialOptions = getInitialOptions()
         const overlay = new OverlayConstructor(initialOptions)
 
-        currentMap.add?.(overlay)
+        if (currentLayer) currentLayer.add?.(overlay)
+        else if (currentGroup) currentGroup.addOverlay?.(overlay)
+        else currentMap.add?.(overlay)
+
         overlayRef.current = overlay
         setAmapVectorOverlayRef({
             ref,
@@ -685,13 +694,40 @@ function AmapVectorOverlay<
                 ref,
                 overlay: null,
             })
+
+            if (currentLayer) {
+                const runtimeOverlay = overlay as AmapVectorOverlayRuntime
+
+                try {
+                    onDestroy(overlay)
+                } finally {
+                    currentLayer.remove?.(overlay)
+                    runtimeOverlay.setMap?.(null)
+                }
+
+                return
+            }
+
+            if (currentGroup) {
+                const runtimeOverlay = overlay as AmapVectorOverlayRuntime
+
+                try {
+                    onDestroy(overlay)
+                } finally {
+                    currentGroup.removeOverlay?.(overlay)
+                    runtimeOverlay.setMap?.(null)
+                }
+
+                return
+            }
+
             removeAmapVectorOverlay({
                 map: currentMap,
                 overlay,
                 onDestroy,
             })
         }
-    }, [constructorName, currentAMap, currentMap, ref])
+    }, [constructorName, currentAMap, currentGroup, currentLayer, currentMap, ref])
 
     useStableEffect(() => {
         if (!overlayRef.current) return
@@ -709,7 +745,7 @@ function AmapVectorOverlay<
             overlay: overlayRef.current,
             events: currentEvents,
         })
-    }, [constructorName, currentAMap, currentEvents, currentMap, ref])
+    }, [constructorName, currentAMap, currentEvents, currentGroup, currentLayer, currentMap, ref])
 
     return null
 }

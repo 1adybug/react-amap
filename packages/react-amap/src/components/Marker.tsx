@@ -18,6 +18,7 @@ import {
     type AmapZoomRange,
     useAmapContext,
 } from "./Amap"
+import { useOverlayGroupContext } from "./Group"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
@@ -380,11 +381,13 @@ export const Marker: FC<MarkerProps> = ({
     ...restProps
 }) => {
     const context = useAmapContext()
+    const contextGroup = useOverlayGroupContext()
     const markerRef = useRef<AmapMarkerInstance | null>(null)
     const [contentElement, setContentElement] = useState<HTMLElement | null>(null)
     const hasChildrenContent = children !== undefined && children !== null && typeof children !== "boolean"
     const currentMap = map ?? context.map
     const currentAMap = (AMap ?? context.AMap) as AmapMarkerNamespace | null
+    const currentGroup = map ? null : contextGroup
     const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
     const extraOptions = restOptions as AmapMarkerOptions
     const currentEvents = mergeAmapEvents({
@@ -449,10 +452,12 @@ export const Marker: FC<MarkerProps> = ({
             ...getInitialMarkerOptions(),
         }
 
-        nextMarkerOptions.map = currentMap
+        if (currentGroup) delete nextMarkerOptions.map
+        else nextMarkerOptions.map = currentMap
 
         const marker = new currentAMap.Marker(nextMarkerOptions)
 
+        currentGroup?.addOverlay?.(marker)
         markerRef.current = marker
         setAmapMarkerRef({
             ref,
@@ -466,9 +471,21 @@ export const Marker: FC<MarkerProps> = ({
                 ref,
                 marker: null,
             })
+
+            if (currentGroup) {
+                try {
+                    onDestroy(marker)
+                } finally {
+                    currentGroup.removeOverlay?.(marker)
+                    marker.setMap?.(null)
+                }
+
+                return
+            }
+
             removeAmapMarker(marker, onDestroy)
         }
-    }, [contentElement, currentAMap, currentMap, hasChildrenContent, ref])
+    }, [contentElement, currentAMap, currentGroup, currentMap, hasChildrenContent, ref])
 
     useStableEffect(() => {
         if (!markerRef.current) return
@@ -483,7 +500,7 @@ export const Marker: FC<MarkerProps> = ({
             marker: markerRef.current,
             events: currentEvents,
         })
-    }, [contentElement, currentAMap, currentEvents, currentMap, hasChildrenContent, ref])
+    }, [contentElement, currentAMap, currentEvents, currentGroup, currentMap, hasChildrenContent, ref])
 
     if (hasChildrenContent && contentElement) return createPortal(children, contentElement)
 
