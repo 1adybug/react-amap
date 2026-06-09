@@ -14,7 +14,14 @@ import { type AmapEventHandler, type AmapMapInstance, type AmapNamespace, useAma
 import type { AmapMarkerAnchor, AmapMarkerOffset, AmapMarkerPosition } from "./Marker"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
-import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
+import {
+    type AmapEventMap,
+    type AmapEventShortcutProps,
+    type AmapOverlayMouseEvent,
+    getAmapEventEntries,
+    mergeAmapEvents,
+    splitAmapEventShortcutProps,
+} from "../utils/amapEvents"
 
 export type AmapInfoWindowOnLoad = (infoWindow: AmapInfoWindowInstance) => void
 
@@ -25,9 +32,8 @@ export type AmapContextMenuOnLoad = (contextMenu: AmapContextMenuInstance) => vo
 export type AmapContextMenuOnDestroy = (contextMenu: AmapContextMenuInstance) => void
 
 /** 交互覆盖物事件映射 */
-export interface AmapDomOverlayEvents {
-    [eventName: string]: AmapEventHandler
-}
+export interface AmapDomOverlayEvents<TInstance = AmapDomOverlayEventTarget>
+    extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
 
 /** 信息窗体参数 */
 export interface AmapInfoWindowOptions {
@@ -132,7 +138,9 @@ export interface UpdateAmapOverlayContentElementParams {
 }
 
 /** 信息窗体组件属性 */
-export interface InfoWindowProps extends AmapInfoWindowOptions, AmapEventShortcutProps {
+export interface InfoWindowProps
+    extends AmapInfoWindowOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapInfoWindowInstance>> {
     /** 信息窗体实例 ref */
     ref?: Ref<AmapInfoWindowInstance | null>
     /** 地图实例 */
@@ -152,7 +160,7 @@ export interface InfoWindowProps extends AmapInfoWindowOptions, AmapEventShortcu
     /** 信息窗体额外参数 */
     infoWindowOptions?: AmapInfoWindowOptions
     /** 事件映射 */
-    events?: AmapDomOverlayEvents
+    events?: AmapDomOverlayEvents<AmapInfoWindowInstance>
     /** 创建完成回调 */
     onLoad?: AmapInfoWindowOnLoad
     /** 销毁前回调 */
@@ -160,7 +168,9 @@ export interface InfoWindowProps extends AmapInfoWindowOptions, AmapEventShortcu
 }
 
 /** 右键菜单组件属性 */
-export interface ContextMenuProps extends AmapContextMenuOptions, AmapEventShortcutProps {
+export interface ContextMenuProps
+    extends AmapContextMenuOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapContextMenuInstance>> {
     /** 右键菜单实例 ref */
     ref?: Ref<AmapContextMenuInstance | null>
     /** 地图实例 */
@@ -180,7 +190,7 @@ export interface ContextMenuProps extends AmapContextMenuOptions, AmapEventShort
     /** 右键菜单额外参数 */
     contextMenuOptions?: AmapContextMenuOptions
     /** 事件映射 */
-    events?: AmapDomOverlayEvents
+    events?: AmapDomOverlayEvents<AmapContextMenuInstance>
     /** 创建完成回调 */
     onLoad?: AmapContextMenuOnLoad
     /** 销毁前回调 */
@@ -202,12 +212,12 @@ function bindAmapDomOverlayEvents<TInstance extends AmapDomOverlayEventTarget>(
     instance: TInstance,
     events?: AmapDomOverlayEvents
 ) {
-    const eventEntries = Object.entries(events ?? {})
+    const eventEntries = getAmapEventEntries(events)
 
-    eventEntries.forEach(([eventName, handler]) => instance.on?.(eventName, handler))
+    eventEntries.forEach(({ eventName, handler }) => instance.on?.(eventName, handler))
 
     return function unbindAmapDomOverlayEvents() {
-        eventEntries.forEach(([eventName, handler]) => instance.off?.(eventName, handler))
+        eventEntries.forEach(({ eventName, handler }) => instance.off?.(eventName, handler))
     }
 }
 

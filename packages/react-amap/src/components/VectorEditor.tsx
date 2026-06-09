@@ -22,7 +22,14 @@ import type { AmapMarkerOptions } from "./Marker"
 import { optionalFn } from "../utils/optionalFn"
 import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
-import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
+import {
+    type AmapEventMap,
+    type AmapEventShortcutProps,
+    type AmapOverlayMouseEvent,
+    getAmapEventEntries,
+    mergeAmapEvents,
+    splitAmapEventShortcutProps,
+} from "../utils/amapEvents"
 
 export type AmapPolyEditorTarget = AmapPolygonInstance | AmapPolylineInstance
 
@@ -35,9 +42,8 @@ export type AmapVectorEditorOnDestroy<TInstance extends AmapVectorEditorInstance
 ) => void
 
 /** 矢量编辑器事件映射 */
-export interface AmapVectorEditorEvents {
-    [eventName: string]: AmapEventHandler
-}
+export interface AmapVectorEditorEvents<TInstance = AmapVectorEditorInstance>
+    extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
 
 /** 矢量编辑器基础参数 */
 export interface AmapVectorEditorBaseOptions {
@@ -250,7 +256,7 @@ export interface BindAmapVectorEditorEventsParams<TInstance extends AmapVectorEd
     /** 编辑器实例 */
     editor: TInstance
     /** 事件映射 */
-    events?: AmapVectorEditorEvents
+    events?: AmapVectorEditorEvents<TInstance>
 }
 
 /** 移除矢量编辑器参数 */
@@ -266,7 +272,7 @@ export interface AmapVectorEditorProps<
     TInstance extends AmapVectorEditorInstance<TTarget>,
     TTarget,
     TOptions extends AmapVectorEditorBaseOptions,
-> extends AmapEventShortcutProps {
+> extends AmapEventShortcutProps<AmapOverlayMouseEvent<TInstance>> {
     /** 编辑器实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
@@ -284,7 +290,7 @@ export interface AmapVectorEditorProps<
     /** 编辑器参数 */
     options: TOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents
+    events?: AmapVectorEditorEvents<TInstance>
     /** 编辑器创建完成回调 */
     onLoad?: AmapVectorEditorOnLoad<TInstance>
     /** 编辑器销毁前回调 */
@@ -292,7 +298,9 @@ export interface AmapVectorEditorProps<
 }
 
 /** 多边形编辑器组件属性 */
-export interface PolygonEditorProps extends AmapPolygonEditorOptions, AmapEventShortcutProps {
+export interface PolygonEditorProps
+    extends AmapPolygonEditorOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapPolygonEditorInstance>> {
     /** 编辑器实例 ref */
     ref?: Ref<AmapPolygonEditorInstance | null>
     /** 地图实例 */
@@ -306,7 +314,7 @@ export interface PolygonEditorProps extends AmapPolygonEditorOptions, AmapEventS
     /** 编辑器额外参数 */
     editorOptions?: AmapPolygonEditorOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents
+    events?: AmapVectorEditorEvents<AmapPolygonEditorInstance>
     /** 编辑器创建完成回调 */
     onLoad?: AmapVectorEditorOnLoad<AmapPolygonEditorInstance>
     /** 编辑器销毁前回调 */
@@ -314,7 +322,9 @@ export interface PolygonEditorProps extends AmapPolygonEditorOptions, AmapEventS
 }
 
 /** 折线编辑器组件属性 */
-export interface PolylineEditorProps extends AmapPolylineEditorOptions, AmapEventShortcutProps {
+export interface PolylineEditorProps
+    extends AmapPolylineEditorOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapPolylineEditorInstance>> {
     /** 编辑器实例 ref */
     ref?: Ref<AmapPolylineEditorInstance | null>
     /** 地图实例 */
@@ -328,7 +338,7 @@ export interface PolylineEditorProps extends AmapPolylineEditorOptions, AmapEven
     /** 编辑器额外参数 */
     editorOptions?: AmapPolylineEditorOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents
+    events?: AmapVectorEditorEvents<AmapPolylineEditorInstance>
     /** 编辑器创建完成回调 */
     onLoad?: AmapVectorEditorOnLoad<AmapPolylineEditorInstance>
     /** 编辑器销毁前回调 */
@@ -336,7 +346,9 @@ export interface PolylineEditorProps extends AmapPolylineEditorOptions, AmapEven
 }
 
 /** 通用 PolyEditor 组件属性 */
-export interface PolyEditorProps extends AmapPolyEditorOptions, AmapEventShortcutProps {
+export interface PolyEditorProps
+    extends AmapPolyEditorOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapPolyEditorInstance>> {
     /** 编辑器实例 ref */
     ref?: Ref<AmapPolyEditorInstance | null>
     /** 地图实例 */
@@ -350,7 +362,7 @@ export interface PolyEditorProps extends AmapPolyEditorOptions, AmapEventShortcu
     /** 编辑器额外参数 */
     editorOptions?: AmapPolyEditorOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents
+    events?: AmapVectorEditorEvents<AmapPolyEditorInstance>
     /** 编辑器创建完成回调 */
     onLoad?: AmapVectorEditorOnLoad<AmapPolyEditorInstance>
     /** 编辑器销毁前回调 */
@@ -358,7 +370,9 @@ export interface PolyEditorProps extends AmapPolyEditorOptions, AmapEventShortcu
 }
 
 /** 圆形编辑器组件属性 */
-export interface CircleEditorProps extends AmapCircleEditorOptions, AmapEventShortcutProps {
+export interface CircleEditorProps
+    extends AmapCircleEditorOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapCircleEditorInstance>> {
     /** 编辑器实例 ref */
     ref?: Ref<AmapCircleEditorInstance | null>
     /** 地图实例 */
@@ -372,7 +386,7 @@ export interface CircleEditorProps extends AmapCircleEditorOptions, AmapEventSho
     /** 编辑器额外参数 */
     editorOptions?: AmapCircleEditorOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents
+    events?: AmapVectorEditorEvents<AmapCircleEditorInstance>
     /** 编辑器创建完成回调 */
     onLoad?: AmapVectorEditorOnLoad<AmapCircleEditorInstance>
     /** 编辑器销毁前回调 */
@@ -380,7 +394,9 @@ export interface CircleEditorProps extends AmapCircleEditorOptions, AmapEventSho
 }
 
 /** 贝塞尔曲线编辑器组件属性 */
-export interface BezierCurveEditorProps extends AmapBezierCurveEditorOptions, AmapEventShortcutProps {
+export interface BezierCurveEditorProps
+    extends AmapBezierCurveEditorOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapBezierCurveEditorInstance>> {
     /** 编辑器实例 ref */
     ref?: Ref<AmapBezierCurveEditorInstance | null>
     /** 地图实例 */
@@ -394,7 +410,7 @@ export interface BezierCurveEditorProps extends AmapBezierCurveEditorOptions, Am
     /** 编辑器额外参数 */
     editorOptions?: AmapBezierCurveEditorOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents
+    events?: AmapVectorEditorEvents<AmapBezierCurveEditorInstance>
     /** 编辑器创建完成回调 */
     onLoad?: AmapVectorEditorOnLoad<AmapBezierCurveEditorInstance>
     /** 编辑器销毁前回调 */
@@ -402,7 +418,9 @@ export interface BezierCurveEditorProps extends AmapBezierCurveEditorOptions, Am
 }
 
 /** 椭圆编辑器组件属性 */
-export interface EllipseEditorProps extends AmapEllipseEditorOptions, AmapEventShortcutProps {
+export interface EllipseEditorProps
+    extends AmapEllipseEditorOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapEllipseEditorInstance>> {
     /** 编辑器实例 ref */
     ref?: Ref<AmapEllipseEditorInstance | null>
     /** 地图实例 */
@@ -416,7 +434,7 @@ export interface EllipseEditorProps extends AmapEllipseEditorOptions, AmapEventS
     /** 编辑器额外参数 */
     editorOptions?: AmapEllipseEditorOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents
+    events?: AmapVectorEditorEvents<AmapEllipseEditorInstance>
     /** 编辑器创建完成回调 */
     onLoad?: AmapVectorEditorOnLoad<AmapEllipseEditorInstance>
     /** 编辑器销毁前回调 */
@@ -424,7 +442,9 @@ export interface EllipseEditorProps extends AmapEllipseEditorOptions, AmapEventS
 }
 
 /** 矩形编辑器组件属性 */
-export interface RectangleEditorProps extends AmapRectangleEditorOptions, AmapEventShortcutProps {
+export interface RectangleEditorProps
+    extends AmapRectangleEditorOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapRectangleEditorInstance>> {
     /** 编辑器实例 ref */
     ref?: Ref<AmapRectangleEditorInstance | null>
     /** 地图实例 */
@@ -438,7 +458,7 @@ export interface RectangleEditorProps extends AmapRectangleEditorOptions, AmapEv
     /** 编辑器额外参数 */
     editorOptions?: AmapRectangleEditorOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents
+    events?: AmapVectorEditorEvents<AmapRectangleEditorInstance>
     /** 编辑器创建完成回调 */
     onLoad?: AmapVectorEditorOnLoad<AmapRectangleEditorInstance>
     /** 编辑器销毁前回调 */
@@ -490,12 +510,12 @@ function bindAmapVectorEditorEvents<TInstance extends AmapVectorEditorInstance>(
     editor,
     events,
 }: BindAmapVectorEditorEventsParams<TInstance>) {
-    const eventEntries = Object.entries(events ?? {})
+    const eventEntries = getAmapEventEntries(events)
 
-    eventEntries.forEach(([eventName, handler]) => editor.on?.(eventName, handler))
+    eventEntries.forEach(({ eventName, handler }) => editor.on?.(eventName, handler))
 
     return function unbindAmapVectorEditorEvents() {
-        eventEntries.forEach(([eventName, handler]) => editor.off?.(eventName, handler))
+        eventEntries.forEach(({ eventName, handler }) => editor.off?.(eventName, handler))
     }
 }
 

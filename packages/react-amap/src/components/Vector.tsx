@@ -9,7 +9,14 @@ import {
 } from "./Amap"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
-import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
+import {
+    type AmapEventMap,
+    type AmapEventShortcutProps,
+    type AmapOverlayMouseEvent,
+    getAmapEventEntries,
+    mergeAmapEvents,
+    splitAmapEventShortcutProps,
+} from "../utils/amapEvents"
 
 export type AmapVectorPosition = AmapLngLatLike
 
@@ -34,9 +41,8 @@ export type AmapVectorOverlayOnDestroy<TInstance extends AmapVectorOverlayInstan
 ) => void
 
 /** 矢量覆盖物事件映射 */
-export interface AmapVectorOverlayEvents {
-    [eventName: string]: AmapEventHandler
-}
+export interface AmapVectorOverlayEvents<TInstance = AmapVectorOverlayInstance>
+    extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
 
 /** 矢量覆盖物基础参数 */
 export interface AmapVectorOverlayBaseOptions {
@@ -360,7 +366,7 @@ export interface UpdateAmapVectorOverlayParams<
 export interface AmapVectorOverlayProps<
     TInstance extends AmapVectorOverlayInstance,
     TOptions extends AmapVectorOverlayBaseOptions,
-> extends AmapEventShortcutProps {
+> extends AmapEventShortcutProps<AmapOverlayMouseEvent<TInstance>> {
     /** 覆盖物实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
@@ -372,7 +378,7 @@ export interface AmapVectorOverlayProps<
     /** 覆盖物参数 */
     options: TOptions
     /** 覆盖物事件映射 */
-    events?: AmapVectorOverlayEvents
+    events?: AmapVectorOverlayEvents<TInstance>
     /** 覆盖物创建完成回调 */
     onLoad?: AmapVectorOverlayOnLoad<TInstance>
     /** 覆盖物销毁前回调 */
@@ -380,7 +386,7 @@ export interface AmapVectorOverlayProps<
 }
 
 /** 多边形组件属性 */
-export interface PolygonProps extends AmapPolygonBaseOptions, AmapEventShortcutProps {
+export interface PolygonProps extends AmapPolygonBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapPolygonInstance>> {
     /** 多边形实例 ref */
     ref?: Ref<AmapPolygonInstance | null>
     /** 地图实例 */
@@ -390,7 +396,7 @@ export interface PolygonProps extends AmapPolygonBaseOptions, AmapEventShortcutP
     /** 多边形额外参数 */
     polygonOptions?: AmapPolygonOptions
     /** 多边形事件映射 */
-    events?: AmapVectorOverlayEvents
+    events?: AmapVectorOverlayEvents<AmapPolygonInstance>
     /** 多边形创建完成回调 */
     onLoad?: AmapVectorOverlayOnLoad<AmapPolygonInstance>
     /** 多边形销毁前回调 */
@@ -398,7 +404,7 @@ export interface PolygonProps extends AmapPolygonBaseOptions, AmapEventShortcutP
 }
 
 /** 折线组件属性 */
-export interface PolylineProps extends AmapPolylineBaseOptions, AmapEventShortcutProps {
+export interface PolylineProps extends AmapPolylineBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapPolylineInstance>> {
     /** 折线实例 ref */
     ref?: Ref<AmapPolylineInstance | null>
     /** 地图实例 */
@@ -408,7 +414,7 @@ export interface PolylineProps extends AmapPolylineBaseOptions, AmapEventShortcu
     /** 折线额外参数 */
     polylineOptions?: AmapPolylineOptions
     /** 折线事件映射 */
-    events?: AmapVectorOverlayEvents
+    events?: AmapVectorOverlayEvents<AmapPolylineInstance>
     /** 折线创建完成回调 */
     onLoad?: AmapVectorOverlayOnLoad<AmapPolylineInstance>
     /** 折线销毁前回调 */
@@ -416,7 +422,7 @@ export interface PolylineProps extends AmapPolylineBaseOptions, AmapEventShortcu
 }
 
 /** 贝塞尔曲线组件属性 */
-export interface BezierCurveProps extends AmapBezierCurveBaseOptions, AmapEventShortcutProps {
+export interface BezierCurveProps extends AmapBezierCurveBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapBezierCurveInstance>> {
     /** 贝塞尔曲线实例 ref */
     ref?: Ref<AmapBezierCurveInstance | null>
     /** 地图实例 */
@@ -426,7 +432,7 @@ export interface BezierCurveProps extends AmapBezierCurveBaseOptions, AmapEventS
     /** 贝塞尔曲线额外参数 */
     bezierCurveOptions?: AmapBezierCurveOptions
     /** 贝塞尔曲线事件映射 */
-    events?: AmapVectorOverlayEvents
+    events?: AmapVectorOverlayEvents<AmapBezierCurveInstance>
     /** 贝塞尔曲线创建完成回调 */
     onLoad?: AmapVectorOverlayOnLoad<AmapBezierCurveInstance>
     /** 贝塞尔曲线销毁前回调 */
@@ -434,7 +440,7 @@ export interface BezierCurveProps extends AmapBezierCurveBaseOptions, AmapEventS
 }
 
 /** 圆形组件属性 */
-export interface CircleProps extends AmapCircleBaseOptions, AmapEventShortcutProps {
+export interface CircleProps extends AmapCircleBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapCircleInstance>> {
     /** 圆形实例 ref */
     ref?: Ref<AmapCircleInstance | null>
     /** 地图实例 */
@@ -444,7 +450,7 @@ export interface CircleProps extends AmapCircleBaseOptions, AmapEventShortcutPro
     /** 圆形额外参数 */
     circleOptions?: AmapCircleOptions
     /** 圆形事件映射 */
-    events?: AmapVectorOverlayEvents
+    events?: AmapVectorOverlayEvents<AmapCircleInstance>
     /** 圆形创建完成回调 */
     onLoad?: AmapVectorOverlayOnLoad<AmapCircleInstance>
     /** 圆形销毁前回调 */
@@ -452,7 +458,7 @@ export interface CircleProps extends AmapCircleBaseOptions, AmapEventShortcutPro
 }
 
 /** 圆点标记组件属性 */
-export interface CircleMarkerProps extends AmapCircleMarkerBaseOptions, AmapEventShortcutProps {
+export interface CircleMarkerProps extends AmapCircleMarkerBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapCircleMarkerInstance>> {
     /** 圆点标记实例 ref */
     ref?: Ref<AmapCircleMarkerInstance | null>
     /** 地图实例 */
@@ -462,7 +468,7 @@ export interface CircleMarkerProps extends AmapCircleMarkerBaseOptions, AmapEven
     /** 圆点标记额外参数 */
     circleMarkerOptions?: AmapCircleMarkerOptions
     /** 圆点标记事件映射 */
-    events?: AmapVectorOverlayEvents
+    events?: AmapVectorOverlayEvents<AmapCircleMarkerInstance>
     /** 圆点标记创建完成回调 */
     onLoad?: AmapVectorOverlayOnLoad<AmapCircleMarkerInstance>
     /** 圆点标记销毁前回调 */
@@ -470,7 +476,7 @@ export interface CircleMarkerProps extends AmapCircleMarkerBaseOptions, AmapEven
 }
 
 /** 椭圆组件属性 */
-export interface EllipseProps extends AmapEllipseBaseOptions, AmapEventShortcutProps {
+export interface EllipseProps extends AmapEllipseBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapEllipseInstance>> {
     /** 椭圆实例 ref */
     ref?: Ref<AmapEllipseInstance | null>
     /** 地图实例 */
@@ -480,7 +486,7 @@ export interface EllipseProps extends AmapEllipseBaseOptions, AmapEventShortcutP
     /** 椭圆额外参数 */
     ellipseOptions?: AmapEllipseOptions
     /** 椭圆事件映射 */
-    events?: AmapVectorOverlayEvents
+    events?: AmapVectorOverlayEvents<AmapEllipseInstance>
     /** 椭圆创建完成回调 */
     onLoad?: AmapVectorOverlayOnLoad<AmapEllipseInstance>
     /** 椭圆销毁前回调 */
@@ -488,7 +494,7 @@ export interface EllipseProps extends AmapEllipseBaseOptions, AmapEventShortcutP
 }
 
 /** 矩形组件属性 */
-export interface RectangleProps extends AmapRectangleBaseOptions, AmapEventShortcutProps {
+export interface RectangleProps extends AmapRectangleBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapRectangleInstance>> {
     /** 矩形实例 ref */
     ref?: Ref<AmapRectangleInstance | null>
     /** 地图实例 */
@@ -498,7 +504,7 @@ export interface RectangleProps extends AmapRectangleBaseOptions, AmapEventShort
     /** 矩形额外参数 */
     rectangleOptions?: AmapRectangleOptions
     /** 矩形事件映射 */
-    events?: AmapVectorOverlayEvents
+    events?: AmapVectorOverlayEvents<AmapRectangleInstance>
     /** 矩形创建完成回调 */
     onLoad?: AmapVectorOverlayOnLoad<AmapRectangleInstance>
     /** 矩形销毁前回调 */
@@ -506,7 +512,7 @@ export interface RectangleProps extends AmapRectangleBaseOptions, AmapEventShort
 }
 
 /** GeoJSON 组件属性 */
-export interface GeoJSONProps extends AmapGeoJSONBaseOptions, AmapEventShortcutProps {
+export interface GeoJSONProps extends AmapGeoJSONBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapGeoJSONInstance>> {
     /** GeoJSON 实例 ref */
     ref?: Ref<AmapGeoJSONInstance | null>
     /** 地图实例 */
@@ -516,7 +522,7 @@ export interface GeoJSONProps extends AmapGeoJSONBaseOptions, AmapEventShortcutP
     /** GeoJSON 额外参数 */
     geoJSONOptions?: AmapGeoJSONOptions
     /** GeoJSON 事件映射 */
-    events?: AmapVectorOverlayEvents
+    events?: AmapVectorOverlayEvents<AmapGeoJSONInstance>
     /** GeoJSON 创建完成回调 */
     onLoad?: AmapVectorOverlayOnLoad<AmapGeoJSONInstance>
     /** GeoJSON 销毁前回调 */
@@ -568,12 +574,12 @@ function bindAmapVectorOverlayEvents<TInstance extends AmapVectorOverlayInstance
     events,
 }: BindAmapVectorOverlayEventsParams<TInstance>) {
     const runtimeOverlay = overlay as AmapVectorOverlayRuntime
-    const eventEntries = Object.entries(events ?? {})
+    const eventEntries = getAmapEventEntries(events)
 
-    eventEntries.forEach(([eventName, handler]) => void runtimeOverlay.on?.(eventName, handler))
+    eventEntries.forEach(({ eventName, handler }) => void runtimeOverlay.on?.(eventName, handler))
 
     return function unbindAmapVectorOverlayEvents() {
-        eventEntries.forEach(([eventName, handler]) => void runtimeOverlay.off?.(eventName, handler))
+        eventEntries.forEach(({ eventName, handler }) => void runtimeOverlay.off?.(eventName, handler))
     }
 }
 

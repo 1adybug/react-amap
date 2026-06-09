@@ -20,7 +20,14 @@ import {
 } from "./Amap"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
-import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
+import {
+    type AmapEventMap,
+    type AmapEventShortcutProps,
+    type AmapOverlayMouseEvent,
+    getAmapEventEntries,
+    mergeAmapEvents,
+    splitAmapEventShortcutProps,
+} from "../utils/amapEvents"
 
 export type AmapVector2 = AMap.Vector2
 
@@ -131,9 +138,7 @@ export interface AmapMarkerOptions extends AmapMarkerBaseOptions {
 }
 
 /** 点标记事件映射 */
-export interface AmapMarkerEvents {
-    [eventName: string]: AmapEventHandler
-}
+export interface AmapMarkerEvents<TInstance = AmapMarkerInstance> extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
 
 /** 高德 Marker 实例 */
 export interface AmapMarkerInstance extends AMap.Marker {
@@ -227,7 +232,7 @@ export interface UpdateAmapMarkerContentElementParams {
 }
 
 /** 点标记组件属性 */
-export interface MarkerProps extends AmapMarkerBaseOptions, AmapEventShortcutProps {
+export interface MarkerProps extends AmapMarkerBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapMarkerInstance>> {
     /** 点标记实例 ref */
     ref?: Ref<AmapMarkerInstance | null>
     /** 高德地图命名空间 */
@@ -287,12 +292,12 @@ function setAmapMarkerRef({ ref, marker }: SetAmapMarkerRefParams) {
 }
 
 function bindAmapMarkerEvents({ marker, events }: BindAmapMarkerEventsParams) {
-    const eventEntries = Object.entries(events ?? {})
+    const eventEntries = getAmapEventEntries(events)
 
-    eventEntries.forEach(([eventName, handler]) => void marker.on?.(eventName, handler))
+    eventEntries.forEach(({ eventName, handler }) => void marker.on?.(eventName, handler))
 
     return function unbindAmapMarkerEvents() {
-        eventEntries.forEach(([eventName, handler]) => void marker.off?.(eventName, handler))
+        eventEntries.forEach(({ eventName, handler }) => void marker.off?.(eventName, handler))
     }
 }
 

@@ -28,7 +28,13 @@ import type {
 import { optionalFn } from "../utils/optionalFn"
 import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
-import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
+import {
+    type AmapEventShortcutProps,
+    type AmapOverlayMouseEvent,
+    getAmapEventEntries,
+    mergeAmapEvents,
+    splitAmapEventShortcutProps,
+} from "../utils/amapEvents"
 
 export type AmapTextStyle = Record<string, string | number>
 
@@ -589,7 +595,7 @@ export interface AmapPointEventTarget {
 }
 
 /** 文本标记组件属性 */
-export interface TextProps extends AmapTextBaseOptions, AmapEventShortcutProps {
+export interface TextProps extends AmapTextBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapTextInstance>> {
     /** 文本标记实例 ref */
     ref?: Ref<AmapTextInstance | null>
     /** 地图实例 */
@@ -599,7 +605,7 @@ export interface TextProps extends AmapTextBaseOptions, AmapEventShortcutProps {
     /** 文本标记额外参数 */
     textOptions?: AmapTextOptions
     /** 文本标记事件映射 */
-    events?: AmapMarkerEvents
+    events?: AmapMarkerEvents<AmapTextInstance>
     /** 创建完成回调 */
     onLoad?: AmapPointOverlayOnLoad<AmapTextInstance>
     /** 销毁前回调 */
@@ -607,7 +613,9 @@ export interface TextProps extends AmapTextBaseOptions, AmapEventShortcutProps {
 }
 
 /** 灵活点标记组件属性 */
-export interface ElasticMarkerProps extends AmapElasticMarkerBaseOptions, AmapEventShortcutProps {
+export interface ElasticMarkerProps
+    extends AmapElasticMarkerBaseOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapElasticMarkerInstance>> {
     /** 灵活点标记实例 ref */
     ref?: Ref<AmapElasticMarkerInstance | null>
     /** 地图实例 */
@@ -617,7 +625,7 @@ export interface ElasticMarkerProps extends AmapElasticMarkerBaseOptions, AmapEv
     /** 灵活点标记额外参数 */
     elasticMarkerOptions?: AmapElasticMarkerOptions
     /** 灵活点标记事件映射 */
-    events?: AmapMarkerEvents
+    events?: AmapMarkerEvents<AmapElasticMarkerInstance>
     /** 创建完成回调 */
     onLoad?: AmapPointOverlayOnLoad<AmapElasticMarkerInstance>
     /** 销毁前回调 */
@@ -625,7 +633,9 @@ export interface ElasticMarkerProps extends AmapElasticMarkerBaseOptions, AmapEv
 }
 
 /** 标注图层组件属性 */
-export interface LabelsLayerProps extends AmapLabelsLayerBaseOptions, AmapEventShortcutProps {
+export interface LabelsLayerProps
+    extends AmapLabelsLayerBaseOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapLabelsLayerInstance>> {
     /** 标注图层实例 ref */
     ref?: Ref<AmapLabelsLayerInstance | null>
     /** 地图实例 */
@@ -637,7 +647,7 @@ export interface LabelsLayerProps extends AmapLabelsLayerBaseOptions, AmapEventS
     /** 标注图层额外参数 */
     labelsLayerOptions?: AmapLabelsLayerOptions
     /** 标注图层事件映射 */
-    events?: AmapMarkerEvents
+    events?: AmapMarkerEvents<AmapLabelsLayerInstance>
     /** 创建完成回调 */
     onLoad?: (layer: AmapLabelsLayerInstance) => void
     /** 销毁前回调 */
@@ -645,7 +655,9 @@ export interface LabelsLayerProps extends AmapLabelsLayerBaseOptions, AmapEventS
 }
 
 /** 标注组件属性 */
-export interface LabelMarkerProps extends AmapLabelMarkerBaseOptions, AmapEventShortcutProps {
+export interface LabelMarkerProps
+    extends AmapLabelMarkerBaseOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapLabelMarkerInstance>> {
     /** 标注实例 ref */
     ref?: Ref<AmapLabelMarkerInstance | null>
     /** 标注图层实例 */
@@ -655,7 +667,7 @@ export interface LabelMarkerProps extends AmapLabelMarkerBaseOptions, AmapEventS
     /** 标注额外参数 */
     labelMarkerOptions?: AmapLabelMarkerOptions
     /** 标注事件映射 */
-    events?: AmapMarkerEvents
+    events?: AmapMarkerEvents<AmapLabelMarkerInstance>
     /** 创建完成回调 */
     onLoad?: (marker: AmapLabelMarkerInstance) => void
     /** 销毁前回调 */
@@ -663,7 +675,7 @@ export interface LabelMarkerProps extends AmapLabelMarkerBaseOptions, AmapEventS
 }
 
 /** 海量点组件属性 */
-export interface MassMarksProps extends AmapMassMarksBaseOptions, AmapEventShortcutProps {
+export interface MassMarksProps extends AmapMassMarksBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapMassMarksInstance>> {
     /** 海量点实例 ref */
     ref?: Ref<AmapMassMarksInstance | null>
     /** 地图实例 */
@@ -675,7 +687,7 @@ export interface MassMarksProps extends AmapMassMarksBaseOptions, AmapEventShort
     /** 海量点额外参数 */
     massMarksOptions?: AmapMassMarksOptions
     /** 海量点事件映射 */
-    events?: AmapMarkerEvents
+    events?: AmapMarkerEvents<AmapMassMarksInstance>
     /** 创建完成回调 */
     onLoad?: (massMarks: AmapMassMarksInstance) => void
     /** 销毁前回调 */
@@ -683,7 +695,9 @@ export interface MassMarksProps extends AmapMassMarksBaseOptions, AmapEventShort
 }
 
 /** 点聚合组件属性 */
-export interface MarkerClusterProps extends AmapMarkerClusterBaseOptions, AmapEventShortcutProps {
+export interface MarkerClusterProps
+    extends AmapMarkerClusterBaseOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapMarkerClusterInstance>> {
     /** 点聚合实例 ref */
     ref?: Ref<AmapMarkerClusterInstance | null>
     /** 地图实例 */
@@ -695,7 +709,7 @@ export interface MarkerClusterProps extends AmapMarkerClusterBaseOptions, AmapEv
     /** 点聚合额外参数 */
     markerClusterOptions?: AmapMarkerClusterOptions
     /** 点聚合事件映射 */
-    events?: AmapMarkerEvents
+    events?: AmapMarkerEvents<AmapMarkerClusterInstance>
     /** 创建完成回调 */
     onLoad?: (markerCluster: AmapMarkerClusterInstance) => void
     /** 销毁前回调 */
@@ -724,12 +738,12 @@ function bindAmapPointEvents<TInstance extends AmapPointEventTarget>({
     instance,
     events,
 }: BindAmapPointEventsParams<TInstance>) {
-    const eventEntries = Object.entries(events ?? {})
+    const eventEntries = getAmapEventEntries(events)
 
-    eventEntries.forEach(([eventName, handler]) => instance.on?.(eventName, handler))
+    eventEntries.forEach(({ eventName, handler }) => instance.on?.(eventName, handler))
 
     return function unbindAmapPointEvents() {
-        eventEntries.forEach(([eventName, handler]) => instance.off?.(eventName, handler))
+        eventEntries.forEach(({ eventName, handler }) => instance.off?.(eventName, handler))
     }
 }
 

@@ -1,28 +1,89 @@
 import type { AmapEventHandler } from "../components/Amap"
 
+/** 高德原生鼠标事件 */
+export interface AmapNativeMouseEvent extends MouseEvent {
+    /** 高德内部事件名 */
+    Adt: string
+    /** 事件经纬度 */
+    lnglat: AMap.LngLat
+    /** 事件像素坐标 */
+    pixel: AMap.Pixel
+}
+
+/** 高德鼠标事件 */
+export interface AmapMouseEvent<TTarget = unknown> {
+    /** 经纬度 */
+    lnglat: AMap.LngLat
+    /** 像素坐标 */
+    pixel: AMap.Pixel
+    /** 墨卡托坐标 */
+    pos: AMap.Vector2
+    /** 事件目标 */
+    target: TTarget
+    /** 事件类型 */
+    type: string
+    /** 原始鼠标事件 */
+    originEvent: AmapNativeMouseEvent
+}
+
+/** 高德覆盖物鼠标事件 */
+export interface AmapOverlayMouseEvent<TTarget = unknown> extends AmapMouseEvent<TTarget> {
+    /** 矢量元素索引 */
+    vectorIndex?: number
+}
+
+/** 高德地图鼠标事件 */
+export interface AmapMapMouseEvent<TTarget = AMap.Map> extends AmapMouseEvent<TTarget> {}
+
+export type AmapMouseEventHandler<TEvent extends AmapMouseEvent = AmapMouseEvent> = AmapEventHandler<[TEvent]>
+
 /** 高德事件映射 */
-export interface AmapEventMap {
+export interface AmapEventMap<TClickEvent extends AmapMouseEvent = AmapOverlayMouseEvent> {
+    /** 点击事件 */
+    click?: AmapMouseEventHandler<TClickEvent>
+    /** 双击事件 */
+    dblclick?: AmapMouseEventHandler<TClickEvent>
+    /** 右键事件 */
+    rightclick?: AmapMouseEventHandler<TClickEvent>
+    /** 鼠标按下事件 */
+    mousedown?: AmapMouseEventHandler<TClickEvent>
+    /** 鼠标抬起事件 */
+    mouseup?: AmapMouseEventHandler<TClickEvent>
+    /** 鼠标移动事件 */
+    mousemove?: AmapMouseEventHandler<TClickEvent>
+    /** 鼠标移入事件 */
+    mouseover?: AmapMouseEventHandler<TClickEvent>
+    /** 鼠标移出事件 */
+    mouseout?: AmapMouseEventHandler<TClickEvent>
     [eventName: string]: AmapEventHandler | undefined
 }
 
+/** 高德事件条目 */
+export interface AmapEventEntry {
+    /** 事件名 */
+    eventName: string
+    /** 事件处理函数 */
+    handler: AmapEventHandler
+}
+
 /** 覆盖物事件快捷属性 */
-export interface AmapEventShortcutProps {
+export interface AmapEventShortcutProps<TClickEvent extends AmapMouseEvent = AmapOverlayMouseEvent> {
     /** 点击事件 */
-    onClick?: AmapEventHandler
+    onClick?: AmapMouseEventHandler<TClickEvent>
     /** 双击事件 */
-    onDblClick?: AmapEventHandler
+    onDblClick?: AmapMouseEventHandler<TClickEvent>
     /** 右键事件 */
-    onRightClick?: AmapEventHandler
+    onRightClick?: AmapMouseEventHandler<TClickEvent>
     /** 鼠标按下事件 */
-    onMouseDown?: AmapEventHandler
+    onMouseDown?: AmapMouseEventHandler<TClickEvent>
     /** 鼠标抬起事件 */
-    onMouseUp?: AmapEventHandler
+    onMouseUp?: AmapMouseEventHandler<TClickEvent>
     /** 鼠标移动事件 */
-    onMouseMove?: AmapEventHandler
+    onMouseMove?: AmapMouseEventHandler<TClickEvent>
     /** 鼠标移入事件 */
-    onMouseOver?: AmapEventHandler
+    onMouseOver?: AmapMouseEventHandler<TClickEvent>
     /** 鼠标移出事件 */
-    onMouseOut?: AmapEventHandler
+    onMouseOut?: AmapMouseEventHandler<TClickEvent>
     /** 触摸开始事件 */
     onTouchStart?: AmapEventHandler
     /** 触摸移动事件 */
@@ -64,23 +125,23 @@ export interface AmapEventShortcutProps {
 }
 
 /** 地图事件快捷属性 */
-export interface AmapMapEventShortcutProps {
+export interface AmapMapEventShortcutProps<TClickEvent extends AmapMouseEvent = AmapMapMouseEvent> {
     /** 地图点击事件 */
-    onMapClick?: AmapEventHandler
+    onMapClick?: AmapMouseEventHandler<TClickEvent>
     /** 地图双击事件 */
-    onMapDblClick?: AmapEventHandler
+    onMapDblClick?: AmapMouseEventHandler<TClickEvent>
     /** 地图右键事件 */
-    onMapRightClick?: AmapEventHandler
+    onMapRightClick?: AmapMouseEventHandler<TClickEvent>
     /** 地图鼠标按下事件 */
-    onMapMouseDown?: AmapEventHandler
+    onMapMouseDown?: AmapMouseEventHandler<TClickEvent>
     /** 地图鼠标抬起事件 */
-    onMapMouseUp?: AmapEventHandler
+    onMapMouseUp?: AmapMouseEventHandler<TClickEvent>
     /** 地图鼠标移动事件 */
-    onMapMouseMove?: AmapEventHandler
+    onMapMouseMove?: AmapMouseEventHandler<TClickEvent>
     /** 地图鼠标移入事件 */
-    onMapMouseOver?: AmapEventHandler
+    onMapMouseOver?: AmapMouseEventHandler<TClickEvent>
     /** 地图鼠标移出事件 */
-    onMapMouseOut?: AmapEventHandler
+    onMapMouseOut?: AmapMouseEventHandler<TClickEvent>
     /** 地图拖拽开始事件 */
     onMapDragStart?: AmapEventHandler
     /** 地图拖拽中事件 */
@@ -110,21 +171,27 @@ export interface AmapMapEventShortcutProps {
 }
 
 /** 拆分事件快捷属性结果 */
-export interface SplitAmapEventShortcutPropsResult<TProps extends Record<string, unknown>> {
+export interface SplitAmapEventShortcutPropsResult<
+    TProps extends Record<string, unknown>,
+    TClickEvent extends AmapMouseEvent = AmapOverlayMouseEvent,
+> {
     /** 事件快捷属性 */
-    eventShortcuts: AmapEventShortcutProps
+    eventShortcuts: AmapEventShortcutProps<TClickEvent>
     /** 剩余属性 */
-    restProps: Omit<TProps, keyof AmapEventShortcutProps>
+    restProps: Omit<TProps, keyof AmapEventShortcutProps<TClickEvent>>
 }
 
 /** 合并事件参数 */
-export interface MergeAmapEventsParams<TEvents extends AmapEventMap = AmapEventMap> {
+export interface MergeAmapEventsParams<
+    TClickEvent extends AmapMouseEvent = AmapOverlayMouseEvent,
+    TEvents extends AmapEventMap<TClickEvent> = AmapEventMap<TClickEvent>,
+> {
     /** 原始事件映射 */
     events?: TEvents
     /** 覆盖物事件快捷属性 */
-    eventShortcuts?: AmapEventShortcutProps
+    eventShortcuts?: AmapEventShortcutProps<TClickEvent>
     /** 地图事件快捷属性 */
-    mapEventShortcuts?: AmapMapEventShortcutProps
+    mapEventShortcuts?: AmapMapEventShortcutProps<TClickEvent>
 }
 
 /** 覆盖物事件快捷属性到高德事件名映射 */
@@ -183,23 +250,26 @@ export const AmapMapEventShortcutMap = {
     onMapZoomStart: "zoomstart",
 } as const
 
-export function mergeAmapEvents<TEvents extends AmapEventMap = AmapEventMap>({
+export function mergeAmapEvents<
+    TClickEvent extends AmapMouseEvent = AmapOverlayMouseEvent,
+    TEvents extends AmapEventMap<TClickEvent> = AmapEventMap<TClickEvent>,
+>({
     events,
     eventShortcuts,
     mapEventShortcuts,
-}: MergeAmapEventsParams<TEvents>) {
-    const nextEvents: AmapEventMap = {
+}: MergeAmapEventsParams<TClickEvent, TEvents>) {
+    const nextEvents: AmapEventMap<TClickEvent> = {
         ...events,
     }
 
     Object.entries(AmapEventShortcutMap).forEach(([shortcutName, eventName]) => {
-        const handler = eventShortcuts?.[shortcutName as keyof AmapEventShortcutProps]
+        const handler = eventShortcuts?.[shortcutName as keyof AmapEventShortcutProps<TClickEvent>]
 
         if (handler) nextEvents[eventName] = handler
     })
 
     Object.entries(AmapMapEventShortcutMap).forEach(([shortcutName, eventName]) => {
-        const handler = mapEventShortcuts?.[shortcutName as keyof AmapMapEventShortcutProps]
+        const handler = mapEventShortcuts?.[shortcutName as keyof AmapMapEventShortcutProps<TClickEvent>]
 
         if (handler) nextEvents[eventName] = handler
     })
@@ -207,9 +277,25 @@ export function mergeAmapEvents<TEvents extends AmapEventMap = AmapEventMap>({
     return nextEvents
 }
 
-export function splitAmapEventShortcutProps<TProps extends Record<string, unknown>>(
+export function getAmapEventEntries<TEvents extends AmapEventMap>(events?: TEvents) {
+    return Object.entries(events ?? {}).reduce<AmapEventEntry[]>((entries, [eventName, handler]) => {
+        if (typeof handler === "function") {
+            entries.push({
+                eventName,
+                handler,
+            })
+        }
+
+        return entries
+    }, [])
+}
+
+export function splitAmapEventShortcutProps<
+    TProps extends Record<string, unknown>,
+    TClickEvent extends AmapMouseEvent = AmapOverlayMouseEvent,
+>(
     props: TProps
-): SplitAmapEventShortcutPropsResult<TProps> {
+): SplitAmapEventShortcutPropsResult<TProps, TClickEvent> {
     const {
         onChange,
         onClick,
@@ -239,7 +325,7 @@ export function splitAmapEventShortcutProps<TProps extends Record<string, unknow
         onZoomEnd,
         onZoomStart,
         ...restProps
-    } = props as TProps & AmapEventShortcutProps
+    } = props as TProps & AmapEventShortcutProps<TClickEvent>
 
     return {
         eventShortcuts: {

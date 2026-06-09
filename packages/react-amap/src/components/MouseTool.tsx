@@ -16,7 +16,13 @@ import type {
 import { optionalFn } from "../utils/optionalFn"
 import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
-import { type AmapEventShortcutProps, mergeAmapEvents } from "../utils/amapEvents"
+import {
+    type AmapEventMap,
+    type AmapEventShortcutProps,
+    type AmapOverlayMouseEvent,
+    getAmapEventEntries,
+    mergeAmapEvents,
+} from "../utils/amapEvents"
 
 /** 鼠标工具绘制模式 */
 export const AmapMouseToolMode = {
@@ -43,9 +49,7 @@ export interface AmapMouseToolDrawOptions {
 }
 
 /** 鼠标工具事件映射 */
-export interface AmapMouseToolEvents {
-    [eventName: string]: AmapEventHandler
-}
+export interface AmapMouseToolEvents extends AmapEventMap<AmapOverlayMouseEvent<AmapMouseToolInstance>> {}
 
 /** 鼠标工具实例 */
 export interface AmapMouseToolInstance {
@@ -144,7 +148,7 @@ export interface OpenAmapMouseToolModeParams extends GetAmapMouseToolModeOptions
 }
 
 /** MouseTool 组件属性 */
-export interface MouseToolProps extends AmapEventShortcutProps {
+export interface MouseToolProps extends AmapEventShortcutProps<AmapOverlayMouseEvent<AmapMouseToolInstance>> {
     /** MouseTool 实例 ref */
     ref?: Ref<AmapMouseToolInstance | null>
     /** 地图实例 */
@@ -209,14 +213,14 @@ function setAmapMouseToolRef({ ref, mouseTool }: SetAmapMouseToolRefParams) {
 }
 
 function bindAmapMouseToolEvents({ mouseTool, events, onDraw }: BindAmapMouseToolEventsParams) {
-    const eventEntries = Object.entries(events ?? {})
+    const eventEntries = getAmapEventEntries(events)
 
-    eventEntries.forEach(([eventName, handler]) => mouseTool.on?.(eventName, handler))
+    eventEntries.forEach(({ eventName, handler }) => mouseTool.on?.(eventName, handler))
 
     if (onDraw) mouseTool.on?.("draw", onDraw)
 
     return function unbindAmapMouseToolEvents() {
-        eventEntries.forEach(([eventName, handler]) => mouseTool.off?.(eventName, handler))
+        eventEntries.forEach(({ eventName, handler }) => mouseTool.off?.(eventName, handler))
 
         if (onDraw) mouseTool.off?.("draw", onDraw)
     }

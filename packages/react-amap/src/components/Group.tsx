@@ -3,16 +3,21 @@ import { type FC, type Ref, useEffectEvent, useRef } from "react"
 import { type AmapEventHandler, type AmapMapInstance, type AmapNamespace, type AmapZoomRange, useAmapContext } from "./Amap"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
-import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
+import {
+    type AmapEventMap,
+    type AmapEventShortcutProps,
+    type AmapOverlayMouseEvent,
+    getAmapEventEntries,
+    mergeAmapEvents,
+    splitAmapEventShortcutProps,
+} from "../utils/amapEvents"
 
 export type AmapGroupOnLoad<TInstance extends AmapGroupInstance = AmapGroupInstance> = (group: TInstance) => void
 
 export type AmapGroupOnDestroy<TInstance extends AmapGroupInstance = AmapGroupInstance> = (group: TInstance) => void
 
 /** 群组事件映射 */
-export interface AmapGroupEvents {
-    [eventName: string]: AmapEventHandler
-}
+export interface AmapGroupEvents<TInstance = AmapGroupInstance> extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
 
 /** 群组参数 */
 export interface AmapGroupOptions {
@@ -85,7 +90,9 @@ export interface AmapGroupNamespace extends AmapNamespace {
 }
 
 /** 覆盖物群组组件属性 */
-export interface OverlayGroupProps extends AmapGroupOptions, AmapEventShortcutProps {
+export interface OverlayGroupProps
+    extends AmapGroupOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapOverlayGroupInstance>> {
     /** 群组实例 ref */
     ref?: Ref<AmapOverlayGroupInstance | null>
     /** 地图实例 */
@@ -95,7 +102,7 @@ export interface OverlayGroupProps extends AmapGroupOptions, AmapEventShortcutPr
     /** 覆盖物列表 */
     overlays?: unknown[]
     /** 事件映射 */
-    events?: AmapGroupEvents
+    events?: AmapGroupEvents<AmapOverlayGroupInstance>
     /** 创建完成回调 */
     onLoad?: AmapGroupOnLoad<AmapOverlayGroupInstance>
     /** 销毁前回调 */
@@ -103,7 +110,7 @@ export interface OverlayGroupProps extends AmapGroupOptions, AmapEventShortcutPr
 }
 
 /** 图层群组组件属性 */
-export interface LayerGroupProps extends AmapGroupOptions, AmapEventShortcutProps {
+export interface LayerGroupProps extends AmapGroupOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapLayerGroupInstance>> {
     /** 群组实例 ref */
     ref?: Ref<AmapLayerGroupInstance | null>
     /** 地图实例 */
@@ -113,7 +120,7 @@ export interface LayerGroupProps extends AmapGroupOptions, AmapEventShortcutProp
     /** 图层列表 */
     layers?: unknown[]
     /** 事件映射 */
-    events?: AmapGroupEvents
+    events?: AmapGroupEvents<AmapLayerGroupInstance>
     /** 创建完成回调 */
     onLoad?: AmapGroupOnLoad<AmapLayerGroupInstance>
     /** 销毁前回调 */
@@ -132,12 +139,12 @@ function setAmapGroupRef<TInstance extends AmapGroupInstance>(ref: Ref<TInstance
 }
 
 function bindAmapGroupEvents<TInstance extends AmapGroupInstance>(group: TInstance, events?: AmapGroupEvents) {
-    const eventEntries = Object.entries(events ?? {})
+    const eventEntries = getAmapEventEntries(events)
 
-    eventEntries.forEach(([eventName, handler]) => group.on?.(eventName, handler))
+    eventEntries.forEach(({ eventName, handler }) => group.on?.(eventName, handler))
 
     return function unbindAmapGroupEvents() {
-        eventEntries.forEach(([eventName, handler]) => group.off?.(eventName, handler))
+        eventEntries.forEach(({ eventName, handler }) => group.off?.(eventName, handler))
     }
 }
 

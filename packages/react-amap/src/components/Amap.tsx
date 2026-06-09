@@ -13,7 +13,13 @@ import {
 } from "react"
 
 import { useStableEffect } from "../hooks/useStableEffect"
-import { type AmapMapEventShortcutProps, mergeAmapEvents } from "../utils/amapEvents"
+import {
+    type AmapEventMap,
+    type AmapMapEventShortcutProps,
+    type AmapMapMouseEvent,
+    getAmapEventEntries,
+    mergeAmapEvents,
+} from "../utils/amapEvents"
 
 import "@amap/amap-jsapi-types"
 
@@ -123,7 +129,12 @@ export type AmapColor = NonNullable<AMap.MapOptions["skyColor"]>
 
 export type AmapTouchZoomCenter = boolean | NonNullable<AMap.MapOptions["touchZoomCenter"]>
 
-export type AmapEventHandler = (...args: unknown[]) => void
+/** 高德事件处理函数双向兼容辅助类型 */
+export interface AmapEventHandlerBivariance<TArgs extends unknown[] = unknown[]> {
+    bivarianceHack(...args: TArgs): void
+}
+
+export type AmapEventHandler<TArgs extends unknown[] = unknown[]> = AmapEventHandlerBivariance<TArgs>["bivarianceHack"]
 
 export type AmapOnMapLoad = (map: AmapMapInstance, AMap: AmapNamespace) => void
 
@@ -134,9 +145,7 @@ export type AmapOnDestroy = (map: AmapMapInstance) => void
 export type AmapOnStatusChange = (status: AmapStatus, error?: unknown) => void
 
 /** 地图事件映射 */
-export interface AmapEvents {
-    [eventName: string]: AmapEventHandler
-}
+export interface AmapEvents extends AmapEventMap<AmapMapMouseEvent<AmapMapInstance>> {}
 
 /** 地图上下文数据 */
 export interface AmapContextValue {
@@ -496,7 +505,10 @@ declare global {
 }
 
 /** 地图组件属性 */
-export interface AmapProps extends Omit<ComponentProps<"div">, "ref">, AmapMapBaseOptions, AmapMapEventShortcutProps {
+export interface AmapProps
+    extends Omit<ComponentProps<"div">, "ref">,
+        AmapMapBaseOptions,
+        AmapMapEventShortcutProps<AmapMapMouseEvent<AmapMapInstance>> {
     /** 地图实例 ref */
     ref?: Ref<AmapMapInstance | null>
     /** 高德 Web 端开发者 Key */
@@ -672,12 +684,12 @@ function destroyAmapMap(map: AmapMapInstance, onDestroy?: AmapOnDestroy) {
 }
 
 function bindAmapMapEvents({ map, events }: BindAmapMapEventsParams) {
-    const eventEntries = Object.entries(events ?? {})
+    const eventEntries = getAmapEventEntries(events)
 
-    eventEntries.forEach(([eventName, handler]) => void map.on?.(eventName, handler))
+    eventEntries.forEach(({ eventName, handler }) => void map.on?.(eventName, handler))
 
     return function unbindAmapMapEvents() {
-        eventEntries.forEach(([eventName, handler]) => void map.off?.(eventName, handler))
+        eventEntries.forEach(({ eventName, handler }) => void map.off?.(eventName, handler))
     }
 }
 

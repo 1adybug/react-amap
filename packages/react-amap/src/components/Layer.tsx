@@ -12,16 +12,21 @@ import type { AmapBoundsLike } from "./Vector"
 import { loadAmapPlugin } from "../utils/amapPlugin"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
-import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
+import {
+    type AmapEventMap,
+    type AmapEventShortcutProps,
+    type AmapOverlayMouseEvent,
+    getAmapEventEntries,
+    mergeAmapEvents,
+    splitAmapEventShortcutProps,
+} from "../utils/amapEvents"
 
 export type AmapLayerOnLoad<TInstance extends AmapLayerInstance = AmapLayerInstance> = (layer: TInstance) => void
 
 export type AmapLayerOnDestroy<TInstance extends AmapLayerInstance = AmapLayerInstance> = (layer: TInstance) => void
 
 /** 图层事件映射 */
-export interface AmapLayerEvents {
-    [eventName: string]: AmapEventHandler
-}
+export interface AmapLayerEvents<TInstance = AmapLayerInstance> extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
 
 /** 图层基础参数 */
 export interface AmapLayerBaseOptions {
@@ -343,13 +348,13 @@ export interface AmapLayerProps<TInstance extends AmapLayerInstance, TOptions ex
     /** 图层参数 */
     options: TOptions
     /** 图层事件映射 */
-    events?: AmapLayerEvents
+    events?: AmapLayerEvents<TInstance>
     /** 创建完成回调 */
     onLoad?: AmapLayerOnLoad<TInstance>
     /** 销毁前回调 */
     onDestroy?: AmapLayerOnDestroy<TInstance>
     /** 图层事件快捷属性 */
-    eventShortcuts?: AmapEventShortcutProps
+    eventShortcuts?: AmapEventShortcutProps<AmapOverlayMouseEvent<TInstance>>
 }
 
 /** 使用图层插件参数 */
@@ -365,7 +370,8 @@ export interface UseAmapLayerPluginParams {
 }
 
 /** 通用图层组件属性 */
-export interface LayerProps<TOptions extends AmapLayerBaseOptions = AmapLayerBaseOptions> extends AmapEventShortcutProps {
+export interface LayerProps<TOptions extends AmapLayerBaseOptions = AmapLayerBaseOptions>
+    extends AmapEventShortcutProps<AmapOverlayMouseEvent<AmapLayerInstance>> {
     /** 图层实例 ref */
     ref?: Ref<AmapLayerInstance | null>
     /** 地图实例 */
@@ -384,7 +390,7 @@ export interface LayerProps<TOptions extends AmapLayerBaseOptions = AmapLayerBas
 }
 
 /** 热力图组件属性 */
-export interface HeatMapProps extends AmapHeatMapOptions, AmapEventShortcutProps {
+export interface HeatMapProps extends AmapHeatMapOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapLayerInstance>> {
     /** 热力图实例 ref */
     ref?: Ref<AmapLayerInstance | null>
     /** 地图实例 */
@@ -477,12 +483,12 @@ function setAmapLayerRef<TInstance extends AmapLayerInstance>(ref: Ref<TInstance
 }
 
 function bindAmapLayerEvents<TInstance extends AmapLayerInstance>(layer: TInstance, events?: AmapLayerEvents) {
-    const eventEntries = Object.entries(events ?? {})
+    const eventEntries = getAmapEventEntries(events)
 
-    eventEntries.forEach(([eventName, handler]) => layer.on?.(eventName, handler))
+    eventEntries.forEach(({ eventName, handler }) => layer.on?.(eventName, handler))
 
     return function unbindAmapLayerEvents() {
-        eventEntries.forEach(([eventName, handler]) => layer.off?.(eventName, handler))
+        eventEntries.forEach(({ eventName, handler }) => layer.off?.(eventName, handler))
     }
 }
 

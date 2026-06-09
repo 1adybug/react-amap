@@ -6,16 +6,21 @@ import type { AmapPolylineOptions } from "./Vector"
 import { optionalFn } from "../utils/optionalFn"
 import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
-import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
+import {
+    type AmapEventMap,
+    type AmapEventShortcutProps,
+    type AmapOverlayMouseEvent,
+    getAmapEventEntries,
+    mergeAmapEvents,
+    splitAmapEventShortcutProps,
+} from "../utils/amapEvents"
 
 export type AmapRangingToolOnLoad = (rangingTool: AmapRangingToolInstance) => void
 
 export type AmapRangingToolOnDestroy = (rangingTool: AmapRangingToolInstance) => void
 
 /** 测距工具事件映射 */
-export interface AmapRangingToolEvents {
-    [eventName: string]: AmapEventHandler
-}
+export interface AmapRangingToolEvents extends AmapEventMap<AmapOverlayMouseEvent<AmapRangingToolInstance>> {}
 
 /** 测距工具参数 */
 export interface AmapRangingToolOptions {
@@ -64,7 +69,9 @@ export interface AmapRangingToolNamespace extends AmapNamespace {
 }
 
 /** 测距工具组件属性 */
-export interface RangingToolProps extends AmapRangingToolOptions, AmapEventShortcutProps {
+export interface RangingToolProps
+    extends AmapRangingToolOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapRangingToolInstance>> {
     /** 测距工具实例 ref */
     ref?: Ref<AmapRangingToolInstance | null>
     /** 地图实例 */
@@ -97,12 +104,12 @@ function setAmapRangingToolRef(ref: Ref<AmapRangingToolInstance | null> | undefi
 }
 
 function bindAmapRangingToolEvents(rangingTool: AmapRangingToolInstance, events?: AmapRangingToolEvents) {
-    const eventEntries = Object.entries(events ?? {})
+    const eventEntries = getAmapEventEntries(events)
 
-    eventEntries.forEach(([eventName, handler]) => rangingTool.on?.(eventName, handler))
+    eventEntries.forEach(({ eventName, handler }) => rangingTool.on?.(eventName, handler))
 
     return function unbindAmapRangingToolEvents() {
-        eventEntries.forEach(([eventName, handler]) => rangingTool.off?.(eventName, handler))
+        eventEntries.forEach(({ eventName, handler }) => rangingTool.off?.(eventName, handler))
     }
 }
 

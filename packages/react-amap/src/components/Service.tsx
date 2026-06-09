@@ -14,7 +14,13 @@ import type { AmapCircleOptions, AmapPolylineOptions } from "./Vector"
 import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
-import { type AmapEventShortcutProps, mergeAmapEvents } from "../utils/amapEvents"
+import {
+    type AmapEventMap,
+    type AmapEventShortcutProps,
+    type AmapOverlayMouseEvent,
+    getAmapEventEntries,
+    mergeAmapEvents,
+} from "../utils/amapEvents"
 
 export type AmapServiceOnLoad<TInstance extends AmapServiceInstance = AmapServiceInstance> = (
     service: TInstance
@@ -88,9 +94,7 @@ export const AmapCoordinateConvertType = {
 export type AmapCoordinateConvertType = (typeof AmapCoordinateConvertType)[keyof typeof AmapCoordinateConvertType] | string
 
 /** 服务事件映射 */
-export interface AmapServiceEvents {
-    [eventName: string]: AmapEventHandler
-}
+export interface AmapServiceEvents<TInstance = AmapServiceInstance> extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
 
 /** 服务基础参数 */
 export interface AmapServiceBaseOptions {
@@ -159,7 +163,7 @@ export type UpdateAmapService<TInstance extends AmapServiceInstance, TOptions ex
 
 /** 使用服务参数 */
 export interface UseAmapServiceParams<TInstance extends AmapServiceInstance, TOptions extends AmapServiceBaseOptions>
-    extends AmapEventShortcutProps {
+    extends AmapEventShortcutProps<AmapOverlayMouseEvent<TInstance>> {
     /** 服务实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
@@ -175,7 +179,7 @@ export interface UseAmapServiceParams<TInstance extends AmapServiceInstance, TOp
     /** 服务参数 */
     options?: TOptions
     /** 服务事件映射 */
-    events?: AmapServiceEvents
+    events?: AmapServiceEvents<TInstance>
     /** 自定义创建服务 */
     createService?: CreateAmapService<TInstance, TOptions>
     /** 自定义更新服务 */
@@ -189,7 +193,8 @@ export interface UseAmapServiceParams<TInstance extends AmapServiceInstance, TOp
 }
 
 /** 服务组件通用属性 */
-export interface AmapServiceProps<TInstance extends AmapServiceInstance> extends AmapEventShortcutProps {
+export interface AmapServiceProps<TInstance extends AmapServiceInstance>
+    extends AmapEventShortcutProps<AmapOverlayMouseEvent<TInstance>> {
     /** 服务实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
@@ -199,7 +204,7 @@ export interface AmapServiceProps<TInstance extends AmapServiceInstance> extends
     /** 是否启用服务 */
     enabled?: boolean
     /** 服务事件映射 */
-    events?: AmapServiceEvents
+    events?: AmapServiceEvents<TInstance>
     /** 创建完成回调 */
     onLoad?: AmapServiceOnLoad<TInstance>
     /** 销毁前回调 */
@@ -961,12 +966,12 @@ function destroyDefaultAmapService<TInstance extends AmapServiceInstance>({
 }
 
 function bindAmapServiceEvents<TInstance extends AmapServiceInstance>(service: TInstance, events?: AmapServiceEvents) {
-    const eventEntries = Object.entries(events ?? {})
+    const eventEntries = getAmapEventEntries(events)
 
-    eventEntries.forEach(([eventName, handler]) => service.on?.(eventName, handler))
+    eventEntries.forEach(({ eventName, handler }) => service.on?.(eventName, handler))
 
     return function unbindAmapServiceEvents() {
-        eventEntries.forEach(([eventName, handler]) => service.off?.(eventName, handler))
+        eventEntries.forEach(({ eventName, handler }) => service.off?.(eventName, handler))
     }
 }
 

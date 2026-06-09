@@ -1,5 +1,11 @@
 # @1adybug/react-amap
 
+## 0.2.1
+
+### Patch Changes
+
+- fix(react-amap): 优化组件点击事件类型
+
 ## 0.2.0
 
 ### Minor Changes

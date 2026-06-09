@@ -5,7 +5,14 @@ import { AmapPlugin, type AmapEventHandler, type AmapMapInstance, type AmapNames
 import { useAmapPlugin } from "../hooks/useAmapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
 
-import { type AmapEventShortcutProps, mergeAmapEvents, splitAmapEventShortcutProps } from "../utils/amapEvents"
+import {
+    type AmapEventMap,
+    type AmapEventShortcutProps,
+    type AmapOverlayMouseEvent,
+    getAmapEventEntries,
+    mergeAmapEvents,
+    splitAmapEventShortcutProps,
+} from "../utils/amapEvents"
 import { optionalFn } from "../utils/optionalFn"
 
 export type AmapControlOnLoad<TInstance extends AmapControlInstance = AmapControlInstance> = (control: TInstance) => void
@@ -62,9 +69,7 @@ export interface AmapControlBaseOptions {
 }
 
 /** 控件事件映射 */
-export interface AmapControlEvents {
-    [eventName: string]: AmapEventHandler
-}
+export interface AmapControlEvents<TInstance = AmapControlInstance> extends AmapEventMap<AmapOverlayMouseEvent<TInstance>> {}
 
 /** 控件实例 */
 export interface AmapControlInstance {
@@ -166,7 +171,8 @@ export interface AmapControlNamespace extends AmapNamespace {
 }
 
 /** 内部控件组件属性 */
-export interface AmapControlProps<TInstance extends AmapControlInstance, TOptions extends AmapControlBaseOptions> extends AmapEventShortcutProps {
+export interface AmapControlProps<TInstance extends AmapControlInstance, TOptions extends AmapControlBaseOptions>
+    extends AmapEventShortcutProps<AmapOverlayMouseEvent<TInstance>> {
     /** 控件实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
@@ -180,7 +186,7 @@ export interface AmapControlProps<TInstance extends AmapControlInstance, TOption
     /** 控件参数 */
     options: TOptions
     /** 控件事件映射 */
-    events?: AmapControlEvents
+    events?: AmapControlEvents<TInstance>
     /** 创建完成回调 */
     onLoad?: AmapControlOnLoad<TInstance>
     /** 销毁前回调 */
@@ -188,7 +194,7 @@ export interface AmapControlProps<TInstance extends AmapControlInstance, TOption
 }
 
 /** 比例尺组件属性 */
-export interface ScaleProps extends AmapControlBaseOptions, AmapEventShortcutProps {
+export interface ScaleProps extends AmapControlBaseOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapControlInstance>> {
     /** 比例尺实例 ref */
     ref?: Ref<AmapControlInstance | null>
     /** 地图实例 */
@@ -209,7 +215,9 @@ export interface ScaleProps extends AmapControlBaseOptions, AmapEventShortcutPro
 export interface ToolBarProps extends ScaleProps {}
 
 /** 组合控件组件属性 */
-export interface ControlBarProps extends AmapControlBarOptions {
+export interface ControlBarProps
+    extends AmapControlBarOptions,
+        AmapEventShortcutProps<AmapOverlayMouseEvent<AmapControlInstance>> {
     /** 组合控件实例 ref */
     ref?: Ref<AmapControlInstance | null>
     /** 地图实例 */
@@ -227,7 +235,7 @@ export interface ControlBarProps extends AmapControlBarOptions {
 }
 
 /** 地图类型控件组件属性 */
-export interface MapTypeProps extends AmapMapTypeOptions {
+export interface MapTypeProps extends AmapMapTypeOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapMapTypeInstance>> {
     /** 地图类型控件实例 ref */
     ref?: Ref<AmapMapTypeInstance | null>
     /** 地图实例 */
@@ -237,7 +245,7 @@ export interface MapTypeProps extends AmapMapTypeOptions {
     /** 控件额外参数 */
     controlOptions?: AmapMapTypeOptions
     /** 控件事件映射 */
-    events?: AmapControlEvents
+    events?: AmapControlEvents<AmapMapTypeInstance>
     /** 创建完成回调 */
     onLoad?: AmapControlOnLoad<AmapMapTypeInstance>
     /** 销毁前回调 */
@@ -245,7 +253,7 @@ export interface MapTypeProps extends AmapMapTypeOptions {
 }
 
 /** 鹰眼控件组件属性 */
-export interface HawkEyeProps extends AmapHawkEyeOptions {
+export interface HawkEyeProps extends AmapHawkEyeOptions, AmapEventShortcutProps<AmapOverlayMouseEvent<AmapControlInstance>> {
     /** 鹰眼控件实例 ref */
     ref?: Ref<AmapControlInstance | null>
     /** 地图实例 */
@@ -285,12 +293,12 @@ function getAmapControlConstructor<TInstance extends AmapControlInstance, TOptio
 }
 
 function bindAmapControlEvents<TInstance extends AmapControlInstance>(control: TInstance, events?: AmapControlEvents) {
-    const eventEntries = Object.entries(events ?? {})
+    const eventEntries = getAmapEventEntries(events)
 
-    eventEntries.forEach(([eventName, handler]) => control.on?.(eventName, handler))
+    eventEntries.forEach(({ eventName, handler }) => control.on?.(eventName, handler))
 
     return function unbindAmapControlEvents() {
-        eventEntries.forEach(([eventName, handler]) => control.off?.(eventName, handler))
+        eventEntries.forEach(({ eventName, handler }) => control.off?.(eventName, handler))
     }
 }
 
