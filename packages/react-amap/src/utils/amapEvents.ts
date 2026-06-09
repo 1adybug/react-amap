@@ -43,8 +43,14 @@ export interface AmapEventMap<TClickEvent extends AmapMouseEvent = AmapOverlayMo
     click?: AmapMouseEventHandler<TClickEvent>
     /** 双击事件 */
     dblclick?: AmapMouseEventHandler<TClickEvent>
+    /** 双击事件别名 */
+    dblClick?: AmapMouseEventHandler<TClickEvent>
+    /** 双击事件别名 */
+    dbClick?: AmapMouseEventHandler<TClickEvent>
     /** 右键事件 */
     rightclick?: AmapMouseEventHandler<TClickEvent>
+    /** 右键事件别名 */
+    rightClick?: AmapMouseEventHandler<TClickEvent>
     /** 鼠标按下事件 */
     mousedown?: AmapMouseEventHandler<TClickEvent>
     /** 鼠标抬起事件 */
@@ -250,6 +256,13 @@ export const AmapMapEventShortcutMap = {
     onMapZoomStart: "zoomstart",
 } as const
 
+/** 高德事件别名到标准事件名映射 */
+export const AmapEventAliasMap = {
+    dbClick: "dblclick",
+    dblClick: "dblclick",
+    rightClick: "rightclick",
+} as const
+
 export function mergeAmapEvents<
     TClickEvent extends AmapMouseEvent = AmapOverlayMouseEvent,
     TEvents extends AmapEventMap<TClickEvent> = AmapEventMap<TClickEvent>,
@@ -280,8 +293,10 @@ export function mergeAmapEvents<
 export function getAmapEventEntries<TEvents extends AmapEventMap>(events?: TEvents) {
     return Object.entries(events ?? {}).reduce<AmapEventEntry[]>((entries, [eventName, handler]) => {
         if (typeof handler === "function") {
+            const normalizedEventName = AmapEventAliasMap[eventName as keyof typeof AmapEventAliasMap] ?? eventName
+
             entries.push({
-                eventName,
+                eventName: normalizedEventName,
                 handler,
             })
         }
