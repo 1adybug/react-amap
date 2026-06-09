@@ -1,5 +1,13 @@
 # @1adybug/react-amap
 
+## 0.3.2
+
+### Patch Changes
+
+- feat(react-amap): add named amap event types
+- fix(react-amap): normalize mouse event aliases
+- fix(react-amap): 移除宽泛的 unknown 索引签名
+
 ## 0.3.1
 
 ### Patch Changes

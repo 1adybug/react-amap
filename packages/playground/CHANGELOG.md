@@ -1,5 +1,12 @@
 # playground
 
+## 1.0.6
+
+### Patch Changes
+
+- Updated dependencies
+    - @1adybug/react-amap@0.3.2
+
 ## 1.0.5
 
 ### Patch Changes
