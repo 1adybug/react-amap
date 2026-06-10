@@ -1,5 +1,11 @@
 # @1adybug/react-amap
 
+## 0.4.0
+
+### Minor Changes
+
+- refactor(react-amap): rename amap component to map
+
 ## 0.3.2
 
 ### Patch Changes
