@@ -2,7 +2,7 @@
 
 `@1adybug/react-amap` 是基于高德地图 JSAPI v2.0 的 React 19 声明式封装。它负责加载 JSAPI、创建地图实例，并把点标记、矢量图形、图层、控件、工具、服务等高德对象映射为 React 组件或 Hook。
 
-组件的核心设计是：在组件挂载时创建对应的高德实例，在 props 变化时同步可更新参数，在组件卸载时自动移除或销毁实例。大部分组件既可以放在 `<Amap>` 内通过上下文获取 `map` / `AMap`，也可以显式传入 `map` 与 `AMap`。
+组件的核心设计是：在组件挂载时创建对应的高德实例，在 props 变化时同步可更新参数，在组件卸载时自动移除或销毁实例。大部分组件既可以放在 `<Map>` 内通过上下文获取 `map` / `AMap`，也可以显式传入 `map` 与 `AMap`。
 
 ## 安装
 
@@ -20,28 +20,28 @@ pnpm add @1adybug/react-amap
 import { type FC, useState } from "react"
 
 import {
-    Amap,
-    AmapMarkerAnchor,
-    AmapPlugin,
-    AmapStatus,
+    Map,
+    MapMarkerAnchor,
+    MapPlugin,
+    MapStatus,
     Marker,
     Scale,
     ToolBar,
 } from "@1adybug/react-amap"
 
 const App: FC = () => {
-    const [status, setStatus] = useState(AmapStatus.Idle)
+    const [status, setStatus] = useState(MapStatus.Idle)
 
     return (
         <div className="h-screen w-screen">
-            <Amap
+            <Map
                 apiKey={import.meta.env.VITE_AMAP_KEY}
                 securityConfig={{
                     securityJsCode: import.meta.env.VITE_AMAP_SECURITY_JS_CODE,
                 }}
                 center={[116.397428, 39.90923]}
                 zoom={12}
-                plugins={[AmapPlugin.Scale, AmapPlugin.ToolBar]}
+                plugins={[MapPlugin.Scale, MapPlugin.ToolBar]}
                 onStatusChange={setStatus}
                 onMapClick={event => console.log("map click", event)}
             >
@@ -50,11 +50,11 @@ const App: FC = () => {
                 <Marker
                     position={[116.397428, 39.90923]}
                     title="天安门"
-                    anchor={AmapMarkerAnchor.底部居中}
+                    anchor={MapMarkerAnchor.底部居中}
                     onClick={event => console.log("marker click", event)}
                 />
-            </Amap>
-            <span hidden={status === AmapStatus.Loaded}>地图加载中</span>
+            </Map>
+            <span hidden={status === MapStatus.Loaded}>地图加载中</span>
         </div>
     )
 }
@@ -66,10 +66,10 @@ export default App
 
 ### 安全密钥
 
-`Amap` 在加载 JSAPI 前会合并 `window._AMapSecurityConfig` 与 `securityConfig`。如果既没有 `securityJsCode`，也没有 `serviceHost`，组件会进入 `AmapStatus.Error` 并通过 `onMapError` 抛出错误。
+`Map` 在加载 JSAPI 前会合并 `window._AMapSecurityConfig` 与 `securityConfig`。如果既没有 `securityJsCode`，也没有 `serviceHost`，组件会进入 `MapStatus.Error` 并通过 `onMapError` 抛出错误。
 
 ```tsx
-<Amap
+<Map
     apiKey={apiKey}
     securityConfig={{
         securityJsCode,
@@ -80,11 +80,11 @@ export default App
 
 ### 容器尺寸
 
-`Amap` 的根容器默认是 `position: relative; width: 100%; height: 100%`。外层容器必须有明确宽高，否则地图可能不可见。
+`Map` 的根容器默认是 `position: relative; width: 100%; height: 100%`。外层容器必须有明确宽高，否则地图可能不可见。
 
 ```tsx
 <div className="h-screen w-screen">
-    <Amap apiKey={apiKey} securityConfig={{ securityJsCode }} />
+    <Map apiKey={apiKey} securityConfig={{ securityJsCode }} />
 </div>
 ```
 
@@ -114,7 +114,7 @@ export default App
 
 `onClick`、`onDblClick`、`onRightClick`、`onMouseDown`、`onMouseUp`、`onMouseMove`、`onMouseOver`、`onMouseOut`、`onTouchStart`、`onTouchMove`、`onTouchEnd`、`onDragStart`、`onDragging`、`onDragEnd`、`onMoving`、`onMoveEnd`、`onZoomStart`、`onZoomChange`、`onZoomEnd`、`onRotateStart`、`onRotateChange`、`onRotateEnd`、`onComplete`、`onOpen`、`onClose`、`onChange`、`onEnd`。
 
-`Amap` 的地图事件使用 `onMap` 前缀，例如 `onMapClick`、`onMapMoveEnd`、`onMapZoomChange`。也可以使用 `events={{ click: ... }}` 绑定原始高德事件名。
+`Map` 的地图事件使用 `onMap` 前缀，例如 `onMapClick`、`onMapMoveEnd`、`onMapZoomChange`。也可以使用 `events={{ click: ... }}` 绑定原始高德事件名。
 
 ### 生命周期
 
@@ -125,7 +125,7 @@ export default App
 - `onDestroy(instance)`：实例销毁或移除前触发。
 
 ```tsx
-const markerRef = useRef<AmapMarkerInstance | null>(null)
+const markerRef = useRef<MapMarkerInstance | null>(null)
 
 <Marker
     ref={markerRef}
@@ -136,19 +136,19 @@ const markerRef = useRef<AmapMarkerInstance | null>(null)
 
 ### 插件加载
 
-`Amap` 的 `plugins` 可预加载插件。需要插件的组件也会在创建前尝试按需加载对应插件。
+`Map` 的 `plugins` 可预加载插件。需要插件的组件也会在创建前尝试按需加载对应插件。
 
 ```tsx
-<Amap
+<Map
     apiKey={apiKey}
     securityConfig={{ securityJsCode }}
-    plugins={[AmapPlugin.Scale, AmapPlugin.MouseTool, AmapPlugin.Geocoder]}
+    plugins={[MapPlugin.Scale, MapPlugin.MouseTool, MapPlugin.Geocoder]}
 />
 ```
 
-## Amap
+## Map
 
-`Amap` 是地图根组件，负责加载 JSAPI、配置安全策略、创建 `AMap.Map`，并通过 `AmapContext` 向子组件提供 `map` 与 `AMap`。
+`Map` 是地图根组件，负责加载 JSAPI、配置安全策略、创建 `AMap.Map`，并通过 `MapContext` 向子组件提供 `map` 与 `AMap`。
 
 常用 props：
 
@@ -157,7 +157,7 @@ const markerRef = useRef<AmapMarkerInstance | null>(null)
 | `apiKey` | 高德 Web 端开发者 Key，必填 |
 | `securityConfig` | `{ securityJsCode?: string; serviceHost?: string }` |
 | `version` | JSAPI 版本，默认 `"2.0"` |
-| `plugins` | 预加载插件列表，使用 `AmapPlugin` |
+| `plugins` | 预加载插件列表，使用 `MapPlugin` |
 | `loaderUrl` | Loader 脚本地址，默认高德官方 `loader.js` |
 | `loaderOptions` | 传给 Loader 的额外配置，不允许覆盖 `key`、`version`、`plugins`、`serviceHost` |
 | `loaderTimeout` | 自定义 Loader 脚本加载超时，默认 `15000` ms |
@@ -172,7 +172,7 @@ const markerRef = useRef<AmapMarkerInstance | null>(null)
 地图参数可以直接作为顶层 props 传入：
 
 ```tsx
-<Amap
+<Map
     apiKey={apiKey}
     securityConfig={{ securityJsCode }}
     center={[116.39, 39.9]}
@@ -207,10 +207,10 @@ const markerRef = useRef<AmapMarkerInstance | null>(null)
 | `visible` | 是否可见 |
 | `zIndex` | 叠加层级 |
 | `offset` | 偏移量 |
-| `anchor` | 锚点，可用 `AmapMarkerAnchor` |
+| `anchor` | 锚点，可用 `MapMarkerAnchor` |
 | `angle` | 旋转角度 |
 | `clickable` / `draggable` | 是否可点击 / 拖拽 |
-| `label` | 文本标注，`direction` 可用 `AmapMarkerLabelDirection` |
+| `label` | 文本标注，`direction` 可用 `MapMarkerLabelDirection` |
 | `markerOptions` | 额外 Marker 构造参数 |
 
 ```tsx
@@ -245,7 +245,7 @@ const markerRef = useRef<AmapMarkerInstance | null>(null)
 <Text
     position={[116.397428, 39.90923]}
     text="文本标记"
-    anchor={AmapMarkerAnchor.底部居中}
+    anchor={MapMarkerAnchor.底部居中}
     style={{
         color: "#1677ff",
         backgroundColor: "#fff",
@@ -259,7 +259,7 @@ const markerRef = useRef<AmapMarkerInstance | null>(null)
 
 ### ElasticMarker
 
-`ElasticMarker` 创建 `AMap.ElasticMarker`，用于不同缩放级别下自动切换样式的灵活点标记。组件会按需加载 `AmapPlugin.ElasticMarker`。
+`ElasticMarker` 创建 `AMap.ElasticMarker`，用于不同缩放级别下自动切换样式的灵活点标记。组件会按需加载 `MapPlugin.ElasticMarker`。
 
 ```tsx
 <ElasticMarker
@@ -282,7 +282,7 @@ const markerRef = useRef<AmapMarkerInstance | null>(null)
             },
             label: {
                 content: "重点点位",
-                position: AmapElasticMarkerLabelPosition.顶部居中,
+                position: MapElasticMarkerLabelPosition.顶部居中,
             },
         },
     ]}
@@ -352,7 +352,7 @@ const markerRef = useRef<AmapMarkerInstance | null>(null)
 
 ### MarkerCluster
 
-`MarkerCluster` 创建 `AMap.MarkerCluster`，组件会按需加载 `AmapPlugin.MarkerCluster`。
+`MarkerCluster` 创建 `AMap.MarkerCluster`，组件会按需加载 `MapPlugin.MarkerCluster`。
 
 ```tsx
 <MarkerCluster
@@ -649,7 +649,7 @@ const markerRef = useRef<AmapMarkerInstance | null>(null)
 
 ### HeatMap
 
-`HeatMap` 创建 `AMap.HeatMap`，组件会按需加载 `AmapPlugin.HeatMap`。
+`HeatMap` 创建 `AMap.HeatMap`，组件会按需加载 `MapPlugin.HeatMap`。
 
 ```tsx
 <HeatMap
@@ -687,11 +687,11 @@ const markerRef = useRef<AmapMarkerInstance | null>(null)
 
 组件说明：
 
-- `Scale`：比例尺控件，需要 `AmapPlugin.Scale`。
-- `ToolBar`：缩放工具条，需要 `AmapPlugin.ToolBar`。
-- `ControlBar`：3D 旋转 / 俯仰组合控件，需要 `AmapPlugin.ControlBar`。
-- `MapType`：图层切换控件，需要 `AmapPlugin.MapType`，支持 `defaultType`、`showTraffic`、`showRoad`。
-- `HawkEye`：鹰眼控件，需要 `AmapPlugin.HawkEye`，支持 `autoMove`、`showRectangle`、`showButton`、`opened`、`mapStyle`、`layers`、`width`、`height`。
+- `Scale`：比例尺控件，需要 `MapPlugin.Scale`。
+- `ToolBar`：缩放工具条，需要 `MapPlugin.ToolBar`。
+- `ControlBar`：3D 旋转 / 俯仰组合控件，需要 `MapPlugin.ControlBar`。
+- `MapType`：图层切换控件，需要 `MapPlugin.MapType`，支持 `defaultType`、`showTraffic`、`showRoad`。
+- `HawkEye`：鹰眼控件，需要 `MapPlugin.HawkEye`，支持 `autoMove`、`showRectangle`、`showButton`、`opened`、`mapStyle`、`layers`、`width`、`height`。
 
 ## 信息窗体与右键菜单
 
@@ -760,11 +760,11 @@ const markerRef = useRef<AmapMarkerInstance | null>(null)
 
 ## MouseTool
 
-`MouseTool` 创建 `AMap.MouseTool`，组件会按需加载 `AmapPlugin.MouseTool`。通过 `mode` 指定绘制或量测模式，通过 `active` 控制是否开启。
+`MouseTool` 创建 `AMap.MouseTool`，组件会按需加载 `MapPlugin.MouseTool`。通过 `mode` 指定绘制或量测模式，通过 `active` 控制是否开启。
 
 ```tsx
 <MouseTool
-    mode={AmapMouseToolMode.Polygon}
+    mode={MapMouseToolMode.Polygon}
     active={drawing}
     polygonOptions={{
         fillColor: "#1677ff",
@@ -778,21 +778,21 @@ const markerRef = useRef<AmapMarkerInstance | null>(null)
 
 可用模式：
 
-- `AmapMouseToolMode.Marker`：绘制点标记。
-- `AmapMouseToolMode.Circle`：绘制圆。
-- `AmapMouseToolMode.Rectangle`：绘制矩形。
-- `AmapMouseToolMode.Polyline`：绘制折线。
-- `AmapMouseToolMode.Polygon`：绘制多边形。
-- `AmapMouseToolMode.MeasureArea`：面积量测。
-- `AmapMouseToolMode.Rule`：距离量测。
-- `AmapMouseToolMode.RectZoomIn`：拉框放大。
-- `AmapMouseToolMode.RectZoomOut`：拉框缩小。
+- `MapMouseToolMode.Marker`：绘制点标记。
+- `MapMouseToolMode.Circle`：绘制圆。
+- `MapMouseToolMode.Rectangle`：绘制矩形。
+- `MapMouseToolMode.Polyline`：绘制折线。
+- `MapMouseToolMode.Polygon`：绘制多边形。
+- `MapMouseToolMode.MeasureArea`：面积量测。
+- `MapMouseToolMode.Rule`：距离量测。
+- `MapMouseToolMode.RectZoomIn`：拉框放大。
+- `MapMouseToolMode.RectZoomOut`：拉框缩小。
 
 常用 props：`mode`、`active`、`options`、`markerOptions`、`circleOptions`、`rectangleOptions`、`polylineOptions`、`polygonOptions`、`measureAreaOptions`、`ruleOptions`、`rectZoomInOptions`、`rectZoomOutOptions`、`clearOnClose`、`clearOnModeChange`、`onDraw`。
 
 ## RangingTool
 
-`RangingTool` 创建 `AMap.RangingTool`，组件会按需加载 `AmapPlugin.RangingTool`。
+`RangingTool` 创建 `AMap.RangingTool`，组件会按需加载 `MapPlugin.RangingTool`。
 
 ```tsx
 <RangingTool
@@ -815,7 +815,7 @@ const markerRef = useRef<AmapMarkerInstance | null>(null)
 基础示例：
 
 ```tsx
-const [polygon, setPolygon] = useState<AmapPolygonInstance | null>(null)
+const [polygon, setPolygon] = useState<MapPolygonInstance | null>(null)
 
 <Polygon
     ref={setPolygon}
@@ -852,7 +852,7 @@ const [polygon, setPolygon] = useState<AmapPolygonInstance | null>(null)
 
 | prop | 说明 |
 | --- | --- |
-| `map` / `AMap` | 显式传入地图实例与命名空间，不传时读取 `AmapContext` |
+| `map` / `AMap` | 显式传入地图实例与命名空间，不传时读取 `MapContext` |
 | `enabled` | 是否创建服务，默认 `true` |
 | `events` | 服务事件映射 |
 | `ref` | 服务实例 ref |
@@ -862,31 +862,31 @@ const [polygon, setPolygon] = useState<AmapPolygonInstance | null>(null)
 
 | 组件 | Hook | 插件 | 常用实例方法 |
 | --- | --- | --- | --- |
-| `Geocoder` | `useGeocoder` | `AmapPlugin.Geocoder` | `getLocation`、`getAddress`、`setCity` |
-| `AutoComplete` | `useAutoComplete` | `AmapPlugin.AutoComplete` | `search`、`setType`、`setCity`、`setCityLimit` |
-| `PlaceSearch` | `usePlaceSearch` | `AmapPlugin.PlaceSearch` | `search`、`searchInBounds`、`searchNearBy`、`getDetails` |
-| `CloudDataSearch` | `useCloudDataSearch` | `AmapPlugin.CloudDataSearch` | `searchNearBy`、`searchById`、`searchByDistrict`、`searchInPolygon` |
-| `Driving` | `useDriving` | `AmapPlugin.Driving` | `search`、`setPolicy`、`setAvoidPolygons` |
-| `TruckDriving` | `useTruckDriving` | `AmapPlugin.TruckDriving` | `search`、`setPolicy`、`setProvinceAndNumber` |
-| `Walking` | `useWalking` | `AmapPlugin.Walking` | `search` |
-| `Transfer` | `useTransfer` | `AmapPlugin.Transfer` | `search`、`leaveAt`、`setCity`、`setCityd` |
-| `Riding` | `useRiding` | `AmapPlugin.Riding` | `search` |
-| `DragRoute` | `useDragRoute` | `AmapPlugin.DragRoute` | `search`、`getWays`、`getRoute` |
-| `DragRouteTruck` | `useDragRouteTruck` | `AmapPlugin.DragRouteTruck` | `search`、`updatePath`、`getWays`、`getRoute` |
-| `GraspRoad` | `useGraspRoad` | `AmapPlugin.GraspRoad` | `driving` |
-| `DistrictSearch` | `useDistrictSearch` | `AmapPlugin.DistrictSearch` | `search`、`setLevel`、`setSubdistrict` |
-| `Weather` | `useWeather` | `AmapPlugin.Weather` | `getLive`、`getForecast` |
-| `StationSearch` | `useStationSearch` | `AmapPlugin.StationSearch` | `search`、`setCity`、`setPageIndex`、`setPageSize` |
-| `LineSearch` | `useLineSearch` | `AmapPlugin.LineSearch` | `search`、`setCity`、`setPageIndex`、`setPageSize` |
-| `Geolocation` | `useGeolocation` | `AmapPlugin.Geolocation` | `getCurrentPosition`、`getCityInfo`、`addTo`、`removeFrom` |
-| `CitySearch` | `useCitySearch` | `AmapPlugin.CitySearch` | `getLocalCity`、`getCityByIp` |
+| `Geocoder` | `useGeocoder` | `MapPlugin.Geocoder` | `getLocation`、`getAddress`、`setCity` |
+| `AutoComplete` | `useAutoComplete` | `MapPlugin.AutoComplete` | `search`、`setType`、`setCity`、`setCityLimit` |
+| `PlaceSearch` | `usePlaceSearch` | `MapPlugin.PlaceSearch` | `search`、`searchInBounds`、`searchNearBy`、`getDetails` |
+| `CloudDataSearch` | `useCloudDataSearch` | `MapPlugin.CloudDataSearch` | `searchNearBy`、`searchById`、`searchByDistrict`、`searchInPolygon` |
+| `Driving` | `useDriving` | `MapPlugin.Driving` | `search`、`setPolicy`、`setAvoidPolygons` |
+| `TruckDriving` | `useTruckDriving` | `MapPlugin.TruckDriving` | `search`、`setPolicy`、`setProvinceAndNumber` |
+| `Walking` | `useWalking` | `MapPlugin.Walking` | `search` |
+| `Transfer` | `useTransfer` | `MapPlugin.Transfer` | `search`、`leaveAt`、`setCity`、`setCityd` |
+| `Riding` | `useRiding` | `MapPlugin.Riding` | `search` |
+| `DragRoute` | `useDragRoute` | `MapPlugin.DragRoute` | `search`、`getWays`、`getRoute` |
+| `DragRouteTruck` | `useDragRouteTruck` | `MapPlugin.DragRouteTruck` | `search`、`updatePath`、`getWays`、`getRoute` |
+| `GraspRoad` | `useGraspRoad` | `MapPlugin.GraspRoad` | `driving` |
+| `DistrictSearch` | `useDistrictSearch` | `MapPlugin.DistrictSearch` | `search`、`setLevel`、`setSubdistrict` |
+| `Weather` | `useWeather` | `MapPlugin.Weather` | `getLive`、`getForecast` |
+| `StationSearch` | `useStationSearch` | `MapPlugin.StationSearch` | `search`、`setCity`、`setPageIndex`、`setPageSize` |
+| `LineSearch` | `useLineSearch` | `MapPlugin.LineSearch` | `search`、`setCity`、`setPageIndex`、`setPageSize` |
+| `Geolocation` | `useGeolocation` | `MapPlugin.Geolocation` | `getCurrentPosition`、`getCityInfo`、`addTo`、`removeFrom` |
+| `CitySearch` | `useCitySearch` | `MapPlugin.CitySearch` | `getLocalCity`、`getCityByIp` |
 
 ### Geocoder
 
 ```tsx
 <Geocoder
     city="北京"
-    extensions={AmapServiceExtensions.详细信息}
+    extensions={MapServiceExtensions.详细信息}
     onLoad={geocoder => {
         geocoder.getLocation?.("北京市朝阳区", (status, result) => {
             console.log(status, result)
@@ -917,7 +917,7 @@ function onSearchAddress() {
 <AutoComplete
     input="keyword"
     city="北京"
-    datatype={AmapAutoCompleteDataType.POI}
+    datatype={MapAutoCompleteDataType.POI}
     citylimit
     onLoad={autoComplete => {
         autoComplete.search?.("咖啡", (status, result) => console.log(status, result))
@@ -943,7 +943,7 @@ function onSearchAddress() {
 
 常用 props：`city`、`type`、`pageSize`、`pageIndex`、`extensions`、`panel`、`citylimit`、`autoFitView`、`placeSearchOptions`。
 
-当传入 `map` 或放在 `Amap` 内时，`PlaceSearch` 会把当前地图写入构造参数，除非你已经在 options 中显式设置 `map`。
+当传入 `map` 或放在 `Map` 内时，`PlaceSearch` 会把当前地图写入构造参数，除非你已经在 options 中显式设置 `map`。
 
 ### CloudDataSearch
 
@@ -1043,9 +1043,9 @@ function onSearchAddress() {
 
 ```tsx
 <DistrictSearch
-    level={AmapDistrictSearchLevel.市}
+    level={MapDistrictSearchLevel.市}
     subdistrict={1}
-    extensions={AmapServiceExtensions.详细信息}
+    extensions={MapServiceExtensions.详细信息}
     onLoad={districtSearch => {
         districtSearch.search?.("北京市", (status, result) => console.log(status, result))
     }}
@@ -1138,76 +1138,76 @@ function onSearchAddress() {
 />
 ```
 
-也可以使用 `useAmapWebService`。
+也可以使用 `useMapWebService`。
 
 ### 坐标转换与移动动画
 
-`useAmapConvertFrom` 返回坐标转换函数，底层调用 `AMap.convertFrom`。
+`useMapConvertFrom` 返回坐标转换函数，底层调用 `AMap.convertFrom`。
 
 ```tsx
-const convertFrom = useAmapConvertFrom()
+const convertFrom = useMapConvertFrom()
 
 function onConvert() {
     convertFrom?.({
         lnglat: [116.39, 39.9],
-        type: AmapCoordinateConvertType.GPS,
+        type: MapCoordinateConvertType.GPS,
         callback: (status, result) => console.log(status, result),
     })
 }
 ```
 
-`useAmapMoveAnimation` 会加载 `AmapPlugin.MoveAnimation`，返回布尔值表示插件是否可用。
+`useMapMoveAnimation` 会加载 `MapPlugin.MoveAnimation`，返回布尔值表示插件是否可用。
 
 ```tsx
-const moveAnimationLoaded = useAmapMoveAnimation()
+const moveAnimationLoaded = useMapMoveAnimation()
 ```
 
 ## 基础类与通用工具 Hooks
 
-### useAmapContext
+### useMapContext
 
-读取当前 `<Amap>` 提供的上下文。
+读取当前 `<Map>` 提供的上下文。
 
 ```tsx
-const { map, AMap, status, error } = useAmapContext()
+const { map, AMap, status, error } = useMapContext()
 ```
 
-### useAmapFoundation
+### useMapFoundation
 
 读取基础类构造器：`LngLat`、`Bounds`、`Pixel`、`Size`。
 
 ```tsx
-const { LngLat, Bounds, Pixel, Size } = useAmapFoundation()
+const { LngLat, Bounds, Pixel, Size } = useMapFoundation()
 
 const center = LngLat ? new LngLat(116.39, 39.9) : undefined
 ```
 
-### useAmapCommon
+### useMapCommon
 
 读取通用工具：`GeometryUtil`、`DomUtil`、`Browser`、`Util`。
 
 ```tsx
-const geometryUtil = useAmapGeometryUtil()
+const geometryUtil = useMapGeometryUtil()
 const distance = geometryUtil?.distance?.([116.39, 39.9], [116.4, 39.91])
 ```
 
 可用 Hook：
 
-- `useAmapCommon`
-- `useAmapGeometryUtil`
-- `useAmapDomUtil`
-- `useAmapBrowser`
-- `useAmapUtil`
+- `useMapCommon`
+- `useMapGeometryUtil`
+- `useMapDomUtil`
+- `useMapBrowser`
+- `useMapUtil`
 
-### useAmapPlugin
+### useMapPlugin
 
 手动加载插件。通常组件会自动按需加载，只有你需要直接使用插件构造器时才需要调用它。
 
 ```tsx
-const loaded = useAmapPlugin({
+const loaded = useMapPlugin({
     map,
     AMap,
-    pluginName: AmapPlugin.MouseTool,
+    pluginName: MapPlugin.MouseTool,
     constructorName: "MouseTool",
 })
 ```
@@ -1216,20 +1216,20 @@ const loaded = useAmapPlugin({
 
 包内导出了常用常量，避免手写字符串：
 
-- `AmapViewMode`：`TwoDimensional`、`ThreeDimensional`。
-- `AmapStatus`：`Idle`、`Loading`、`Loaded`、`Error`。
-- `AmapPlugin`：所有可加载的 JSAPI 插件名。
-- `AmapMarkerAnchor`：Marker / 文本锚点。
-- `AmapMarkerLabelDirection`：文本标注方向。
-- `AmapElasticMarkerLabelPosition`：灵活点标记文本位置。
+- `MapViewMode`：`TwoDimensional`、`ThreeDimensional`。
+- `MapStatus`：`Idle`、`Loading`、`Loaded`、`Error`。
+- `MapPlugin`：所有可加载的 JSAPI 插件名。
+- `MapMarkerAnchor`：Marker / 文本锚点。
+- `MapMarkerLabelDirection`：文本标注方向。
+- `MapElasticMarkerLabelPosition`：灵活点标记文本位置。
 - `ControlPosition`：控件停靠位置。
 - `MapTypeLayerType`、`MapTypeDefaultType`：地图类型控件配置。
-- `AmapMouseToolMode`：鼠标工具模式。
-- `AmapServiceLanguage`、`AmapServiceExtensions`、`AmapAutoCompleteDataType`、`AmapDistrictSearchLevel`、`AmapGeolocationDisabledPolicy`、`AmapCoordinateConvertType`：服务参数常量。
+- `MapMouseToolMode`：鼠标工具模式。
+- `MapServiceLanguage`、`MapServiceExtensions`、`MapAutoCompleteDataType`、`MapDistrictSearchLevel`、`MapGeolocationDisabledPolicy`、`MapCoordinateConvertType`：服务参数常量。
 
 ## SSR 注意事项
 
-`Amap` 只会在浏览器环境加载 JSAPI。如果当前环境没有 `window` 或 `document`，会进入错误状态。SSR 项目中应确保地图只在客户端渲染，或者在页面层做动态导入 / 客户端边界。
+`Map` 只会在浏览器环境加载 JSAPI。如果当前环境没有 `window` 或 `document`，会进入错误状态。SSR 项目中应确保地图只在客户端渲染，或者在页面层做动态导入 / 客户端边界。
 
 ## 开发
 

@@ -1,74 +1,74 @@
 import { type FC, type Ref, useEffect, useEffectEvent, useRef, useState } from "react"
 
 import {
-    AmapPlugin,
-    type AmapEventHandler,
-    type AmapLngLatLike,
-    type AmapMapInstance,
-    type AmapNamespace,
-    useAmapContext,
-} from "./Amap"
+    MapPlugin,
+    type MapEventHandler,
+    type MapLngLatLike,
+    type MapInstance,
+    type MapNamespace,
+    useMapContext,
+} from "./Map"
 import type { ControlPosition } from "./Control"
-import type { AmapMarkerOptions } from "./Marker"
-import type { AmapCircleOptions, AmapPolylineOptions } from "./Vector"
-import { useAmapPlugin } from "../hooks/useAmapPlugin"
+import type { MapMarkerOptions } from "./Marker"
+import type { MapCircleOptions, MapPolylineOptions } from "./Vector"
+import { useMapPlugin } from "../hooks/useMapPlugin"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapMoveEvent,
-    type AmapOverlayEventMap,
-    type AmapOverlayEventShortcutProps,
-    type AmapOverlayInteractionEvent,
-    type AmapOverlayMouseEvent,
-    type AmapTargetEvent,
-    getAmapEventEntries,
-    mergeAmapEvents,
-} from "../utils/amapEvents"
+    type MapMoveEvent,
+    type MapOverlayEventMap,
+    type MapOverlayEventShortcutProps,
+    type MapOverlayInteractionEvent,
+    type MapOverlayMouseEvent,
+    type MapTargetEvent,
+    getMapEventEntries,
+    mergeMapEvents,
+} from "../utils/mapEvents"
 
-export type AmapServiceOnLoad<TInstance extends AmapServiceInstance = AmapServiceInstance> = (
+export type MapServiceOnLoad<TInstance extends MapServiceInstance = MapServiceInstance> = (
     service: TInstance
 ) => void
 
-export type AmapServiceOnDestroy<TInstance extends AmapServiceInstance = AmapServiceInstance> = (
+export type MapServiceOnDestroy<TInstance extends MapServiceInstance = MapServiceInstance> = (
     service: TInstance
 ) => void
 
-export type AmapServiceCallback<TResult = unknown> = (status: string, result: TResult) => void
+export type MapServiceCallback<TResult = unknown> = (status: string, result: TResult) => void
 
-export type AmapWeatherCallback<TResult = unknown> = (error: unknown, result: TResult) => void
+export type MapWeatherCallback<TResult = unknown> = (error: unknown, result: TResult) => void
 
-export type AmapWebServiceCallback<TResult = unknown> = (error: unknown, result: TResult) => void
+export type MapWebServiceCallback<TResult = unknown> = (error: unknown, result: TResult) => void
 
-export type AmapMoveDurationCallback = (index: number, route: unknown) => number
+export type MapMoveDurationCallback = (index: number, route: unknown) => number
 
 /** 服务语言类型 */
-export const AmapServiceLanguage = {
+export const MapServiceLanguage = {
     中文: "zh_cn",
     英文: "en",
 } as const
 
-export type AmapServiceLanguage = (typeof AmapServiceLanguage)[keyof typeof AmapServiceLanguage]
+export type MapServiceLanguage = (typeof MapServiceLanguage)[keyof typeof MapServiceLanguage]
 
 /** 返回信息详略 */
-export const AmapServiceExtensions = {
+export const MapServiceExtensions = {
     基础信息: "base",
     详细信息: "all",
 } as const
 
-export type AmapServiceExtensions = (typeof AmapServiceExtensions)[keyof typeof AmapServiceExtensions]
+export type MapServiceExtensions = (typeof MapServiceExtensions)[keyof typeof MapServiceExtensions]
 
 /** 输入提示返回数据类型 */
-export const AmapAutoCompleteDataType = {
+export const MapAutoCompleteDataType = {
     全部: "all",
     POI: "poi",
     公交站点: "bus",
     公交线路: "busline",
 } as const
 
-export type AmapAutoCompleteDataType = (typeof AmapAutoCompleteDataType)[keyof typeof AmapAutoCompleteDataType]
+export type MapAutoCompleteDataType = (typeof MapAutoCompleteDataType)[keyof typeof MapAutoCompleteDataType]
 
 /** 行政区查询级别 */
-export const AmapDistrictSearchLevel = {
+export const MapDistrictSearchLevel = {
     国家: "country",
     省直辖市: "province",
     市: "city",
@@ -76,55 +76,55 @@ export const AmapDistrictSearchLevel = {
     商圈: "biz_area",
 } as const
 
-export type AmapDistrictSearchLevel = (typeof AmapDistrictSearchLevel)[keyof typeof AmapDistrictSearchLevel]
+export type MapDistrictSearchLevel = (typeof MapDistrictSearchLevel)[keyof typeof MapDistrictSearchLevel]
 
 /** 定位来源禁用策略 */
-export const AmapGeolocationDisabledPolicy = {
+export const MapGeolocationDisabledPolicy = {
     全部启用: 0,
     手机端禁用: 1,
     PC端禁用: 2,
     全部禁用: 3,
 } as const
 
-export type AmapGeolocationDisabledPolicy =
-    (typeof AmapGeolocationDisabledPolicy)[keyof typeof AmapGeolocationDisabledPolicy]
+export type MapGeolocationDisabledPolicy =
+    (typeof MapGeolocationDisabledPolicy)[keyof typeof MapGeolocationDisabledPolicy]
 
 /** 坐标转换来源类型 */
-export const AmapCoordinateConvertType = {
+export const MapCoordinateConvertType = {
     GPS: "gps",
 } as const
 
-export type AmapCoordinateConvertType = (typeof AmapCoordinateConvertType)[keyof typeof AmapCoordinateConvertType] | string
+export type MapCoordinateConvertType = (typeof MapCoordinateConvertType)[keyof typeof MapCoordinateConvertType] | string
 
 /** 服务事件映射 */
-export interface AmapServiceEvents<TInstance = AmapServiceInstance> extends AmapOverlayEventMap<TInstance> {}
+export interface MapServiceEvents<TInstance = MapServiceInstance> extends MapOverlayEventMap<TInstance> {}
 
 /** 服务鼠标事件 */
-export interface AmapServiceMouseEvent<TInstance = AmapServiceInstance> extends AmapOverlayMouseEvent<TInstance> {}
+export interface MapServiceMouseEvent<TInstance = MapServiceInstance> extends MapOverlayMouseEvent<TInstance> {}
 
 /** 服务交互坐标事件 */
-export interface AmapServiceInteractionEvent<TInstance = AmapServiceInstance> extends AmapOverlayInteractionEvent<TInstance> {}
+export interface MapServiceInteractionEvent<TInstance = MapServiceInstance> extends MapOverlayInteractionEvent<TInstance> {}
 
 /** 服务目标事件 */
-export interface AmapServiceTargetEvent<TInstance = AmapServiceInstance> extends AmapTargetEvent<TInstance> {}
+export interface MapServiceTargetEvent<TInstance = MapServiceInstance> extends MapTargetEvent<TInstance> {}
 
 /** 服务移动动画事件 */
-export interface AmapServiceMoveEvent<TInstance = AmapServiceInstance> extends AmapMoveEvent<TInstance> {}
+export interface MapServiceMoveEvent<TInstance = MapServiceInstance> extends MapMoveEvent<TInstance> {}
 
 /** 服务事件快捷属性 */
-export interface AmapServiceEventShortcutProps<TInstance = AmapServiceInstance>
-    extends AmapOverlayEventShortcutProps<TInstance> {}
+export interface MapServiceEventShortcutProps<TInstance = MapServiceInstance>
+    extends MapOverlayEventShortcutProps<TInstance> {}
 
 /** 服务基础参数 */
-export interface AmapServiceBaseOptions {
+export interface MapServiceBaseOptions {
 }
 
 /** 服务实例运行时能力 */
-export interface AmapServiceInstance {
+export interface MapServiceInstance {
     /** 绑定事件 */
-    on?: (eventName: string, handler: AmapEventHandler) => void
+    on?: (eventName: string, handler: MapEventHandler) => void
     /** 解绑事件 */
-    off?: (eventName: string, handler: AmapEventHandler) => void
+    off?: (eventName: string, handler: MapEventHandler) => void
     /** 清除服务绘制结果 */
     clear?: () => void
     /** 销毁服务 */
@@ -132,134 +132,134 @@ export interface AmapServiceInstance {
     /** 关闭服务 */
     close?: () => void
     /** 从地图移除服务 */
-    setMap?: (map: AmapMapInstance | null) => void
+    setMap?: (map: MapInstance | null) => void
 }
 
 /** 服务构造器 */
-export interface AmapServiceConstructor<TInstance extends AmapServiceInstance, TOptions extends AmapServiceBaseOptions> {
+export interface MapServiceConstructor<TInstance extends MapServiceInstance, TOptions extends MapServiceBaseOptions> {
     new (options?: TOptions): TInstance
 }
 
 /** 创建服务参数 */
-export interface CreateAmapServiceParams<TOptions extends AmapServiceBaseOptions> {
+export interface CreateMapServiceParams<TOptions extends MapServiceBaseOptions> {
     /** 地图实例 */
-    map: AmapMapInstance | null
+    map: MapInstance | null
     /** 高德地图命名空间 */
-    AMap: AmapNamespace
+    AMap: MapNamespace
     /** 构造器名称 */
     constructorName: string
     /** 服务参数 */
     options: TOptions
 }
 
-export type CreateAmapService<TInstance extends AmapServiceInstance, TOptions extends AmapServiceBaseOptions> = (
-    params: CreateAmapServiceParams<TOptions>
+export type CreateMapService<TInstance extends MapServiceInstance, TOptions extends MapServiceBaseOptions> = (
+    params: CreateMapServiceParams<TOptions>
 ) => TInstance | null | undefined
 
 /** 销毁服务参数 */
-export interface DestroyAmapServiceParams<TInstance extends AmapServiceInstance> {
+export interface DestroyMapServiceParams<TInstance extends MapServiceInstance> {
     /** 服务实例 */
     service: TInstance
 }
 
-export type DestroyAmapService<TInstance extends AmapServiceInstance> = (
-    params: DestroyAmapServiceParams<TInstance>
+export type DestroyMapService<TInstance extends MapServiceInstance> = (
+    params: DestroyMapServiceParams<TInstance>
 ) => void
 
 /** 更新服务参数 */
-export interface UpdateAmapServiceParams<TInstance extends AmapServiceInstance, TOptions extends AmapServiceBaseOptions> {
+export interface UpdateMapServiceParams<TInstance extends MapServiceInstance, TOptions extends MapServiceBaseOptions> {
     /** 服务实例 */
     service: TInstance
     /** 服务参数 */
     options: TOptions
 }
 
-export type UpdateAmapService<TInstance extends AmapServiceInstance, TOptions extends AmapServiceBaseOptions> = (
-    params: UpdateAmapServiceParams<TInstance, TOptions>
+export type UpdateMapService<TInstance extends MapServiceInstance, TOptions extends MapServiceBaseOptions> = (
+    params: UpdateMapServiceParams<TInstance, TOptions>
 ) => void
 
 /** 使用服务参数 */
-export interface UseAmapServiceParams<TInstance extends AmapServiceInstance, TOptions extends AmapServiceBaseOptions>
-    extends AmapServiceEventShortcutProps<TInstance> {
+export interface UseMapServiceParams<TInstance extends MapServiceInstance, TOptions extends MapServiceBaseOptions>
+    extends MapServiceEventShortcutProps<TInstance> {
     /** 服务实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 是否启用服务 */
     enabled?: boolean
     /** 插件名称 */
-    pluginName: AmapPlugin
+    pluginName: MapPlugin
     /** 构造器名称 */
     constructorName: string
     /** 服务参数 */
     options?: TOptions
     /** 服务事件映射 */
-    events?: AmapServiceEvents<TInstance>
+    events?: MapServiceEvents<TInstance>
     /** 自定义创建服务 */
-    createService?: CreateAmapService<TInstance, TOptions>
+    createService?: CreateMapService<TInstance, TOptions>
     /** 自定义更新服务 */
-    updateService?: UpdateAmapService<TInstance, TOptions>
+    updateService?: UpdateMapService<TInstance, TOptions>
     /** 自定义销毁服务 */
-    destroyService?: DestroyAmapService<TInstance>
+    destroyService?: DestroyMapService<TInstance>
     /** 创建完成回调 */
-    onLoad?: AmapServiceOnLoad<TInstance>
+    onLoad?: MapServiceOnLoad<TInstance>
     /** 销毁前回调 */
-    onDestroy?: AmapServiceOnDestroy<TInstance>
+    onDestroy?: MapServiceOnDestroy<TInstance>
 }
 
 /** 服务组件通用属性 */
-export interface AmapServiceProps<TInstance extends AmapServiceInstance>
-    extends AmapServiceEventShortcutProps<TInstance> {
+export interface MapServiceProps<TInstance extends MapServiceInstance>
+    extends MapServiceEventShortcutProps<TInstance> {
     /** 服务实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 是否启用服务 */
     enabled?: boolean
     /** 服务事件映射 */
-    events?: AmapServiceEvents<TInstance>
+    events?: MapServiceEvents<TInstance>
     /** 创建完成回调 */
-    onLoad?: AmapServiceOnLoad<TInstance>
+    onLoad?: MapServiceOnLoad<TInstance>
     /** 销毁前回调 */
-    onDestroy?: AmapServiceOnDestroy<TInstance>
+    onDestroy?: MapServiceOnDestroy<TInstance>
 }
 
 /** 地理编码参数 */
-export interface AmapGeocoderOptions extends AmapServiceBaseOptions {
+export interface MapGeocoderOptions extends MapServiceBaseOptions {
     /** 城市 */
     city?: string
     /** 逆地理编码半径 */
     radius?: number
     /** 语言 */
-    lang?: AmapServiceLanguage
+    lang?: MapServiceLanguage
     /** 是否批量查询 */
     batch?: boolean
     /** 返回信息详略 */
-    extensions?: AmapServiceExtensions
+    extensions?: MapServiceExtensions
 }
 
 /** 地理编码实例 */
-export interface AmapGeocoderInstance extends AmapServiceInstance {
+export interface MapGeocoderInstance extends MapServiceInstance {
     /** 地址转坐标 */
-    getLocation?: (keyword: string, callback?: AmapServiceCallback) => void
+    getLocation?: (keyword: string, callback?: MapServiceCallback) => void
     /** 设置城市 */
     setCity?: (city: string) => void
     /** 坐标转地址 */
-    getAddress?: (location: AmapLngLatLike | AmapLngLatLike[], callback?: AmapServiceCallback) => void
+    getAddress?: (location: MapLngLatLike | MapLngLatLike[], callback?: MapServiceCallback) => void
 }
 
 /** 输入提示参数 */
-export interface AmapAutoCompleteOptions extends AmapServiceBaseOptions {
+export interface MapAutoCompleteOptions extends MapServiceBaseOptions {
     /** POI 类型 */
     type?: string
     /** 城市 */
     city?: string
     /** 数据类型 */
-    datatype?: AmapAutoCompleteDataType
+    datatype?: MapAutoCompleteDataType
     /** 是否限制城市 */
     citylimit?: boolean
     /** 输入框 */
@@ -271,11 +271,11 @@ export interface AmapAutoCompleteOptions extends AmapServiceBaseOptions {
     /** 滚动时是否关闭结果 */
     closeResultOnScroll?: boolean
     /** 语言 */
-    lang?: AmapServiceLanguage
+    lang?: MapServiceLanguage
 }
 
 /** 输入提示实例 */
-export interface AmapAutoCompleteInstance extends AmapServiceInstance {
+export interface MapAutoCompleteInstance extends MapServiceInstance {
     /** 设置 POI 类型 */
     setType?: (type: string) => void
     /** 设置城市 */
@@ -283,13 +283,13 @@ export interface AmapAutoCompleteInstance extends AmapServiceInstance {
     /** 设置是否限制城市 */
     setCityLimit?: (cityLimit: boolean) => void
     /** 搜索提示 */
-    search?: (keyword: string, callback?: AmapServiceCallback) => void
+    search?: (keyword: string, callback?: MapServiceCallback) => void
 }
 
 /** POI 搜索参数 */
-export interface AmapPlaceSearchOptions extends AmapServiceBaseOptions {
+export interface MapPlaceSearchOptions extends MapServiceBaseOptions {
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 城市 */
     city?: string
     /** POI 类型 */
@@ -299,7 +299,7 @@ export interface AmapPlaceSearchOptions extends AmapServiceBaseOptions {
     /** 页码 */
     pageIndex?: number
     /** 返回信息详略 */
-    extensions?: AmapServiceExtensions
+    extensions?: MapServiceExtensions
     /** 结果面板 */
     panel?: string | HTMLElement
     /** 是否限制城市 */
@@ -309,31 +309,31 @@ export interface AmapPlaceSearchOptions extends AmapServiceBaseOptions {
 }
 
 /** 高德客户端 POI 参数 */
-export interface AmapPoiOnAmapOptions {
+export interface MapPoiOnMapOptions {
     /** POI ID */
     id?: string
     /** POI 名称 */
     name: string
     /** POI 坐标 */
-    location: AmapLngLatLike
+    location: MapLngLatLike
     /** POI 地址 */
     address?: string
 }
 
 /** 唤起高德客户端参数 */
-export interface AmapOpenAmapOptions {
+export interface MapOpenMapOptions {
 }
 
 /** POI 搜索实例 */
-export interface AmapPlaceSearchInstance extends AmapServiceInstance {
+export interface MapPlaceSearchInstance extends MapServiceInstance {
     /** 关键字搜索 */
-    search?: (keyword: string, callback?: AmapServiceCallback) => void
+    search?: (keyword: string, callback?: MapServiceCallback) => void
     /** 范围搜索 */
-    searchInBounds?: (keyword: string, bounds: unknown, callback?: AmapServiceCallback) => void
+    searchInBounds?: (keyword: string, bounds: unknown, callback?: MapServiceCallback) => void
     /** 周边搜索 */
-    searchNearBy?: (keyword: string, center: AmapLngLatLike, radius: number, callback?: AmapServiceCallback) => void
+    searchNearBy?: (keyword: string, center: MapLngLatLike, radius: number, callback?: MapServiceCallback) => void
     /** 查询 POI 详情 */
-    getDetails?: (id: string, callback?: AmapServiceCallback) => void
+    getDetails?: (id: string, callback?: MapServiceCallback) => void
     /** 设置 POI 类型 */
     setType?: (type: string) => void
     /** 设置页码 */
@@ -345,15 +345,15 @@ export interface AmapPlaceSearchInstance extends AmapServiceInstance {
     /** 设置是否限制城市 */
     setCityLimit?: (cityLimit: boolean) => void
     /** 唤起高德地图客户端 Marker 页 */
-    poiOnAMAP?: (poi: AmapPoiOnAmapOptions, options?: AmapOpenAmapOptions) => void
+    poiOnAMAP?: (poi: MapPoiOnMapOptions, options?: MapOpenMapOptions) => void
     /** 唤起高德地图客户端详情页 */
-    detailOnAMAP?: (poi: AmapPoiOnAmapOptions, options?: AmapOpenAmapOptions) => void
+    detailOnAMAP?: (poi: MapPoiOnMapOptions, options?: MapOpenMapOptions) => void
 }
 
 /** 云数据检索参数 */
-export interface AmapCloudDataSearchOptions extends AmapServiceBaseOptions {
+export interface MapCloudDataSearchOptions extends MapServiceBaseOptions {
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 关键字 */
     keywords?: string
     /** 筛选条件 */
@@ -371,27 +371,27 @@ export interface AmapCloudDataSearchOptions extends AmapServiceBaseOptions {
 }
 
 /** 云数据检索实例 */
-export interface AmapCloudDataSearchInstance extends AmapServiceInstance {
+export interface MapCloudDataSearchInstance extends MapServiceInstance {
     /** 设置检索参数 */
-    setOptions?: (options: AmapCloudDataSearchOptions) => void
+    setOptions?: (options: MapCloudDataSearchOptions) => void
     /** 周边检索 */
-    searchNearBy?: (center: AmapLngLatLike, radius: number, callback?: AmapServiceCallback) => void
+    searchNearBy?: (center: MapLngLatLike, radius: number, callback?: MapServiceCallback) => void
     /** ID 检索 */
-    searchById?: (id: string, callback?: AmapServiceCallback) => void
+    searchById?: (id: string, callback?: MapServiceCallback) => void
     /** 行政区检索 */
-    searchByDistrict?: (district: string, callback?: AmapServiceCallback) => void
+    searchByDistrict?: (district: string, callback?: MapServiceCallback) => void
     /** 多边形检索 */
-    searchInPolygon?: (path: AmapLngLatLike[], callback?: AmapServiceCallback) => void
+    searchInPolygon?: (path: MapLngLatLike[], callback?: MapServiceCallback) => void
 }
 
 /** 路线规划途经点参数 */
-export interface AmapRouteSearchOptions {
+export interface MapRouteSearchOptions {
     /** 途经点 */
-    waypoints?: AmapLngLatLike[]
+    waypoints?: MapLngLatLike[]
 }
 
 /** 名称路线规划点 */
-export interface AmapRouteKeywordPoint {
+export interface MapRouteKeywordPoint {
     /** 关键字 */
     keyword: string
     /** 城市 */
@@ -399,13 +399,13 @@ export interface AmapRouteKeywordPoint {
 }
 
 /** 路线规划基础参数 */
-export interface AmapRouteServiceOptions extends AmapServiceBaseOptions {
+export interface MapRouteServiceOptions extends MapServiceBaseOptions {
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 路线策略 */
     policy?: number | string
     /** 返回信息详略 */
-    extensions?: AmapServiceExtensions
+    extensions?: MapServiceExtensions
     /** 结果面板 */
     panel?: string | HTMLElement
     /** 是否隐藏起终点标记 */
@@ -425,13 +425,13 @@ export interface AmapRouteServiceOptions extends AmapServiceBaseOptions {
 }
 
 /** 驾车规划参数 */
-export interface AmapDrivingOptions extends AmapRouteServiceOptions {
+export interface MapDrivingOptions extends MapRouteServiceOptions {
     /** 是否允许轮渡 */
     ferry?: number
 }
 
 /** 货车规划参数 */
-export interface AmapTruckDrivingOptions extends AmapDrivingOptions {
+export interface MapTruckDrivingOptions extends MapDrivingOptions {
     /** 车型大小 */
     size?: number
     /** 宽度 */
@@ -447,7 +447,7 @@ export interface AmapTruckDrivingOptions extends AmapDrivingOptions {
 }
 
 /** 公交规划参数 */
-export interface AmapTransferOptions extends AmapRouteServiceOptions {
+export interface MapTransferOptions extends MapRouteServiceOptions {
     /** 城市 */
     city?: string
     /** 目的城市 */
@@ -455,22 +455,22 @@ export interface AmapTransferOptions extends AmapRouteServiceOptions {
 }
 
 /** 路线规划实例 */
-export interface AmapRouteServiceInstance extends AmapServiceInstance {
+export interface MapRouteServiceInstance extends MapServiceInstance {
     /** 按坐标或关键字规划路线 */
     search?: (
-        originOrPoints: AmapLngLatLike | AmapRouteKeywordPoint[],
-        destinationOrCallback?: AmapLngLatLike | AmapServiceCallback,
-        optionsOrCallback?: AmapRouteSearchOptions | AmapServiceCallback,
-        callback?: AmapServiceCallback
+        originOrPoints: MapLngLatLike | MapRouteKeywordPoint[],
+        destinationOrCallback?: MapLngLatLike | MapServiceCallback,
+        optionsOrCallback?: MapRouteSearchOptions | MapServiceCallback,
+        callback?: MapServiceCallback
     ) => void
     /** 设置路线策略 */
     setPolicy?: (policy: number | string) => void
 }
 
 /** 驾车规划实例 */
-export interface AmapDrivingInstance extends AmapRouteServiceInstance {
+export interface MapDrivingInstance extends MapRouteServiceInstance {
     /** 设置避让区域 */
-    setAvoidPolygons?: (areas: AmapLngLatLike[][]) => void
+    setAvoidPolygons?: (areas: MapLngLatLike[][]) => void
     /** 清除避让区域 */
     clearAvoidPolygons?: () => void
     /** 获取避让区域 */
@@ -486,13 +486,13 @@ export interface AmapDrivingInstance extends AmapRouteServiceInstance {
 }
 
 /** 货车规划实例 */
-export interface AmapTruckDrivingInstance extends AmapDrivingInstance {}
+export interface MapTruckDrivingInstance extends MapDrivingInstance {}
 
 /** 步行规划实例 */
-export interface AmapWalkingInstance extends AmapRouteServiceInstance {}
+export interface MapWalkingInstance extends MapRouteServiceInstance {}
 
 /** 公交规划实例 */
-export interface AmapTransferInstance extends AmapRouteServiceInstance {
+export interface MapTransferInstance extends MapRouteServiceInstance {
     /** 设置出发时间 */
     leaveAt?: (time: Date | string | number) => void
     /** 设置城市 */
@@ -502,24 +502,24 @@ export interface AmapTransferInstance extends AmapRouteServiceInstance {
 }
 
 /** 骑行规划实例 */
-export interface AmapRidingInstance extends AmapRouteServiceInstance {}
+export interface MapRidingInstance extends MapRouteServiceInstance {}
 
 /** 拖拽路线参数 */
-export interface AmapDragRouteOptions extends AmapServiceBaseOptions {
+export interface MapDragRouteOptions extends MapServiceBaseOptions {
     /** 路线样式 */
-    polyOption?: AmapPolylineOptions
+    polyOption?: MapPolylineOptions
     /** 起点标记样式 */
-    startMarkerOptions?: AmapMarkerOptions
+    startMarkerOptions?: MapMarkerOptions
     /** 途经点标记样式 */
-    midMarkerOptions?: AmapMarkerOptions
+    midMarkerOptions?: MapMarkerOptions
     /** 终点标记样式 */
-    endMarkerOptions?: AmapMarkerOptions
+    endMarkerOptions?: MapMarkerOptions
     /** 是否显示实时路况 */
     showTraffic?: boolean
 }
 
 /** 货车拖拽路线参数 */
-export interface AmapDragRouteTruckOptions extends AmapDragRouteOptions, AmapTruckDrivingOptions {
+export interface MapDragRouteTruckOptions extends MapDragRouteOptions, MapTruckDrivingOptions {
     /** 车辆类型 */
     cartype?: number
     /** 是否返回路线数据 */
@@ -537,43 +537,43 @@ export interface AmapDragRouteTruckOptions extends AmapDragRouteOptions, AmapTru
 }
 
 /** 货车拖拽路线位置 */
-export interface AmapDragRouteTruckLocation {
+export interface MapDragRouteTruckLocation {
     /** 经纬度 */
-    lnglat: AmapLngLatLike
+    lnglat: MapLngLatLike
 }
 
 /** 拖拽路线实例 */
-export interface AmapDragRouteInstance extends AmapServiceInstance {
+export interface MapDragRouteInstance extends MapServiceInstance {
     /** 开始导航 */
     search?: () => void
     /** 获取途经点 */
-    getWays?: () => AmapLngLatLike[]
+    getWays?: () => MapLngLatLike[]
     /** 获取当前路线 */
-    getRoute?: () => AmapLngLatLike[]
+    getRoute?: () => MapLngLatLike[]
 }
 
 /** 货车拖拽路线实例 */
-export interface AmapDragRouteTruckInstance extends AmapServiceInstance {
+export interface MapDragRouteTruckInstance extends MapServiceInstance {
     /** 设置避让区域 */
-    setAvoidPolygons?: (areas: AmapLngLatLike[][]) => void
+    setAvoidPolygons?: (areas: MapLngLatLike[][]) => void
     /** 清除避让区域 */
     clearAvoidPolygons?: () => void
     /** 获取避让区域 */
     getAvoidPolygons?: () => unknown[][]
     /** 开始导航 */
-    search?: (locations?: AmapDragRouteTruckLocation[]) => void
+    search?: (locations?: MapDragRouteTruckLocation[]) => void
     /** 手动更新路径 */
     updatePath?: () => void
     /** 获取途经点 */
-    getWays?: () => AmapLngLatLike[]
+    getWays?: () => MapLngLatLike[]
     /** 获取当前路线 */
-    getRoute?: () => AmapLngLatLike[]
+    getRoute?: () => MapLngLatLike[]
     /** 修改配置项 */
-    setOption?: (options: AmapDragRouteTruckOptions) => void
+    setOption?: (options: MapDragRouteTruckOptions) => void
 }
 
 /** 轨迹纠偏点 */
-export interface AmapGraspRoadPoint {
+export interface MapGraspRoadPoint {
     /** 经度 */
     x: number
     /** 纬度 */
@@ -587,43 +587,43 @@ export interface AmapGraspRoadPoint {
 }
 
 /** 轨迹纠偏实例 */
-export interface AmapGraspRoadInstance extends AmapServiceInstance {
+export interface MapGraspRoadInstance extends MapServiceInstance {
     /** 驾车轨迹纠偏 */
-    driving?: (path: AmapGraspRoadPoint[], callback?: AmapServiceCallback) => void
+    driving?: (path: MapGraspRoadPoint[], callback?: MapServiceCallback) => void
 }
 
 /** 行政区查询参数 */
-export interface AmapDistrictSearchOptions extends AmapServiceBaseOptions {
+export interface MapDistrictSearchOptions extends MapServiceBaseOptions {
     /** 行政区级别 */
-    level?: AmapDistrictSearchLevel
+    level?: MapDistrictSearchLevel
     /** 是否显示商圈 */
     showbiz?: boolean
     /** 返回信息详略 */
-    extensions?: AmapServiceExtensions
+    extensions?: MapServiceExtensions
     /** 下级行政区级数 */
     subdistrict?: number
 }
 
 /** 行政区查询实例 */
-export interface AmapDistrictSearchInstance extends AmapServiceInstance {
+export interface MapDistrictSearchInstance extends MapServiceInstance {
     /** 设置行政区级别 */
     setLevel?: (level: string) => void
     /** 设置下级行政区级数 */
     setSubdistrict?: (subdistrict: number) => void
     /** 查询行政区 */
-    search?: (keyword: string, callback?: AmapServiceCallback) => void
+    search?: (keyword: string, callback?: MapServiceCallback) => void
 }
 
 /** 天气查询实例 */
-export interface AmapWeatherInstance extends AmapServiceInstance {
+export interface MapWeatherInstance extends MapServiceInstance {
     /** 查询实时天气 */
-    getLive?: (city: string, callback?: AmapWeatherCallback) => void
+    getLive?: (city: string, callback?: MapWeatherCallback) => void
     /** 查询天气预报 */
-    getForecast?: (city: string, callback?: AmapWeatherCallback) => void
+    getForecast?: (city: string, callback?: MapWeatherCallback) => void
 }
 
 /** 公交查询参数 */
-export interface AmapBusSearchOptions extends AmapServiceBaseOptions {
+export interface MapBusSearchOptions extends MapServiceBaseOptions {
     /** 页码 */
     pageIndex?: number
     /** 单页数量 */
@@ -631,11 +631,11 @@ export interface AmapBusSearchOptions extends AmapServiceBaseOptions {
     /** 城市 */
     city?: string
     /** 返回信息详略 */
-    extensions?: AmapServiceExtensions
+    extensions?: MapServiceExtensions
 }
 
 /** 公交查询实例 */
-export interface AmapBusSearchInstance extends AmapServiceInstance {
+export interface MapBusSearchInstance extends MapServiceInstance {
     /** 设置页码 */
     setPageIndex?: (pageIndex: number) => void
     /** 设置单页数量 */
@@ -643,17 +643,17 @@ export interface AmapBusSearchInstance extends AmapServiceInstance {
     /** 设置城市 */
     setCity?: (city: string) => void
     /** 关键字或 ID 查询 */
-    search?: (keyword: string, callback?: AmapServiceCallback) => void
+    search?: (keyword: string, callback?: MapServiceCallback) => void
 }
 
 /** 公交站点查询实例 */
-export interface AmapStationSearchInstance extends AmapBusSearchInstance {}
+export interface MapStationSearchInstance extends MapBusSearchInstance {}
 
 /** 公交线路查询实例 */
-export interface AmapLineSearchInstance extends AmapBusSearchInstance {}
+export interface MapLineSearchInstance extends MapBusSearchInstance {}
 
 /** 定位参数 */
-export interface AmapGeolocationOptions extends AmapServiceBaseOptions {
+export interface MapGeolocationOptions extends MapServiceBaseOptions {
     /** 控件停靠位置 */
     position?: ControlPosition
     /** 控件偏移量 */
@@ -679,9 +679,9 @@ export interface AmapGeolocationOptions extends AmapServiceBaseOptions {
     /** 是否显示定位点 */
     showMarker?: boolean
     /** 定位点样式 */
-    markerOptions?: AmapMarkerOptions
+    markerOptions?: MapMarkerOptions
     /** 定位圆样式 */
-    circleOptions?: AmapCircleOptions
+    circleOptions?: MapCircleOptions
     /** 是否移动到定位点 */
     panToLocation?: boolean
     /** 是否缩放到精度范围 */
@@ -689,9 +689,9 @@ export interface AmapGeolocationOptions extends AmapServiceBaseOptions {
     /** 是否优先使用浏览器定位 */
     GeoLocationFirst?: boolean
     /** 是否禁用 IP 定位 */
-    noIpLocate?: AmapGeolocationDisabledPolicy
+    noIpLocate?: MapGeolocationDisabledPolicy
     /** 是否禁用浏览器定位 */
-    noGeoLocation?: AmapGeolocationDisabledPolicy
+    noGeoLocation?: MapGeolocationDisabledPolicy
     /** 是否使用原生能力 */
     useNative?: boolean
     /** 定位失败时是否返回城市信息 */
@@ -699,507 +699,507 @@ export interface AmapGeolocationOptions extends AmapServiceBaseOptions {
     /** 是否需要地址 */
     needAddress?: boolean
     /** 逆地理编码信息详略 */
-    extensions?: AmapServiceExtensions
+    extensions?: MapServiceExtensions
 }
 
 /** 定位实例 */
-export interface AmapGeolocationInstance extends AmapServiceInstance {
+export interface MapGeolocationInstance extends MapServiceInstance {
     /** 获取当前位置 */
-    getCurrentPosition?: (callback?: AmapServiceCallback) => void
+    getCurrentPosition?: (callback?: MapServiceCallback) => void
     /** 获取当前城市 */
-    getCityInfo?: (callback?: AmapServiceCallback) => void
+    getCityInfo?: (callback?: MapServiceCallback) => void
     /** 添加到地图 */
-    addTo?: (map: AmapMapInstance) => void
+    addTo?: (map: MapInstance) => void
     /** 从地图移除 */
-    removeFrom?: (map?: AmapMapInstance) => void
+    removeFrom?: (map?: MapInstance) => void
 }
 
 /** 城市查询实例 */
-export interface AmapCitySearchInstance extends AmapServiceInstance {
+export interface MapCitySearchInstance extends MapServiceInstance {
     /** 获取本地城市 */
-    getLocalCity?: (callback?: AmapServiceCallback) => void
+    getLocalCity?: (callback?: MapServiceCallback) => void
     /** 按 IP 获取城市 */
-    getCityByIp?: (ip: string, callback?: AmapServiceCallback) => void
+    getCityByIp?: (ip: string, callback?: MapServiceCallback) => void
 }
 
 /** WebService HTTP 参数 */
-export interface AmapWebServiceHttpOptions {
+export interface MapWebServiceHttpOptions {
 }
 
 /** WebService 实例 */
-export interface AmapWebServiceInstance {
+export interface MapWebServiceInstance {
     /** GET 请求 */
     get?: (
         path: string,
         params: Record<string, unknown>,
-        callback: AmapWebServiceCallback,
-        options?: AmapWebServiceHttpOptions
+        callback: MapWebServiceCallback,
+        options?: MapWebServiceHttpOptions
     ) => void
     /** POST 请求 */
-    post?: (path: string, params: unknown, callback: AmapWebServiceCallback) => void
+    post?: (path: string, params: unknown, callback: MapWebServiceCallback) => void
 }
 
 /** 支持服务构造器的高德命名空间 */
-export interface AmapServiceNamespace extends AmapNamespace {
+export interface MapServiceNamespace extends MapNamespace {
     /** 地理编码构造器 */
-    Geocoder?: new (options?: AmapGeocoderOptions) => AmapGeocoderInstance
+    Geocoder?: new (options?: MapGeocoderOptions) => MapGeocoderInstance
     /** 输入提示构造器 */
-    AutoComplete?: new (options?: AmapAutoCompleteOptions) => AmapAutoCompleteInstance
+    AutoComplete?: new (options?: MapAutoCompleteOptions) => MapAutoCompleteInstance
     /** POI 搜索构造器 */
-    PlaceSearch?: new (options?: AmapPlaceSearchOptions) => AmapPlaceSearchInstance
+    PlaceSearch?: new (options?: MapPlaceSearchOptions) => MapPlaceSearchInstance
     /** 云数据检索构造器 */
-    CloudDataSearch?: new (tableId: string, options?: AmapCloudDataSearchOptions) => AmapCloudDataSearchInstance
+    CloudDataSearch?: new (tableId: string, options?: MapCloudDataSearchOptions) => MapCloudDataSearchInstance
     /** 驾车规划构造器 */
-    Driving?: new (options?: AmapDrivingOptions) => AmapDrivingInstance
+    Driving?: new (options?: MapDrivingOptions) => MapDrivingInstance
     /** 货车规划构造器 */
-    TruckDriving?: new (options?: AmapTruckDrivingOptions) => AmapTruckDrivingInstance
+    TruckDriving?: new (options?: MapTruckDrivingOptions) => MapTruckDrivingInstance
     /** 步行规划构造器 */
-    Walking?: new (options?: AmapRouteServiceOptions) => AmapWalkingInstance
+    Walking?: new (options?: MapRouteServiceOptions) => MapWalkingInstance
     /** 公交规划构造器 */
-    Transfer?: new (options?: AmapTransferOptions) => AmapTransferInstance
+    Transfer?: new (options?: MapTransferOptions) => MapTransferInstance
     /** 骑行规划构造器 */
-    Riding?: new (options?: AmapRouteServiceOptions) => AmapRidingInstance
+    Riding?: new (options?: MapRouteServiceOptions) => MapRidingInstance
     /** 拖拽路线构造器 */
     DragRoute?: new (
-        map: AmapMapInstance,
-        path: AmapLngLatLike[],
+        map: MapInstance,
+        path: MapLngLatLike[],
         policy?: number | string,
-        options?: AmapDragRouteOptions
-    ) => AmapDragRouteInstance
+        options?: MapDragRouteOptions
+    ) => MapDragRouteInstance
     /** 货车拖拽路线构造器 */
-    DragRouteTruck?: new (map: AmapMapInstance, options?: AmapDragRouteTruckOptions) => AmapDragRouteTruckInstance
+    DragRouteTruck?: new (map: MapInstance, options?: MapDragRouteTruckOptions) => MapDragRouteTruckInstance
     /** 轨迹纠偏构造器 */
-    GraspRoad?: new () => AmapGraspRoadInstance
+    GraspRoad?: new () => MapGraspRoadInstance
     /** 行政区查询构造器 */
-    DistrictSearch?: new (options?: AmapDistrictSearchOptions) => AmapDistrictSearchInstance
+    DistrictSearch?: new (options?: MapDistrictSearchOptions) => MapDistrictSearchInstance
     /** 天气查询构造器 */
-    Weather?: new () => AmapWeatherInstance
+    Weather?: new () => MapWeatherInstance
     /** 公交站点查询构造器 */
-    StationSearch?: new (options?: AmapBusSearchOptions) => AmapStationSearchInstance
+    StationSearch?: new (options?: MapBusSearchOptions) => MapStationSearchInstance
     /** 公交线路查询构造器 */
-    LineSearch?: new (options?: AmapBusSearchOptions) => AmapLineSearchInstance
+    LineSearch?: new (options?: MapBusSearchOptions) => MapLineSearchInstance
     /** 定位构造器 */
-    Geolocation?: new (options?: AmapGeolocationOptions) => AmapGeolocationInstance
+    Geolocation?: new (options?: MapGeolocationOptions) => MapGeolocationInstance
     /** 城市查询构造器 */
-    CitySearch?: new () => AmapCitySearchInstance
+    CitySearch?: new () => MapCitySearchInstance
     /** WebService 静态对象 */
-    WebService?: AmapWebServiceInstance
+    WebService?: MapWebServiceInstance
     /** 坐标转换 */
     convertFrom?: (
-        lnglat: AmapLngLatLike | AmapLngLatLike[],
-        type?: AmapCoordinateConvertType,
-        callback?: AmapServiceCallback
+        lnglat: MapLngLatLike | MapLngLatLike[],
+        type?: MapCoordinateConvertType,
+        callback?: MapServiceCallback
     ) => void
 }
 
 /** 地理编码鼠标事件 */
-export interface AmapGeocoderMouseEvent extends AmapServiceMouseEvent<AmapGeocoderInstance> {}
+export interface MapGeocoderMouseEvent extends MapServiceMouseEvent<MapGeocoderInstance> {}
 
 /** 地理编码交互坐标事件 */
-export interface AmapGeocoderInteractionEvent extends AmapServiceInteractionEvent<AmapGeocoderInstance> {}
+export interface MapGeocoderInteractionEvent extends MapServiceInteractionEvent<MapGeocoderInstance> {}
 
 /** 地理编码目标事件 */
-export interface AmapGeocoderTargetEvent extends AmapServiceTargetEvent<AmapGeocoderInstance> {}
+export interface MapGeocoderTargetEvent extends MapServiceTargetEvent<MapGeocoderInstance> {}
 
 /** 地理编码移动动画事件 */
-export interface AmapGeocoderMoveEvent extends AmapServiceMoveEvent<AmapGeocoderInstance> {}
+export interface MapGeocoderMoveEvent extends MapServiceMoveEvent<MapGeocoderInstance> {}
 
 /** 地理编码事件快捷属性 */
-export interface AmapGeocoderEventShortcutProps extends AmapServiceEventShortcutProps<AmapGeocoderInstance> {}
+export interface MapGeocoderEventShortcutProps extends MapServiceEventShortcutProps<MapGeocoderInstance> {}
 
 /** 输入提示鼠标事件 */
-export interface AmapAutoCompleteMouseEvent extends AmapServiceMouseEvent<AmapAutoCompleteInstance> {}
+export interface MapAutoCompleteMouseEvent extends MapServiceMouseEvent<MapAutoCompleteInstance> {}
 
 /** 输入提示交互坐标事件 */
-export interface AmapAutoCompleteInteractionEvent extends AmapServiceInteractionEvent<AmapAutoCompleteInstance> {}
+export interface MapAutoCompleteInteractionEvent extends MapServiceInteractionEvent<MapAutoCompleteInstance> {}
 
 /** 输入提示目标事件 */
-export interface AmapAutoCompleteTargetEvent extends AmapServiceTargetEvent<AmapAutoCompleteInstance> {}
+export interface MapAutoCompleteTargetEvent extends MapServiceTargetEvent<MapAutoCompleteInstance> {}
 
 /** 输入提示移动动画事件 */
-export interface AmapAutoCompleteMoveEvent extends AmapServiceMoveEvent<AmapAutoCompleteInstance> {}
+export interface MapAutoCompleteMoveEvent extends MapServiceMoveEvent<MapAutoCompleteInstance> {}
 
 /** 输入提示事件快捷属性 */
-export interface AmapAutoCompleteEventShortcutProps extends AmapServiceEventShortcutProps<AmapAutoCompleteInstance> {}
+export interface MapAutoCompleteEventShortcutProps extends MapServiceEventShortcutProps<MapAutoCompleteInstance> {}
 
 /** POI 搜索鼠标事件 */
-export interface AmapPlaceSearchMouseEvent extends AmapServiceMouseEvent<AmapPlaceSearchInstance> {}
+export interface MapPlaceSearchMouseEvent extends MapServiceMouseEvent<MapPlaceSearchInstance> {}
 
 /** POI 搜索交互坐标事件 */
-export interface AmapPlaceSearchInteractionEvent extends AmapServiceInteractionEvent<AmapPlaceSearchInstance> {}
+export interface MapPlaceSearchInteractionEvent extends MapServiceInteractionEvent<MapPlaceSearchInstance> {}
 
 /** POI 搜索目标事件 */
-export interface AmapPlaceSearchTargetEvent extends AmapServiceTargetEvent<AmapPlaceSearchInstance> {}
+export interface MapPlaceSearchTargetEvent extends MapServiceTargetEvent<MapPlaceSearchInstance> {}
 
 /** POI 搜索移动动画事件 */
-export interface AmapPlaceSearchMoveEvent extends AmapServiceMoveEvent<AmapPlaceSearchInstance> {}
+export interface MapPlaceSearchMoveEvent extends MapServiceMoveEvent<MapPlaceSearchInstance> {}
 
 /** POI 搜索事件快捷属性 */
-export interface AmapPlaceSearchEventShortcutProps extends AmapServiceEventShortcutProps<AmapPlaceSearchInstance> {}
+export interface MapPlaceSearchEventShortcutProps extends MapServiceEventShortcutProps<MapPlaceSearchInstance> {}
 
 /** 云数据检索鼠标事件 */
-export interface AmapCloudDataSearchMouseEvent extends AmapServiceMouseEvent<AmapCloudDataSearchInstance> {}
+export interface MapCloudDataSearchMouseEvent extends MapServiceMouseEvent<MapCloudDataSearchInstance> {}
 
 /** 云数据检索交互坐标事件 */
-export interface AmapCloudDataSearchInteractionEvent extends AmapServiceInteractionEvent<AmapCloudDataSearchInstance> {}
+export interface MapCloudDataSearchInteractionEvent extends MapServiceInteractionEvent<MapCloudDataSearchInstance> {}
 
 /** 云数据检索目标事件 */
-export interface AmapCloudDataSearchTargetEvent extends AmapServiceTargetEvent<AmapCloudDataSearchInstance> {}
+export interface MapCloudDataSearchTargetEvent extends MapServiceTargetEvent<MapCloudDataSearchInstance> {}
 
 /** 云数据检索移动动画事件 */
-export interface AmapCloudDataSearchMoveEvent extends AmapServiceMoveEvent<AmapCloudDataSearchInstance> {}
+export interface MapCloudDataSearchMoveEvent extends MapServiceMoveEvent<MapCloudDataSearchInstance> {}
 
 /** 云数据检索事件快捷属性 */
-export interface AmapCloudDataSearchEventShortcutProps extends AmapServiceEventShortcutProps<AmapCloudDataSearchInstance> {}
+export interface MapCloudDataSearchEventShortcutProps extends MapServiceEventShortcutProps<MapCloudDataSearchInstance> {}
 
 /** 驾车规划鼠标事件 */
-export interface AmapDrivingMouseEvent extends AmapServiceMouseEvent<AmapDrivingInstance> {}
+export interface MapDrivingMouseEvent extends MapServiceMouseEvent<MapDrivingInstance> {}
 
 /** 驾车规划交互坐标事件 */
-export interface AmapDrivingInteractionEvent extends AmapServiceInteractionEvent<AmapDrivingInstance> {}
+export interface MapDrivingInteractionEvent extends MapServiceInteractionEvent<MapDrivingInstance> {}
 
 /** 驾车规划目标事件 */
-export interface AmapDrivingTargetEvent extends AmapServiceTargetEvent<AmapDrivingInstance> {}
+export interface MapDrivingTargetEvent extends MapServiceTargetEvent<MapDrivingInstance> {}
 
 /** 驾车规划移动动画事件 */
-export interface AmapDrivingMoveEvent extends AmapServiceMoveEvent<AmapDrivingInstance> {}
+export interface MapDrivingMoveEvent extends MapServiceMoveEvent<MapDrivingInstance> {}
 
 /** 驾车规划事件快捷属性 */
-export interface AmapDrivingEventShortcutProps extends AmapServiceEventShortcutProps<AmapDrivingInstance> {}
+export interface MapDrivingEventShortcutProps extends MapServiceEventShortcutProps<MapDrivingInstance> {}
 
 /** 货车规划鼠标事件 */
-export interface AmapTruckDrivingMouseEvent extends AmapServiceMouseEvent<AmapTruckDrivingInstance> {}
+export interface MapTruckDrivingMouseEvent extends MapServiceMouseEvent<MapTruckDrivingInstance> {}
 
 /** 货车规划交互坐标事件 */
-export interface AmapTruckDrivingInteractionEvent extends AmapServiceInteractionEvent<AmapTruckDrivingInstance> {}
+export interface MapTruckDrivingInteractionEvent extends MapServiceInteractionEvent<MapTruckDrivingInstance> {}
 
 /** 货车规划目标事件 */
-export interface AmapTruckDrivingTargetEvent extends AmapServiceTargetEvent<AmapTruckDrivingInstance> {}
+export interface MapTruckDrivingTargetEvent extends MapServiceTargetEvent<MapTruckDrivingInstance> {}
 
 /** 货车规划移动动画事件 */
-export interface AmapTruckDrivingMoveEvent extends AmapServiceMoveEvent<AmapTruckDrivingInstance> {}
+export interface MapTruckDrivingMoveEvent extends MapServiceMoveEvent<MapTruckDrivingInstance> {}
 
 /** 货车规划事件快捷属性 */
-export interface AmapTruckDrivingEventShortcutProps extends AmapServiceEventShortcutProps<AmapTruckDrivingInstance> {}
+export interface MapTruckDrivingEventShortcutProps extends MapServiceEventShortcutProps<MapTruckDrivingInstance> {}
 
 /** 步行规划鼠标事件 */
-export interface AmapWalkingMouseEvent extends AmapServiceMouseEvent<AmapWalkingInstance> {}
+export interface MapWalkingMouseEvent extends MapServiceMouseEvent<MapWalkingInstance> {}
 
 /** 步行规划交互坐标事件 */
-export interface AmapWalkingInteractionEvent extends AmapServiceInteractionEvent<AmapWalkingInstance> {}
+export interface MapWalkingInteractionEvent extends MapServiceInteractionEvent<MapWalkingInstance> {}
 
 /** 步行规划目标事件 */
-export interface AmapWalkingTargetEvent extends AmapServiceTargetEvent<AmapWalkingInstance> {}
+export interface MapWalkingTargetEvent extends MapServiceTargetEvent<MapWalkingInstance> {}
 
 /** 步行规划移动动画事件 */
-export interface AmapWalkingMoveEvent extends AmapServiceMoveEvent<AmapWalkingInstance> {}
+export interface MapWalkingMoveEvent extends MapServiceMoveEvent<MapWalkingInstance> {}
 
 /** 步行规划事件快捷属性 */
-export interface AmapWalkingEventShortcutProps extends AmapServiceEventShortcutProps<AmapWalkingInstance> {}
+export interface MapWalkingEventShortcutProps extends MapServiceEventShortcutProps<MapWalkingInstance> {}
 
 /** 公交规划鼠标事件 */
-export interface AmapTransferMouseEvent extends AmapServiceMouseEvent<AmapTransferInstance> {}
+export interface MapTransferMouseEvent extends MapServiceMouseEvent<MapTransferInstance> {}
 
 /** 公交规划交互坐标事件 */
-export interface AmapTransferInteractionEvent extends AmapServiceInteractionEvent<AmapTransferInstance> {}
+export interface MapTransferInteractionEvent extends MapServiceInteractionEvent<MapTransferInstance> {}
 
 /** 公交规划目标事件 */
-export interface AmapTransferTargetEvent extends AmapServiceTargetEvent<AmapTransferInstance> {}
+export interface MapTransferTargetEvent extends MapServiceTargetEvent<MapTransferInstance> {}
 
 /** 公交规划移动动画事件 */
-export interface AmapTransferMoveEvent extends AmapServiceMoveEvent<AmapTransferInstance> {}
+export interface MapTransferMoveEvent extends MapServiceMoveEvent<MapTransferInstance> {}
 
 /** 公交规划事件快捷属性 */
-export interface AmapTransferEventShortcutProps extends AmapServiceEventShortcutProps<AmapTransferInstance> {}
+export interface MapTransferEventShortcutProps extends MapServiceEventShortcutProps<MapTransferInstance> {}
 
 /** 骑行规划鼠标事件 */
-export interface AmapRidingMouseEvent extends AmapServiceMouseEvent<AmapRidingInstance> {}
+export interface MapRidingMouseEvent extends MapServiceMouseEvent<MapRidingInstance> {}
 
 /** 骑行规划交互坐标事件 */
-export interface AmapRidingInteractionEvent extends AmapServiceInteractionEvent<AmapRidingInstance> {}
+export interface MapRidingInteractionEvent extends MapServiceInteractionEvent<MapRidingInstance> {}
 
 /** 骑行规划目标事件 */
-export interface AmapRidingTargetEvent extends AmapServiceTargetEvent<AmapRidingInstance> {}
+export interface MapRidingTargetEvent extends MapServiceTargetEvent<MapRidingInstance> {}
 
 /** 骑行规划移动动画事件 */
-export interface AmapRidingMoveEvent extends AmapServiceMoveEvent<AmapRidingInstance> {}
+export interface MapRidingMoveEvent extends MapServiceMoveEvent<MapRidingInstance> {}
 
 /** 骑行规划事件快捷属性 */
-export interface AmapRidingEventShortcutProps extends AmapServiceEventShortcutProps<AmapRidingInstance> {}
+export interface MapRidingEventShortcutProps extends MapServiceEventShortcutProps<MapRidingInstance> {}
 
 /** 拖拽路线鼠标事件 */
-export interface AmapDragRouteMouseEvent extends AmapServiceMouseEvent<AmapDragRouteInstance> {}
+export interface MapDragRouteMouseEvent extends MapServiceMouseEvent<MapDragRouteInstance> {}
 
 /** 拖拽路线交互坐标事件 */
-export interface AmapDragRouteInteractionEvent extends AmapServiceInteractionEvent<AmapDragRouteInstance> {}
+export interface MapDragRouteInteractionEvent extends MapServiceInteractionEvent<MapDragRouteInstance> {}
 
 /** 拖拽路线目标事件 */
-export interface AmapDragRouteTargetEvent extends AmapServiceTargetEvent<AmapDragRouteInstance> {}
+export interface MapDragRouteTargetEvent extends MapServiceTargetEvent<MapDragRouteInstance> {}
 
 /** 拖拽路线移动动画事件 */
-export interface AmapDragRouteMoveEvent extends AmapServiceMoveEvent<AmapDragRouteInstance> {}
+export interface MapDragRouteMoveEvent extends MapServiceMoveEvent<MapDragRouteInstance> {}
 
 /** 拖拽路线事件快捷属性 */
-export interface AmapDragRouteEventShortcutProps extends AmapServiceEventShortcutProps<AmapDragRouteInstance> {}
+export interface MapDragRouteEventShortcutProps extends MapServiceEventShortcutProps<MapDragRouteInstance> {}
 
 /** 货车拖拽路线鼠标事件 */
-export interface AmapDragRouteTruckMouseEvent extends AmapServiceMouseEvent<AmapDragRouteTruckInstance> {}
+export interface MapDragRouteTruckMouseEvent extends MapServiceMouseEvent<MapDragRouteTruckInstance> {}
 
 /** 货车拖拽路线交互坐标事件 */
-export interface AmapDragRouteTruckInteractionEvent extends AmapServiceInteractionEvent<AmapDragRouteTruckInstance> {}
+export interface MapDragRouteTruckInteractionEvent extends MapServiceInteractionEvent<MapDragRouteTruckInstance> {}
 
 /** 货车拖拽路线目标事件 */
-export interface AmapDragRouteTruckTargetEvent extends AmapServiceTargetEvent<AmapDragRouteTruckInstance> {}
+export interface MapDragRouteTruckTargetEvent extends MapServiceTargetEvent<MapDragRouteTruckInstance> {}
 
 /** 货车拖拽路线移动动画事件 */
-export interface AmapDragRouteTruckMoveEvent extends AmapServiceMoveEvent<AmapDragRouteTruckInstance> {}
+export interface MapDragRouteTruckMoveEvent extends MapServiceMoveEvent<MapDragRouteTruckInstance> {}
 
 /** 货车拖拽路线事件快捷属性 */
-export interface AmapDragRouteTruckEventShortcutProps extends AmapServiceEventShortcutProps<AmapDragRouteTruckInstance> {}
+export interface MapDragRouteTruckEventShortcutProps extends MapServiceEventShortcutProps<MapDragRouteTruckInstance> {}
 
 /** 轨迹纠偏鼠标事件 */
-export interface AmapGraspRoadMouseEvent extends AmapServiceMouseEvent<AmapGraspRoadInstance> {}
+export interface MapGraspRoadMouseEvent extends MapServiceMouseEvent<MapGraspRoadInstance> {}
 
 /** 轨迹纠偏交互坐标事件 */
-export interface AmapGraspRoadInteractionEvent extends AmapServiceInteractionEvent<AmapGraspRoadInstance> {}
+export interface MapGraspRoadInteractionEvent extends MapServiceInteractionEvent<MapGraspRoadInstance> {}
 
 /** 轨迹纠偏目标事件 */
-export interface AmapGraspRoadTargetEvent extends AmapServiceTargetEvent<AmapGraspRoadInstance> {}
+export interface MapGraspRoadTargetEvent extends MapServiceTargetEvent<MapGraspRoadInstance> {}
 
 /** 轨迹纠偏移动动画事件 */
-export interface AmapGraspRoadMoveEvent extends AmapServiceMoveEvent<AmapGraspRoadInstance> {}
+export interface MapGraspRoadMoveEvent extends MapServiceMoveEvent<MapGraspRoadInstance> {}
 
 /** 轨迹纠偏事件快捷属性 */
-export interface AmapGraspRoadEventShortcutProps extends AmapServiceEventShortcutProps<AmapGraspRoadInstance> {}
+export interface MapGraspRoadEventShortcutProps extends MapServiceEventShortcutProps<MapGraspRoadInstance> {}
 
 /** 行政区查询鼠标事件 */
-export interface AmapDistrictSearchMouseEvent extends AmapServiceMouseEvent<AmapDistrictSearchInstance> {}
+export interface MapDistrictSearchMouseEvent extends MapServiceMouseEvent<MapDistrictSearchInstance> {}
 
 /** 行政区查询交互坐标事件 */
-export interface AmapDistrictSearchInteractionEvent extends AmapServiceInteractionEvent<AmapDistrictSearchInstance> {}
+export interface MapDistrictSearchInteractionEvent extends MapServiceInteractionEvent<MapDistrictSearchInstance> {}
 
 /** 行政区查询目标事件 */
-export interface AmapDistrictSearchTargetEvent extends AmapServiceTargetEvent<AmapDistrictSearchInstance> {}
+export interface MapDistrictSearchTargetEvent extends MapServiceTargetEvent<MapDistrictSearchInstance> {}
 
 /** 行政区查询移动动画事件 */
-export interface AmapDistrictSearchMoveEvent extends AmapServiceMoveEvent<AmapDistrictSearchInstance> {}
+export interface MapDistrictSearchMoveEvent extends MapServiceMoveEvent<MapDistrictSearchInstance> {}
 
 /** 行政区查询事件快捷属性 */
-export interface AmapDistrictSearchEventShortcutProps extends AmapServiceEventShortcutProps<AmapDistrictSearchInstance> {}
+export interface MapDistrictSearchEventShortcutProps extends MapServiceEventShortcutProps<MapDistrictSearchInstance> {}
 
 /** 天气查询鼠标事件 */
-export interface AmapWeatherMouseEvent extends AmapServiceMouseEvent<AmapWeatherInstance> {}
+export interface MapWeatherMouseEvent extends MapServiceMouseEvent<MapWeatherInstance> {}
 
 /** 天气查询交互坐标事件 */
-export interface AmapWeatherInteractionEvent extends AmapServiceInteractionEvent<AmapWeatherInstance> {}
+export interface MapWeatherInteractionEvent extends MapServiceInteractionEvent<MapWeatherInstance> {}
 
 /** 天气查询目标事件 */
-export interface AmapWeatherTargetEvent extends AmapServiceTargetEvent<AmapWeatherInstance> {}
+export interface MapWeatherTargetEvent extends MapServiceTargetEvent<MapWeatherInstance> {}
 
 /** 天气查询移动动画事件 */
-export interface AmapWeatherMoveEvent extends AmapServiceMoveEvent<AmapWeatherInstance> {}
+export interface MapWeatherMoveEvent extends MapServiceMoveEvent<MapWeatherInstance> {}
 
 /** 天气查询事件快捷属性 */
-export interface AmapWeatherEventShortcutProps extends AmapServiceEventShortcutProps<AmapWeatherInstance> {}
+export interface MapWeatherEventShortcutProps extends MapServiceEventShortcutProps<MapWeatherInstance> {}
 
 /** 公交站点查询鼠标事件 */
-export interface AmapStationSearchMouseEvent extends AmapServiceMouseEvent<AmapStationSearchInstance> {}
+export interface MapStationSearchMouseEvent extends MapServiceMouseEvent<MapStationSearchInstance> {}
 
 /** 公交站点查询交互坐标事件 */
-export interface AmapStationSearchInteractionEvent extends AmapServiceInteractionEvent<AmapStationSearchInstance> {}
+export interface MapStationSearchInteractionEvent extends MapServiceInteractionEvent<MapStationSearchInstance> {}
 
 /** 公交站点查询目标事件 */
-export interface AmapStationSearchTargetEvent extends AmapServiceTargetEvent<AmapStationSearchInstance> {}
+export interface MapStationSearchTargetEvent extends MapServiceTargetEvent<MapStationSearchInstance> {}
 
 /** 公交站点查询移动动画事件 */
-export interface AmapStationSearchMoveEvent extends AmapServiceMoveEvent<AmapStationSearchInstance> {}
+export interface MapStationSearchMoveEvent extends MapServiceMoveEvent<MapStationSearchInstance> {}
 
 /** 公交站点查询事件快捷属性 */
-export interface AmapStationSearchEventShortcutProps extends AmapServiceEventShortcutProps<AmapStationSearchInstance> {}
+export interface MapStationSearchEventShortcutProps extends MapServiceEventShortcutProps<MapStationSearchInstance> {}
 
 /** 公交线路查询鼠标事件 */
-export interface AmapLineSearchMouseEvent extends AmapServiceMouseEvent<AmapLineSearchInstance> {}
+export interface MapLineSearchMouseEvent extends MapServiceMouseEvent<MapLineSearchInstance> {}
 
 /** 公交线路查询交互坐标事件 */
-export interface AmapLineSearchInteractionEvent extends AmapServiceInteractionEvent<AmapLineSearchInstance> {}
+export interface MapLineSearchInteractionEvent extends MapServiceInteractionEvent<MapLineSearchInstance> {}
 
 /** 公交线路查询目标事件 */
-export interface AmapLineSearchTargetEvent extends AmapServiceTargetEvent<AmapLineSearchInstance> {}
+export interface MapLineSearchTargetEvent extends MapServiceTargetEvent<MapLineSearchInstance> {}
 
 /** 公交线路查询移动动画事件 */
-export interface AmapLineSearchMoveEvent extends AmapServiceMoveEvent<AmapLineSearchInstance> {}
+export interface MapLineSearchMoveEvent extends MapServiceMoveEvent<MapLineSearchInstance> {}
 
 /** 公交线路查询事件快捷属性 */
-export interface AmapLineSearchEventShortcutProps extends AmapServiceEventShortcutProps<AmapLineSearchInstance> {}
+export interface MapLineSearchEventShortcutProps extends MapServiceEventShortcutProps<MapLineSearchInstance> {}
 
 /** 定位鼠标事件 */
-export interface AmapGeolocationMouseEvent extends AmapServiceMouseEvent<AmapGeolocationInstance> {}
+export interface MapGeolocationMouseEvent extends MapServiceMouseEvent<MapGeolocationInstance> {}
 
 /** 定位交互坐标事件 */
-export interface AmapGeolocationInteractionEvent extends AmapServiceInteractionEvent<AmapGeolocationInstance> {}
+export interface MapGeolocationInteractionEvent extends MapServiceInteractionEvent<MapGeolocationInstance> {}
 
 /** 定位目标事件 */
-export interface AmapGeolocationTargetEvent extends AmapServiceTargetEvent<AmapGeolocationInstance> {}
+export interface MapGeolocationTargetEvent extends MapServiceTargetEvent<MapGeolocationInstance> {}
 
 /** 定位移动动画事件 */
-export interface AmapGeolocationMoveEvent extends AmapServiceMoveEvent<AmapGeolocationInstance> {}
+export interface MapGeolocationMoveEvent extends MapServiceMoveEvent<MapGeolocationInstance> {}
 
 /** 定位事件快捷属性 */
-export interface AmapGeolocationEventShortcutProps extends AmapServiceEventShortcutProps<AmapGeolocationInstance> {}
+export interface MapGeolocationEventShortcutProps extends MapServiceEventShortcutProps<MapGeolocationInstance> {}
 
 /** 城市查询鼠标事件 */
-export interface AmapCitySearchMouseEvent extends AmapServiceMouseEvent<AmapCitySearchInstance> {}
+export interface MapCitySearchMouseEvent extends MapServiceMouseEvent<MapCitySearchInstance> {}
 
 /** 城市查询交互坐标事件 */
-export interface AmapCitySearchInteractionEvent extends AmapServiceInteractionEvent<AmapCitySearchInstance> {}
+export interface MapCitySearchInteractionEvent extends MapServiceInteractionEvent<MapCitySearchInstance> {}
 
 /** 城市查询目标事件 */
-export interface AmapCitySearchTargetEvent extends AmapServiceTargetEvent<AmapCitySearchInstance> {}
+export interface MapCitySearchTargetEvent extends MapServiceTargetEvent<MapCitySearchInstance> {}
 
 /** 城市查询移动动画事件 */
-export interface AmapCitySearchMoveEvent extends AmapServiceMoveEvent<AmapCitySearchInstance> {}
+export interface MapCitySearchMoveEvent extends MapServiceMoveEvent<MapCitySearchInstance> {}
 
 /** 城市查询事件快捷属性 */
-export interface AmapCitySearchEventShortcutProps extends AmapServiceEventShortcutProps<AmapCitySearchInstance> {}
+export interface MapCitySearchEventShortcutProps extends MapServiceEventShortcutProps<MapCitySearchInstance> {}
 
 /** 服务 Hook 基础参数 */
-export interface UseAmapServiceBaseParams<TInstance extends AmapServiceInstance> extends AmapServiceProps<TInstance> {}
+export interface UseMapServiceBaseParams<TInstance extends MapServiceInstance> extends MapServiceProps<TInstance> {}
 
 /** 地理编码组件属性 */
-export interface GeocoderProps extends UseAmapServiceBaseParams<AmapGeocoderInstance>, AmapGeocoderOptions {
+export interface GeocoderProps extends UseMapServiceBaseParams<MapGeocoderInstance>, MapGeocoderOptions {
     /** 地理编码额外参数 */
-    geocoderOptions?: AmapGeocoderOptions
+    geocoderOptions?: MapGeocoderOptions
 }
 
 /** 输入提示组件属性 */
-export interface AutoCompleteProps extends UseAmapServiceBaseParams<AmapAutoCompleteInstance>, AmapAutoCompleteOptions {
+export interface AutoCompleteProps extends UseMapServiceBaseParams<MapAutoCompleteInstance>, MapAutoCompleteOptions {
     /** 输入提示额外参数 */
-    autoCompleteOptions?: AmapAutoCompleteOptions
+    autoCompleteOptions?: MapAutoCompleteOptions
 }
 
 /** POI 搜索组件属性 */
-export interface PlaceSearchProps extends UseAmapServiceBaseParams<AmapPlaceSearchInstance>, AmapPlaceSearchOptions {
+export interface PlaceSearchProps extends UseMapServiceBaseParams<MapPlaceSearchInstance>, MapPlaceSearchOptions {
     /** POI 搜索额外参数 */
-    placeSearchOptions?: AmapPlaceSearchOptions
+    placeSearchOptions?: MapPlaceSearchOptions
 }
 
 /** 云数据检索组件属性 */
-export interface CloudDataSearchProps extends UseAmapServiceBaseParams<AmapCloudDataSearchInstance>, AmapCloudDataSearchOptions {
+export interface CloudDataSearchProps extends UseMapServiceBaseParams<MapCloudDataSearchInstance>, MapCloudDataSearchOptions {
     /** 云数据表 ID */
     tableId: string
     /** 云数据检索额外参数 */
-    cloudDataSearchOptions?: AmapCloudDataSearchOptions
+    cloudDataSearchOptions?: MapCloudDataSearchOptions
 }
 
 /** 驾车规划组件属性 */
-export interface DrivingProps extends UseAmapServiceBaseParams<AmapDrivingInstance>, AmapDrivingOptions {
+export interface DrivingProps extends UseMapServiceBaseParams<MapDrivingInstance>, MapDrivingOptions {
     /** 驾车规划额外参数 */
-    drivingOptions?: AmapDrivingOptions
+    drivingOptions?: MapDrivingOptions
 }
 
 /** 货车规划组件属性 */
-export interface TruckDrivingProps extends UseAmapServiceBaseParams<AmapTruckDrivingInstance>, AmapTruckDrivingOptions {
+export interface TruckDrivingProps extends UseMapServiceBaseParams<MapTruckDrivingInstance>, MapTruckDrivingOptions {
     /** 货车规划额外参数 */
-    truckDrivingOptions?: AmapTruckDrivingOptions
+    truckDrivingOptions?: MapTruckDrivingOptions
 }
 
 /** 步行规划组件属性 */
-export interface WalkingProps extends UseAmapServiceBaseParams<AmapWalkingInstance>, AmapRouteServiceOptions {
+export interface WalkingProps extends UseMapServiceBaseParams<MapWalkingInstance>, MapRouteServiceOptions {
     /** 步行规划额外参数 */
-    walkingOptions?: AmapRouteServiceOptions
+    walkingOptions?: MapRouteServiceOptions
 }
 
 /** 公交规划组件属性 */
-export interface TransferProps extends UseAmapServiceBaseParams<AmapTransferInstance>, AmapTransferOptions {
+export interface TransferProps extends UseMapServiceBaseParams<MapTransferInstance>, MapTransferOptions {
     /** 公交规划额外参数 */
-    transferOptions?: AmapTransferOptions
+    transferOptions?: MapTransferOptions
 }
 
 /** 骑行规划组件属性 */
-export interface RidingProps extends UseAmapServiceBaseParams<AmapRidingInstance>, AmapRouteServiceOptions {
+export interface RidingProps extends UseMapServiceBaseParams<MapRidingInstance>, MapRouteServiceOptions {
     /** 骑行规划额外参数 */
-    ridingOptions?: AmapRouteServiceOptions
+    ridingOptions?: MapRouteServiceOptions
 }
 
 /** 拖拽路线组件属性 */
-export interface DragRouteProps extends UseAmapServiceBaseParams<AmapDragRouteInstance>, AmapDragRouteOptions {
+export interface DragRouteProps extends UseMapServiceBaseParams<MapDragRouteInstance>, MapDragRouteOptions {
     /** 路线坐标 */
-    path?: AmapLngLatLike[]
+    path?: MapLngLatLike[]
     /** 路线策略 */
     policy?: number | string
     /** 创建后是否立即搜索 */
     autoSearch?: boolean
     /** 拖拽路线额外参数 */
-    dragRouteOptions?: AmapDragRouteOptions
+    dragRouteOptions?: MapDragRouteOptions
 }
 
 /** 货车拖拽路线组件属性 */
 export interface DragRouteTruckProps
-    extends UseAmapServiceBaseParams<AmapDragRouteTruckInstance>,
-        AmapDragRouteTruckOptions {
+    extends UseMapServiceBaseParams<MapDragRouteTruckInstance>,
+        MapDragRouteTruckOptions {
     /** 路线坐标 */
-    locations?: AmapDragRouteTruckLocation[]
+    locations?: MapDragRouteTruckLocation[]
     /** 创建后是否立即搜索 */
     autoSearch?: boolean
     /** 货车拖拽路线额外参数 */
-    dragRouteTruckOptions?: AmapDragRouteTruckOptions
+    dragRouteTruckOptions?: MapDragRouteTruckOptions
 }
 
 /** 轨迹纠偏组件属性 */
-export interface GraspRoadProps extends UseAmapServiceBaseParams<AmapGraspRoadInstance> {}
+export interface GraspRoadProps extends UseMapServiceBaseParams<MapGraspRoadInstance> {}
 
 /** 行政区查询组件属性 */
-export interface DistrictSearchProps extends UseAmapServiceBaseParams<AmapDistrictSearchInstance>, AmapDistrictSearchOptions {
+export interface DistrictSearchProps extends UseMapServiceBaseParams<MapDistrictSearchInstance>, MapDistrictSearchOptions {
     /** 行政区查询额外参数 */
-    districtSearchOptions?: AmapDistrictSearchOptions
+    districtSearchOptions?: MapDistrictSearchOptions
 }
 
 /** 天气查询组件属性 */
-export interface WeatherProps extends UseAmapServiceBaseParams<AmapWeatherInstance> {}
+export interface WeatherProps extends UseMapServiceBaseParams<MapWeatherInstance> {}
 
 /** 公交站点查询组件属性 */
-export interface StationSearchProps extends UseAmapServiceBaseParams<AmapStationSearchInstance>, AmapBusSearchOptions {
+export interface StationSearchProps extends UseMapServiceBaseParams<MapStationSearchInstance>, MapBusSearchOptions {
     /** 公交站点查询额外参数 */
-    stationSearchOptions?: AmapBusSearchOptions
+    stationSearchOptions?: MapBusSearchOptions
 }
 
 /** 公交线路查询组件属性 */
-export interface LineSearchProps extends UseAmapServiceBaseParams<AmapLineSearchInstance>, AmapBusSearchOptions {
+export interface LineSearchProps extends UseMapServiceBaseParams<MapLineSearchInstance>, MapBusSearchOptions {
     /** 公交线路查询额外参数 */
-    lineSearchOptions?: AmapBusSearchOptions
+    lineSearchOptions?: MapBusSearchOptions
 }
 
 /** 定位组件属性 */
-export interface GeolocationProps extends UseAmapServiceBaseParams<AmapGeolocationInstance>, AmapGeolocationOptions {
+export interface GeolocationProps extends UseMapServiceBaseParams<MapGeolocationInstance>, MapGeolocationOptions {
     /** 是否添加为地图控件 */
     addControl?: boolean
     /** 定位额外参数 */
-    geolocationOptions?: AmapGeolocationOptions
+    geolocationOptions?: MapGeolocationOptions
 }
 
 /** 城市查询组件属性 */
-export interface CitySearchProps extends UseAmapServiceBaseParams<AmapCitySearchInstance> {}
+export interface CitySearchProps extends UseMapServiceBaseParams<MapCitySearchInstance> {}
 
 /** WebService Hook 参数 */
-export interface UseAmapWebServiceParams {
+export interface UseMapWebServiceParams {
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
 }
 
 /** 坐标转换参数 */
-export interface ConvertAmapCoordinateParams {
+export interface ConvertMapCoordinateParams {
     /** 坐标 */
-    lnglat: AmapLngLatLike | AmapLngLatLike[]
+    lnglat: MapLngLatLike | MapLngLatLike[]
     /** 坐标类型 */
-    type?: AmapCoordinateConvertType
+    type?: MapCoordinateConvertType
     /** 回调函数 */
-    callback?: AmapServiceCallback
+    callback?: MapServiceCallback
 }
 
 /** 坐标转换函数 */
-export type ConvertAmapCoordinate = (params: ConvertAmapCoordinateParams) => void
+export type ConvertMapCoordinate = (params: ConvertMapCoordinateParams) => void
 
-function setAmapServiceRef<TInstance extends AmapServiceInstance>(ref: Ref<TInstance | null> | undefined, service: TInstance | null) {
+function setMapServiceRef<TInstance extends MapServiceInstance>(ref: Ref<TInstance | null> | undefined, service: TInstance | null) {
     if (!ref) return
 
     if (typeof ref === "function") {
@@ -1210,30 +1210,30 @@ function setAmapServiceRef<TInstance extends AmapServiceInstance>(ref: Ref<TInst
     ref.current = service
 }
 
-function getAmapServiceConstructor<TInstance extends AmapServiceInstance, TOptions extends AmapServiceBaseOptions>({
+function getMapServiceConstructor<TInstance extends MapServiceInstance, TOptions extends MapServiceBaseOptions>({
     AMap,
     constructorName,
-}: CreateAmapServiceParams<TOptions>) {
+}: CreateMapServiceParams<TOptions>) {
     const constructor = (AMap as unknown as Record<string, unknown>)[constructorName]
 
     if (typeof constructor !== "function") return undefined
 
-    return constructor as AmapServiceConstructor<TInstance, TOptions>
+    return constructor as MapServiceConstructor<TInstance, TOptions>
 }
 
-function createDefaultAmapService<TInstance extends AmapServiceInstance, TOptions extends AmapServiceBaseOptions>(
-    params: CreateAmapServiceParams<TOptions>
+function createDefaultMapService<TInstance extends MapServiceInstance, TOptions extends MapServiceBaseOptions>(
+    params: CreateMapServiceParams<TOptions>
 ) {
-    const ServiceConstructor = getAmapServiceConstructor<TInstance, TOptions>(params)
+    const ServiceConstructor = getMapServiceConstructor<TInstance, TOptions>(params)
 
     if (!ServiceConstructor) return undefined
 
     return new ServiceConstructor(params.options)
 }
 
-function destroyDefaultAmapService<TInstance extends AmapServiceInstance>({
+function destroyDefaultMapService<TInstance extends MapServiceInstance>({
     service,
-}: DestroyAmapServiceParams<TInstance>) {
+}: DestroyMapServiceParams<TInstance>) {
     if (service.destroy) {
         service.destroy()
         return
@@ -1244,22 +1244,22 @@ function destroyDefaultAmapService<TInstance extends AmapServiceInstance>({
     service.setMap?.(null)
 }
 
-function bindAmapServiceEvents<TInstance extends AmapServiceInstance>(service: TInstance, events?: AmapServiceEvents) {
-    const eventEntries = getAmapEventEntries(events)
+function bindMapServiceEvents<TInstance extends MapServiceInstance>(service: TInstance, events?: MapServiceEvents) {
+    const eventEntries = getMapEventEntries(events)
 
     eventEntries.forEach(({ eventName, handler }) => service.on?.(eventName, handler))
 
-    return function unbindAmapServiceEvents() {
+    return function unbindMapServiceEvents() {
         eventEntries.forEach(({ eventName, handler }) => service.off?.(eventName, handler))
     }
 }
 
-function mergeAmapServiceOptions<TOptions extends AmapServiceBaseOptions>(options: TOptions | undefined, extraOptions: TOptions) {
+function mergeMapServiceOptions<TOptions extends MapServiceBaseOptions>(options: TOptions | undefined, extraOptions: TOptions) {
     const nextOptions: TOptions = {
         ...options,
     } as TOptions
 
-    Object.entries(cleanAmapServiceExtraOptions(extraOptions)).forEach(([key, value]) => {
+    Object.entries(cleanMapServiceExtraOptions(extraOptions)).forEach(([key, value]) => {
         if (value !== undefined) {
             Object.assign(nextOptions, {
                 [key]: value,
@@ -1270,7 +1270,7 @@ function mergeAmapServiceOptions<TOptions extends AmapServiceBaseOptions>(option
     return nextOptions
 }
 
-function cleanAmapServiceExtraOptions<TOptions extends AmapServiceBaseOptions>(extraOptions: TOptions) {
+function cleanMapServiceExtraOptions<TOptions extends MapServiceBaseOptions>(extraOptions: TOptions) {
     const {
         AMap: _AMap,
         enabled: _enabled,
@@ -1311,9 +1311,9 @@ function cleanAmapServiceExtraOptions<TOptions extends AmapServiceBaseOptions>(e
     return restOptions as TOptions
 }
 
-function applyAmapServiceMapOption<TOptions extends AmapServiceBaseOptions>(
+function applyMapServiceMapOption<TOptions extends MapServiceBaseOptions>(
     options: TOptions,
-    map?: AmapMapInstance
+    map?: MapInstance
 ) {
     if (!map || "map" in options) return options
 
@@ -1323,7 +1323,7 @@ function applyAmapServiceMapOption<TOptions extends AmapServiceBaseOptions>(
     }
 }
 
-export function useAmapService<TInstance extends AmapServiceInstance, TOptions extends AmapServiceBaseOptions>({
+export function useMapService<TInstance extends MapServiceInstance, TOptions extends MapServiceBaseOptions>({
     ref,
     map,
     AMap,
@@ -1338,12 +1338,12 @@ export function useAmapService<TInstance extends AmapServiceInstance, TOptions e
     onLoad: _onLoad,
     onDestroy: _onDestroy,
     ...eventShortcuts
-}: UseAmapServiceParams<TInstance, TOptions>) {
-    const context = useAmapContext()
+}: UseMapServiceParams<TInstance, TOptions>) {
+    const context = useMapContext()
     const serviceRef = useRef<TInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = AMap ?? context.AMap
-    const pluginLoaded = useAmapPlugin({
+    const pluginLoaded = useMapPlugin({
         map: currentMap,
         AMap: currentAMap,
         pluginName,
@@ -1355,15 +1355,15 @@ export function useAmapService<TInstance extends AmapServiceInstance, TOptions e
     const getOptions = useEffectEvent(() => options ?? ({} as TOptions))
     const getCreateService = useEffectEvent(() => createService)
     const getDestroyService = useEffectEvent(() => destroyService)
-    const currentEvents = mergeAmapEvents({
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapServiceEvents
+    }) as MapServiceEvents
 
     useStableEffect(() => {
         if (!enabled || !currentAMap || !pluginLoaded) return
 
-        const createNextService = getCreateService() ?? createDefaultAmapService
+        const createNextService = getCreateService() ?? createDefaultMapService
         const nextService = createNextService({
             map: currentMap,
             AMap: currentAMap,
@@ -1375,18 +1375,18 @@ export function useAmapService<TInstance extends AmapServiceInstance, TOptions e
 
         serviceRef.current = nextService
         setService(nextService)
-        setAmapServiceRef(ref, nextService)
+        setMapServiceRef(ref, nextService)
         onLoad(nextService)
 
         return () => {
             serviceRef.current = null
             setService(null)
-            setAmapServiceRef(ref, null)
+            setMapServiceRef(ref, null)
 
             try {
                 onDestroy(nextService)
             } finally {
-                const destroyNextService = getDestroyService() ?? destroyDefaultAmapService
+                const destroyNextService = getDestroyService() ?? destroyDefaultMapService
 
                 destroyNextService({
                     service: nextService,
@@ -1407,7 +1407,7 @@ export function useAmapService<TInstance extends AmapServiceInstance, TOptions e
     useStableEffect(() => {
         if (!serviceRef.current) return
 
-        return bindAmapServiceEvents(serviceRef.current, currentEvents)
+        return bindMapServiceEvents(serviceRef.current, currentEvents)
     }, [constructorName, currentAMap, currentEvents, currentMap, pluginLoaded, ref])
 
     return service
@@ -1415,11 +1415,11 @@ export function useAmapService<TInstance extends AmapServiceInstance, TOptions e
 
 export function useGeocoder(params: GeocoderProps = {}) {
     const { geocoderOptions, ...restOptions } = params
-    const options = mergeAmapServiceOptions(geocoderOptions, restOptions as AmapGeocoderOptions)
+    const options = mergeMapServiceOptions(geocoderOptions, restOptions as MapGeocoderOptions)
 
-    return useAmapService<AmapGeocoderInstance, AmapGeocoderOptions>({
+    return useMapService<MapGeocoderInstance, MapGeocoderOptions>({
         ...params,
-        pluginName: AmapPlugin.Geocoder,
+        pluginName: MapPlugin.Geocoder,
         constructorName: "Geocoder",
         options,
         updateService: ({ service, options }) => {
@@ -1430,11 +1430,11 @@ export function useGeocoder(params: GeocoderProps = {}) {
 
 export function useAutoComplete(params: AutoCompleteProps = {}) {
     const { autoCompleteOptions, ...restOptions } = params
-    const options = mergeAmapServiceOptions(autoCompleteOptions, restOptions as AmapAutoCompleteOptions)
+    const options = mergeMapServiceOptions(autoCompleteOptions, restOptions as MapAutoCompleteOptions)
 
-    return useAmapService<AmapAutoCompleteInstance, AmapAutoCompleteOptions>({
+    return useMapService<MapAutoCompleteInstance, MapAutoCompleteOptions>({
         ...params,
-        pluginName: AmapPlugin.AutoComplete,
+        pluginName: MapPlugin.AutoComplete,
         constructorName: "AutoComplete",
         options,
         updateService: ({ service, options }) => {
@@ -1447,14 +1447,14 @@ export function useAutoComplete(params: AutoCompleteProps = {}) {
 
 export function usePlaceSearch(params: PlaceSearchProps = {}) {
     const { placeSearchOptions, ...restOptions } = params
-    const options = applyAmapServiceMapOption(
-        mergeAmapServiceOptions(placeSearchOptions, restOptions as AmapPlaceSearchOptions),
+    const options = applyMapServiceMapOption(
+        mergeMapServiceOptions(placeSearchOptions, restOptions as MapPlaceSearchOptions),
         params.map
     )
 
-    return useAmapService<AmapPlaceSearchInstance, AmapPlaceSearchOptions>({
+    return useMapService<MapPlaceSearchInstance, MapPlaceSearchOptions>({
         ...params,
-        pluginName: AmapPlugin.PlaceSearch,
+        pluginName: MapPlugin.PlaceSearch,
         constructorName: "PlaceSearch",
         options,
         updateService: ({ service, options }) => {
@@ -1469,18 +1469,18 @@ export function usePlaceSearch(params: PlaceSearchProps = {}) {
 
 export function useCloudDataSearch(params: CloudDataSearchProps) {
     const { tableId, cloudDataSearchOptions, ...restOptions } = params
-    const options = applyAmapServiceMapOption(
-        mergeAmapServiceOptions(cloudDataSearchOptions, restOptions as AmapCloudDataSearchOptions),
+    const options = applyMapServiceMapOption(
+        mergeMapServiceOptions(cloudDataSearchOptions, restOptions as MapCloudDataSearchOptions),
         params.map
     )
 
-    return useAmapService<AmapCloudDataSearchInstance, AmapCloudDataSearchOptions>({
+    return useMapService<MapCloudDataSearchInstance, MapCloudDataSearchOptions>({
         ...params,
-        pluginName: AmapPlugin.CloudDataSearch,
+        pluginName: MapPlugin.CloudDataSearch,
         constructorName: "CloudDataSearch",
         options,
         createService: ({ AMap, options }) => {
-            const currentAMap = AMap as AmapServiceNamespace
+            const currentAMap = AMap as MapServiceNamespace
 
             return currentAMap.CloudDataSearch ? new currentAMap.CloudDataSearch(tableId, options) : undefined
         },
@@ -1490,14 +1490,14 @@ export function useCloudDataSearch(params: CloudDataSearchProps) {
 
 export function useDriving(params: DrivingProps = {}) {
     const { drivingOptions, ...restOptions } = params
-    const options = applyAmapServiceMapOption(
-        mergeAmapServiceOptions(drivingOptions, restOptions as AmapDrivingOptions),
+    const options = applyMapServiceMapOption(
+        mergeMapServiceOptions(drivingOptions, restOptions as MapDrivingOptions),
         params.map
     )
 
-    return useAmapService<AmapDrivingInstance, AmapDrivingOptions>({
+    return useMapService<MapDrivingInstance, MapDrivingOptions>({
         ...params,
-        pluginName: AmapPlugin.Driving,
+        pluginName: MapPlugin.Driving,
         constructorName: "Driving",
         options,
         updateService: ({ service, options }) => {
@@ -1510,14 +1510,14 @@ export function useDriving(params: DrivingProps = {}) {
 
 export function useTruckDriving(params: TruckDrivingProps = {}) {
     const { truckDrivingOptions, ...restOptions } = params
-    const options = applyAmapServiceMapOption(
-        mergeAmapServiceOptions(truckDrivingOptions, restOptions as AmapTruckDrivingOptions),
+    const options = applyMapServiceMapOption(
+        mergeMapServiceOptions(truckDrivingOptions, restOptions as MapTruckDrivingOptions),
         params.map
     )
 
-    return useAmapService<AmapTruckDrivingInstance, AmapTruckDrivingOptions>({
+    return useMapService<MapTruckDrivingInstance, MapTruckDrivingOptions>({
         ...params,
-        pluginName: AmapPlugin.TruckDriving,
+        pluginName: MapPlugin.TruckDriving,
         constructorName: "TruckDriving",
         options,
         updateService: ({ service, options }) => {
@@ -1530,14 +1530,14 @@ export function useTruckDriving(params: TruckDrivingProps = {}) {
 
 export function useWalking(params: WalkingProps = {}) {
     const { walkingOptions, ...restOptions } = params
-    const options = applyAmapServiceMapOption(
-        mergeAmapServiceOptions(walkingOptions, restOptions as AmapRouteServiceOptions),
+    const options = applyMapServiceMapOption(
+        mergeMapServiceOptions(walkingOptions, restOptions as MapRouteServiceOptions),
         params.map
     )
 
-    return useAmapService<AmapWalkingInstance, AmapRouteServiceOptions>({
+    return useMapService<MapWalkingInstance, MapRouteServiceOptions>({
         ...params,
-        pluginName: AmapPlugin.Walking,
+        pluginName: MapPlugin.Walking,
         constructorName: "Walking",
         options,
     })
@@ -1545,14 +1545,14 @@ export function useWalking(params: WalkingProps = {}) {
 
 export function useTransfer(params: TransferProps = {}) {
     const { transferOptions, ...restOptions } = params
-    const options = applyAmapServiceMapOption(
-        mergeAmapServiceOptions(transferOptions, restOptions as AmapTransferOptions),
+    const options = applyMapServiceMapOption(
+        mergeMapServiceOptions(transferOptions, restOptions as MapTransferOptions),
         params.map
     )
 
-    return useAmapService<AmapTransferInstance, AmapTransferOptions>({
+    return useMapService<MapTransferInstance, MapTransferOptions>({
         ...params,
-        pluginName: AmapPlugin.Transfer,
+        pluginName: MapPlugin.Transfer,
         constructorName: "Transfer",
         options,
         updateService: ({ service, options }) => {
@@ -1565,14 +1565,14 @@ export function useTransfer(params: TransferProps = {}) {
 
 export function useRiding(params: RidingProps = {}) {
     const { ridingOptions, ...restOptions } = params
-    const options = applyAmapServiceMapOption(
-        mergeAmapServiceOptions(ridingOptions, restOptions as AmapRouteServiceOptions),
+    const options = applyMapServiceMapOption(
+        mergeMapServiceOptions(ridingOptions, restOptions as MapRouteServiceOptions),
         params.map
     )
 
-    return useAmapService<AmapRidingInstance, AmapRouteServiceOptions>({
+    return useMapService<MapRidingInstance, MapRouteServiceOptions>({
         ...params,
-        pluginName: AmapPlugin.Riding,
+        pluginName: MapPlugin.Riding,
         constructorName: "Riding",
         options,
         updateService: ({ service, options }) => {
@@ -1583,17 +1583,17 @@ export function useRiding(params: RidingProps = {}) {
 
 export function useDragRoute(params: DragRouteProps = {}) {
     const { path = [], policy, autoSearch = true, dragRouteOptions, ...restOptions } = params
-    const options = mergeAmapServiceOptions(dragRouteOptions, restOptions as AmapDragRouteOptions)
+    const options = mergeMapServiceOptions(dragRouteOptions, restOptions as MapDragRouteOptions)
 
-    return useAmapService<AmapDragRouteInstance, AmapDragRouteOptions>({
+    return useMapService<MapDragRouteInstance, MapDragRouteOptions>({
         ...params,
-        pluginName: AmapPlugin.DragRoute,
+        pluginName: MapPlugin.DragRoute,
         constructorName: "DragRoute",
         options,
         createService: ({ map, AMap, options }) => {
             if (!map) return undefined
 
-            const currentAMap = AMap as AmapServiceNamespace
+            const currentAMap = AMap as MapServiceNamespace
             const service = currentAMap.DragRoute ? new currentAMap.DragRoute(map, path, policy, options) : undefined
 
             if (autoSearch) service?.search?.()
@@ -1605,17 +1605,17 @@ export function useDragRoute(params: DragRouteProps = {}) {
 
 export function useDragRouteTruck(params: DragRouteTruckProps = {}) {
     const { locations, autoSearch = true, dragRouteTruckOptions, ...restOptions } = params
-    const options = mergeAmapServiceOptions(dragRouteTruckOptions, restOptions as AmapDragRouteTruckOptions)
+    const options = mergeMapServiceOptions(dragRouteTruckOptions, restOptions as MapDragRouteTruckOptions)
 
-    return useAmapService<AmapDragRouteTruckInstance, AmapDragRouteTruckOptions>({
+    return useMapService<MapDragRouteTruckInstance, MapDragRouteTruckOptions>({
         ...params,
-        pluginName: AmapPlugin.DragRouteTruck,
+        pluginName: MapPlugin.DragRouteTruck,
         constructorName: "DragRouteTruck",
         options,
         createService: ({ map, AMap, options }) => {
             if (!map) return undefined
 
-            const currentAMap = AMap as AmapServiceNamespace
+            const currentAMap = AMap as MapServiceNamespace
             const service = currentAMap.DragRouteTruck ? new currentAMap.DragRouteTruck(map, options) : undefined
 
             if (autoSearch) service?.search?.(locations)
@@ -1627,20 +1627,20 @@ export function useDragRouteTruck(params: DragRouteTruckProps = {}) {
 }
 
 export function useGraspRoad(params: GraspRoadProps = {}) {
-    return useAmapService<AmapGraspRoadInstance, AmapServiceBaseOptions>({
+    return useMapService<MapGraspRoadInstance, MapServiceBaseOptions>({
         ...params,
-        pluginName: AmapPlugin.GraspRoad,
+        pluginName: MapPlugin.GraspRoad,
         constructorName: "GraspRoad",
     })
 }
 
 export function useDistrictSearch(params: DistrictSearchProps = {}) {
     const { districtSearchOptions, ...restOptions } = params
-    const options = mergeAmapServiceOptions(districtSearchOptions, restOptions as AmapDistrictSearchOptions)
+    const options = mergeMapServiceOptions(districtSearchOptions, restOptions as MapDistrictSearchOptions)
 
-    return useAmapService<AmapDistrictSearchInstance, AmapDistrictSearchOptions>({
+    return useMapService<MapDistrictSearchInstance, MapDistrictSearchOptions>({
         ...params,
-        pluginName: AmapPlugin.DistrictSearch,
+        pluginName: MapPlugin.DistrictSearch,
         constructorName: "DistrictSearch",
         options,
         updateService: ({ service, options }) => {
@@ -1651,50 +1651,50 @@ export function useDistrictSearch(params: DistrictSearchProps = {}) {
 }
 
 export function useWeather(params: WeatherProps = {}) {
-    return useAmapService<AmapWeatherInstance, AmapServiceBaseOptions>({
+    return useMapService<MapWeatherInstance, MapServiceBaseOptions>({
         ...params,
-        pluginName: AmapPlugin.Weather,
+        pluginName: MapPlugin.Weather,
         constructorName: "Weather",
     })
 }
 
 export function useStationSearch(params: StationSearchProps = {}) {
     const { stationSearchOptions, ...restOptions } = params
-    const options = mergeAmapServiceOptions(stationSearchOptions, restOptions as AmapBusSearchOptions)
+    const options = mergeMapServiceOptions(stationSearchOptions, restOptions as MapBusSearchOptions)
 
-    return useAmapService<AmapStationSearchInstance, AmapBusSearchOptions>({
+    return useMapService<MapStationSearchInstance, MapBusSearchOptions>({
         ...params,
-        pluginName: AmapPlugin.StationSearch,
+        pluginName: MapPlugin.StationSearch,
         constructorName: "StationSearch",
         options,
-        updateService: updateAmapBusSearch,
+        updateService: updateMapBusSearch,
     })
 }
 
 export function useLineSearch(params: LineSearchProps = {}) {
     const { lineSearchOptions, ...restOptions } = params
-    const options = mergeAmapServiceOptions(lineSearchOptions, restOptions as AmapBusSearchOptions)
+    const options = mergeMapServiceOptions(lineSearchOptions, restOptions as MapBusSearchOptions)
 
-    return useAmapService<AmapLineSearchInstance, AmapBusSearchOptions>({
+    return useMapService<MapLineSearchInstance, MapBusSearchOptions>({
         ...params,
-        pluginName: AmapPlugin.LineSearch,
+        pluginName: MapPlugin.LineSearch,
         constructorName: "LineSearch",
         options,
-        updateService: updateAmapBusSearch,
+        updateService: updateMapBusSearch,
     })
 }
 
 export function useGeolocation(params: GeolocationProps = {}) {
     const { addControl = true, geolocationOptions, ...restOptions } = params
-    const options = mergeAmapServiceOptions(geolocationOptions, restOptions as AmapGeolocationOptions)
+    const options = mergeMapServiceOptions(geolocationOptions, restOptions as MapGeolocationOptions)
 
-    return useAmapService<AmapGeolocationInstance, AmapGeolocationOptions>({
+    return useMapService<MapGeolocationInstance, MapGeolocationOptions>({
         ...params,
-        pluginName: AmapPlugin.Geolocation,
+        pluginName: MapPlugin.Geolocation,
         constructorName: "Geolocation",
         options,
         createService: ({ map, AMap, options }) => {
-            const currentAMap = AMap as AmapServiceNamespace
+            const currentAMap = AMap as MapServiceNamespace
             const service = currentAMap.Geolocation ? new currentAMap.Geolocation(options) : undefined
 
             if (addControl && map && service) {
@@ -1717,35 +1717,35 @@ export function useGeolocation(params: GeolocationProps = {}) {
 }
 
 export function useCitySearch(params: CitySearchProps = {}) {
-    return useAmapService<AmapCitySearchInstance, AmapServiceBaseOptions>({
+    return useMapService<MapCitySearchInstance, MapServiceBaseOptions>({
         ...params,
-        pluginName: AmapPlugin.CitySearch,
+        pluginName: MapPlugin.CitySearch,
         constructorName: "CitySearch",
     })
 }
 
-export function useAmapWebService({ AMap }: UseAmapWebServiceParams = {}) {
-    const context = useAmapContext()
-    const currentAMap = (AMap ?? context.AMap) as AmapServiceNamespace | null
+export function useMapWebService({ AMap }: UseMapWebServiceParams = {}) {
+    const context = useMapContext()
+    const currentAMap = (AMap ?? context.AMap) as MapServiceNamespace | null
 
     return currentAMap?.WebService ?? null
 }
 
-export function useAmapConvertFrom({ AMap }: UseAmapWebServiceParams = {}) {
-    const context = useAmapContext()
-    const currentAMap = (AMap ?? context.AMap) as AmapServiceNamespace | null
+export function useMapConvertFrom({ AMap }: UseMapWebServiceParams = {}) {
+    const context = useMapContext()
+    const currentAMap = (AMap ?? context.AMap) as MapServiceNamespace | null
 
     if (!currentAMap?.convertFrom) return undefined
 
-    return function convertAmapCoordinate({ lnglat, type = "gps", callback }: ConvertAmapCoordinateParams) {
+    return function convertMapCoordinate({ lnglat, type = "gps", callback }: ConvertMapCoordinateParams) {
         currentAMap.convertFrom?.(lnglat, type, callback)
     }
 }
 
-function updateAmapBusSearch<TInstance extends AmapBusSearchInstance>({
+function updateMapBusSearch<TInstance extends MapBusSearchInstance>({
     service,
     options,
-}: UpdateAmapServiceParams<TInstance, AmapBusSearchOptions>) {
+}: UpdateMapServiceParams<TInstance, MapBusSearchOptions>) {
     if (typeof options.pageIndex === "number") service.setPageIndex?.(options.pageIndex)
     if (typeof options.pageSize === "number") service.setPageSize?.(options.pageSize)
     if (typeof options.city === "string") service.setCity?.(options.city)
@@ -1862,17 +1862,17 @@ export const CitySearch: FC<CitySearchProps> = props => {
 /** WebService 组件属性 */
 export interface WebServiceProps {
     /** WebService 实例 ref */
-    ref?: Ref<AmapWebServiceInstance | null>
+    ref?: Ref<MapWebServiceInstance | null>
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 创建完成回调 */
-    onLoad?: (webService: AmapWebServiceInstance) => void
+    onLoad?: (webService: MapWebServiceInstance) => void
     /** 销毁前回调 */
-    onDestroy?: (webService: AmapWebServiceInstance) => void
+    onDestroy?: (webService: MapWebServiceInstance) => void
 }
 
 export const WebService: FC<WebServiceProps> = ({ ref, AMap, onLoad: _onLoad, onDestroy: _onDestroy }) => {
-    const webService = useAmapWebService({
+    const webService = useMapWebService({
         AMap,
     })
     const onLoad = useEffectEvent(optionalFn(_onLoad))
@@ -1909,13 +1909,13 @@ export const WebService: FC<WebServiceProps> = ({ ref, AMap, onLoad: _onLoad, on
 }
 
 /** 移动动画参数 */
-export interface AmapMoveAnimationOptions {
+export interface MapMoveAnimationOptions {
     /** 每段动画时长 */
-    duration?: number | AmapMoveDurationCallback
+    duration?: number | MapMoveDurationCallback
     /** 每段动画速度 */
-    speed?: number | AmapMoveDurationCallback
+    speed?: number | MapMoveDurationCallback
     /** 延迟动画时长 */
-    delay?: number | AmapMoveDurationCallback
+    delay?: number | MapMoveDurationCallback
     /** 是否循环 */
     circlable?: boolean
     /** 动画结束是否自动旋转 */
@@ -1923,11 +1923,11 @@ export interface AmapMoveAnimationOptions {
 }
 
 /** 移动动画目标 */
-export interface AmapMoveAnimationTarget {
+export interface MapMoveAnimationTarget {
     /** 移动到指定位置 */
-    moveTo?: (position: AmapLngLatLike, options?: AmapMoveAnimationOptions) => void
+    moveTo?: (position: MapLngLatLike, options?: MapMoveAnimationOptions) => void
     /** 沿路径移动 */
-    moveAlong?: (path: AmapLngLatLike[], options?: AmapMoveAnimationOptions) => void
+    moveAlong?: (path: MapLngLatLike[], options?: MapMoveAnimationOptions) => void
     /** 开始动画 */
     startMove?: () => void
     /** 停止动画 */
@@ -1939,22 +1939,22 @@ export interface AmapMoveAnimationTarget {
 }
 
 /** 使用移动动画参数 */
-export interface UseAmapMoveAnimationParams {
+export interface UseMapMoveAnimationParams {
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
 }
 
-export function useAmapMoveAnimation({ map, AMap }: UseAmapMoveAnimationParams = {}) {
-    const context = useAmapContext()
+export function useMapMoveAnimation({ map, AMap }: UseMapMoveAnimationParams = {}) {
+    const context = useMapContext()
     const currentMap = map ?? context.map
     const currentAMap = AMap ?? context.AMap
 
-    return useAmapPlugin({
+    return useMapPlugin({
         map: currentMap,
         AMap: currentAMap,
-        pluginName: AmapPlugin.MoveAnimation,
+        pluginName: MapPlugin.MoveAnimation,
         constructorName: "MoveAnimation",
     })
 }

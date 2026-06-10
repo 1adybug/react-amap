@@ -1,34 +1,34 @@
 import { type FC, type ReactNode, type Ref, createContext, useContext, useEffectEvent, useRef, useState } from "react"
 
-import { type AmapEventHandler, type AmapMapInstance, type AmapNamespace, type AmapZoomRange, useAmapContext } from "./Amap"
+import { type MapEventHandler, type MapInstance, type MapNamespace, type MapZoomRange, useMapContext } from "./Map"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapMoveEvent,
-    type AmapOverlayEventMap,
-    type AmapOverlayEventShortcutProps,
-    type AmapOverlayInteractionEvent,
-    type AmapOverlayMouseEvent,
-    type AmapTargetEvent,
-    getAmapEventEntries,
-    mergeAmapEvents,
-    splitAmapEventShortcutProps,
-} from "../utils/amapEvents"
+    type MapMoveEvent,
+    type MapOverlayEventMap,
+    type MapOverlayEventShortcutProps,
+    type MapOverlayInteractionEvent,
+    type MapOverlayMouseEvent,
+    type MapTargetEvent,
+    getMapEventEntries,
+    mergeMapEvents,
+    splitMapEventShortcutProps,
+} from "../utils/mapEvents"
 
-export type AmapGroupOnLoad<TInstance extends AmapGroupInstance = AmapGroupInstance> = (group: TInstance) => void
+export type MapGroupOnLoad<TInstance extends MapGroupInstance = MapGroupInstance> = (group: TInstance) => void
 
-export type AmapGroupOnDestroy<TInstance extends AmapGroupInstance = AmapGroupInstance> = (group: TInstance) => void
+export type MapGroupOnDestroy<TInstance extends MapGroupInstance = MapGroupInstance> = (group: TInstance) => void
 
-export type AmapGroupChildSync = () => void
+export type MapGroupChildSync = () => void
 
-export type AmapGroupChildSyncCleanup = () => void
+export type MapGroupChildSyncCleanup = () => void
 
 /** 群组事件映射 */
-export interface AmapGroupEvents<TInstance = AmapGroupInstance>
-    extends AmapOverlayEventMap<TInstance> {}
+export interface MapGroupEvents<TInstance = MapGroupInstance>
+    extends MapOverlayEventMap<TInstance> {}
 
 /** 群组参数 */
-export interface AmapGroupOptions {
+export interface MapGroupOptions {
     /** 是否可见 */
     visible?: boolean
     /** 透明度 */
@@ -36,27 +36,27 @@ export interface AmapGroupOptions {
     /** 层级 */
     zIndex?: number
     /** 缩放范围 */
-    zooms?: AmapZoomRange
+    zooms?: MapZoomRange
 }
 
 /** 群组实例 */
-export interface AmapGroupInstance {
+export interface MapGroupInstance {
     /** 设置地图 */
-    setMap?: (map: AmapMapInstance | null) => void
+    setMap?: (map: MapInstance | null) => void
     /** 设置参数 */
-    setOptions?: (options: AmapGroupOptions) => void
+    setOptions?: (options: MapGroupOptions) => void
     /** 显示 */
     show?: () => void
     /** 隐藏 */
     hide?: () => void
     /** 绑定事件 */
-    on?: (eventName: string, handler: AmapEventHandler) => void
+    on?: (eventName: string, handler: MapEventHandler) => void
     /** 解绑事件 */
-    off?: (eventName: string, handler: AmapEventHandler) => void
+    off?: (eventName: string, handler: MapEventHandler) => void
 }
 
 /** 覆盖物群组实例 */
-export interface AmapOverlayGroupInstance extends AmapGroupInstance {
+export interface MapOverlayGroupInstance extends MapGroupInstance {
     /** 添加覆盖物 */
     addOverlay?: (overlay: unknown) => void
     /** 添加多个覆盖物 */
@@ -74,7 +74,7 @@ export interface AmapOverlayGroupInstance extends AmapGroupInstance {
 }
 
 /** 图层群组实例 */
-export interface AmapLayerGroupInstance extends AmapGroupInstance {
+export interface MapLayerGroupInstance extends MapGroupInstance {
     /** 添加图层 */
     addLayer?: (layer: unknown) => void
     /** 添加多个图层 */
@@ -90,99 +90,99 @@ export interface AmapLayerGroupInstance extends AmapGroupInstance {
 }
 
 /** 群组鼠标事件 */
-export interface AmapGroupMouseEvent<TInstance = AmapGroupInstance> extends AmapOverlayMouseEvent<TInstance> {}
+export interface MapGroupMouseEvent<TInstance = MapGroupInstance> extends MapOverlayMouseEvent<TInstance> {}
 
 /** 群组交互坐标事件 */
-export interface AmapGroupInteractionEvent<TInstance = AmapGroupInstance> extends AmapOverlayInteractionEvent<TInstance> {}
+export interface MapGroupInteractionEvent<TInstance = MapGroupInstance> extends MapOverlayInteractionEvent<TInstance> {}
 
 /** 群组目标事件 */
-export interface AmapGroupTargetEvent<TInstance = AmapGroupInstance> extends AmapTargetEvent<TInstance> {}
+export interface MapGroupTargetEvent<TInstance = MapGroupInstance> extends MapTargetEvent<TInstance> {}
 
 /** 群组移动动画事件 */
-export interface AmapGroupMoveEvent<TInstance = AmapGroupInstance> extends AmapMoveEvent<TInstance> {}
+export interface MapGroupMoveEvent<TInstance = MapGroupInstance> extends MapMoveEvent<TInstance> {}
 
 /** 群组事件快捷属性 */
-export interface AmapGroupEventShortcutProps<TInstance = AmapGroupInstance>
-    extends AmapOverlayEventShortcutProps<TInstance> {}
+export interface MapGroupEventShortcutProps<TInstance = MapGroupInstance>
+    extends MapOverlayEventShortcutProps<TInstance> {}
 
 /** 覆盖物群组鼠标事件 */
-export interface AmapOverlayGroupMouseEvent extends AmapGroupMouseEvent<AmapOverlayGroupInstance> {}
+export interface MapOverlayGroupMouseEvent extends MapGroupMouseEvent<MapOverlayGroupInstance> {}
 
 /** 覆盖物群组交互坐标事件 */
-export interface AmapOverlayGroupInteractionEvent extends AmapGroupInteractionEvent<AmapOverlayGroupInstance> {}
+export interface MapOverlayGroupInteractionEvent extends MapGroupInteractionEvent<MapOverlayGroupInstance> {}
 
 /** 覆盖物群组目标事件 */
-export interface AmapOverlayGroupTargetEvent extends AmapGroupTargetEvent<AmapOverlayGroupInstance> {}
+export interface MapOverlayGroupTargetEvent extends MapGroupTargetEvent<MapOverlayGroupInstance> {}
 
 /** 覆盖物群组移动动画事件 */
-export interface AmapOverlayGroupMoveEvent extends AmapGroupMoveEvent<AmapOverlayGroupInstance> {}
+export interface MapOverlayGroupMoveEvent extends MapGroupMoveEvent<MapOverlayGroupInstance> {}
 
 /** 覆盖物群组事件快捷属性 */
-export interface AmapOverlayGroupEventShortcutProps extends AmapGroupEventShortcutProps<AmapOverlayGroupInstance> {}
+export interface MapOverlayGroupEventShortcutProps extends MapGroupEventShortcutProps<MapOverlayGroupInstance> {}
 
 /** 图层群组鼠标事件 */
-export interface AmapLayerGroupMouseEvent extends AmapGroupMouseEvent<AmapLayerGroupInstance> {}
+export interface MapLayerGroupMouseEvent extends MapGroupMouseEvent<MapLayerGroupInstance> {}
 
 /** 图层群组交互坐标事件 */
-export interface AmapLayerGroupInteractionEvent extends AmapGroupInteractionEvent<AmapLayerGroupInstance> {}
+export interface MapLayerGroupInteractionEvent extends MapGroupInteractionEvent<MapLayerGroupInstance> {}
 
 /** 图层群组目标事件 */
-export interface AmapLayerGroupTargetEvent extends AmapGroupTargetEvent<AmapLayerGroupInstance> {}
+export interface MapLayerGroupTargetEvent extends MapGroupTargetEvent<MapLayerGroupInstance> {}
 
 /** 图层群组移动动画事件 */
-export interface AmapLayerGroupMoveEvent extends AmapGroupMoveEvent<AmapLayerGroupInstance> {}
+export interface MapLayerGroupMoveEvent extends MapGroupMoveEvent<MapLayerGroupInstance> {}
 
 /** 图层群组事件快捷属性 */
-export interface AmapLayerGroupEventShortcutProps extends AmapGroupEventShortcutProps<AmapLayerGroupInstance> {}
+export interface MapLayerGroupEventShortcutProps extends MapGroupEventShortcutProps<MapLayerGroupInstance> {}
 
 /** 支持群组构造器的高德命名空间 */
-export interface AmapGroupNamespace extends AmapNamespace {
+export interface MapGroupNamespace extends MapNamespace {
     /** OverlayGroup 构造器 */
-    OverlayGroup?: new (overlays?: unknown[]) => AmapOverlayGroupInstance
+    OverlayGroup?: new (overlays?: unknown[]) => MapOverlayGroupInstance
     /** LayerGroup 构造器 */
-    LayerGroup?: new (layers?: unknown[]) => AmapLayerGroupInstance
+    LayerGroup?: new (layers?: unknown[]) => MapLayerGroupInstance
 }
 
 /** 覆盖物群组组件属性 */
-export interface OverlayGroupProps extends AmapGroupOptions, AmapOverlayGroupEventShortcutProps {
+export interface OverlayGroupProps extends MapGroupOptions, MapOverlayGroupEventShortcutProps {
     /** 群组实例 ref */
-    ref?: Ref<AmapOverlayGroupInstance | null>
+    ref?: Ref<MapOverlayGroupInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 子覆盖物 */
     children?: ReactNode
     /** 事件映射 */
-    events?: AmapGroupEvents<AmapOverlayGroupInstance>
+    events?: MapGroupEvents<MapOverlayGroupInstance>
     /** 创建完成回调 */
-    onLoad?: AmapGroupOnLoad<AmapOverlayGroupInstance>
+    onLoad?: MapGroupOnLoad<MapOverlayGroupInstance>
     /** 销毁前回调 */
-    onDestroy?: AmapGroupOnDestroy<AmapOverlayGroupInstance>
+    onDestroy?: MapGroupOnDestroy<MapOverlayGroupInstance>
 }
 
 /** 图层群组组件属性 */
-export interface LayerGroupProps extends AmapGroupOptions, AmapLayerGroupEventShortcutProps {
+export interface LayerGroupProps extends MapGroupOptions, MapLayerGroupEventShortcutProps {
     /** 群组实例 ref */
-    ref?: Ref<AmapLayerGroupInstance | null>
+    ref?: Ref<MapLayerGroupInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 子图层 */
     children?: ReactNode
     /** 事件映射 */
-    events?: AmapGroupEvents<AmapLayerGroupInstance>
+    events?: MapGroupEvents<MapLayerGroupInstance>
     /** 创建完成回调 */
-    onLoad?: AmapGroupOnLoad<AmapLayerGroupInstance>
+    onLoad?: MapGroupOnLoad<MapLayerGroupInstance>
     /** 销毁前回调 */
-    onDestroy?: AmapGroupOnDestroy<AmapLayerGroupInstance>
+    onDestroy?: MapGroupOnDestroy<MapLayerGroupInstance>
 }
 
 /** 覆盖物群组上下文数据 */
-export interface AmapOverlayGroupContextValue {
+export interface MapOverlayGroupContextValue {
     /** 覆盖物群组实例 */
-    group: AmapOverlayGroupInstance
+    group: MapOverlayGroupInstance
     /** 添加覆盖物并同步群组状态 */
     addOverlay(overlay: unknown): void
     /** 移除覆盖物 */
@@ -192,13 +192,13 @@ export interface AmapOverlayGroupContextValue {
     /** 同步所有子覆盖物 */
     syncChildren(): void
     /** 注册子覆盖物同步函数 */
-    registerChildSync(sync: AmapGroupChildSync): AmapGroupChildSyncCleanup
+    registerChildSync(sync: MapGroupChildSync): MapGroupChildSyncCleanup
 }
 
 /** 图层群组上下文数据 */
-export interface AmapLayerGroupContextValue {
+export interface MapLayerGroupContextValue {
     /** 图层群组实例 */
-    group: AmapLayerGroupInstance
+    group: MapLayerGroupInstance
     /** 添加图层并同步群组状态 */
     addLayer(layer: unknown): void
     /** 移除图层 */
@@ -208,40 +208,40 @@ export interface AmapLayerGroupContextValue {
     /** 同步所有子图层 */
     syncChildren(): void
     /** 注册子图层同步函数 */
-    registerChildSync(sync: AmapGroupChildSync): AmapGroupChildSyncCleanup
+    registerChildSync(sync: MapGroupChildSync): MapGroupChildSyncCleanup
 }
 
 /** 创建覆盖物群组上下文参数 */
-export interface CreateAmapOverlayGroupContextValueParams {
+export interface CreateMapOverlayGroupContextValueParams {
     /** 覆盖物群组实例 */
-    group: AmapOverlayGroupInstance
+    group: MapOverlayGroupInstance
     /** 获取最新群组参数 */
-    getOptions: () => AmapGroupOptions
+    getOptions: () => MapGroupOptions
 }
 
 /** 创建图层群组上下文参数 */
-export interface CreateAmapLayerGroupContextValueParams {
+export interface CreateMapLayerGroupContextValueParams {
     /** 图层群组实例 */
-    group: AmapLayerGroupInstance
+    group: MapLayerGroupInstance
     /** 获取最新群组参数 */
-    getOptions: () => AmapGroupOptions
+    getOptions: () => MapGroupOptions
 }
 
 /** 覆盖物群组上下文 */
-export const OverlayGroupContext = createContext<AmapOverlayGroupContextValue | null>(null)
+export const OverlayGroupContext = createContext<MapOverlayGroupContextValue | null>(null)
 
 export function useOverlayGroupContext() {
     return useContext(OverlayGroupContext)
 }
 
 /** 图层群组上下文 */
-export const LayerGroupContext = createContext<AmapLayerGroupContextValue | null>(null)
+export const LayerGroupContext = createContext<MapLayerGroupContextValue | null>(null)
 
 export function useLayerGroupContext() {
     return useContext(LayerGroupContext)
 }
 
-function setAmapGroupRef<TInstance extends AmapGroupInstance>(ref: Ref<TInstance | null> | undefined, group: TInstance | null) {
+function setMapGroupRef<TInstance extends MapGroupInstance>(ref: Ref<TInstance | null> | undefined, group: TInstance | null) {
     if (!ref) return
 
     if (typeof ref === "function") {
@@ -252,18 +252,18 @@ function setAmapGroupRef<TInstance extends AmapGroupInstance>(ref: Ref<TInstance
     ref.current = group
 }
 
-function bindAmapGroupEvents<TInstance extends AmapGroupInstance>(group: TInstance, events?: AmapGroupEvents) {
-    const eventEntries = getAmapEventEntries(events)
+function bindMapGroupEvents<TInstance extends MapGroupInstance>(group: TInstance, events?: MapGroupEvents) {
+    const eventEntries = getMapEventEntries(events)
 
     eventEntries.forEach(({ eventName, handler }) => group.on?.(eventName, handler))
 
-    return function unbindAmapGroupEvents() {
+    return function unbindMapGroupEvents() {
         eventEntries.forEach(({ eventName, handler }) => group.off?.(eventName, handler))
     }
 }
 
-function getAmapGroupSetOptions(options: AmapGroupOptions) {
-    const setOptions: AmapGroupOptions = {
+function getMapGroupSetOptions(options: MapGroupOptions) {
+    const setOptions: MapGroupOptions = {
         ...options,
     }
 
@@ -272,18 +272,18 @@ function getAmapGroupSetOptions(options: AmapGroupOptions) {
     return setOptions
 }
 
-function setAmapGroupOptions<TInstance extends AmapGroupInstance>(group: TInstance, options: AmapGroupOptions) {
-    group.setOptions?.(getAmapGroupSetOptions(options))
+function setMapGroupOptions<TInstance extends MapGroupInstance>(group: TInstance, options: MapGroupOptions) {
+    group.setOptions?.(getMapGroupSetOptions(options))
 }
 
-function syncAmapGroupAfterChildChange<TInstance extends AmapGroupInstance>(group: TInstance, options: AmapGroupOptions) {
-    setAmapGroupOptions(group, options)
+function syncMapGroupAfterChildChange<TInstance extends MapGroupInstance>(group: TInstance, options: MapGroupOptions) {
+    setMapGroupOptions(group, options)
 
     if (options.visible === false) group.hide?.()
 }
 
-function updateAmapGroup<TInstance extends AmapGroupInstance>(group: TInstance, options: AmapGroupOptions) {
-    setAmapGroupOptions(group, options)
+function updateMapGroup<TInstance extends MapGroupInstance>(group: TInstance, options: MapGroupOptions) {
+    setMapGroupOptions(group, options)
 
     if (options.visible === undefined) return
 
@@ -295,14 +295,14 @@ function updateAmapGroup<TInstance extends AmapGroupInstance>(group: TInstance, 
     group.hide?.()
 }
 
-function createAmapOverlayGroupContextValue({
+function createMapOverlayGroupContextValue({
     group,
     getOptions,
-}: CreateAmapOverlayGroupContextValueParams): AmapOverlayGroupContextValue {
-    const childSyncs = new Set<AmapGroupChildSync>()
+}: CreateMapOverlayGroupContextValueParams): MapOverlayGroupContextValue {
+    const childSyncs = new Set<MapGroupChildSync>()
 
     function sync() {
-        syncAmapGroupAfterChildChange(group, getOptions())
+        syncMapGroupAfterChildChange(group, getOptions())
     }
 
     function syncChildren() {
@@ -323,21 +323,21 @@ function createAmapOverlayGroupContextValue({
         registerChildSync(childSync) {
             childSyncs.add(childSync)
 
-            return function unregisterAmapOverlayGroupChildSync() {
+            return function unregisterMapOverlayGroupChildSync() {
                 childSyncs.delete(childSync)
             }
         },
     }
 }
 
-function createAmapLayerGroupContextValue({
+function createMapLayerGroupContextValue({
     group,
     getOptions,
-}: CreateAmapLayerGroupContextValueParams): AmapLayerGroupContextValue {
-    const childSyncs = new Set<AmapGroupChildSync>()
+}: CreateMapLayerGroupContextValueParams): MapLayerGroupContextValue {
+    const childSyncs = new Set<MapGroupChildSync>()
 
     function sync() {
-        syncAmapGroupAfterChildChange(group, getOptions())
+        syncMapGroupAfterChildChange(group, getOptions())
     }
 
     function syncChildren() {
@@ -358,7 +358,7 @@ function createAmapLayerGroupContextValue({
         registerChildSync(childSync) {
             childSyncs.add(childSync)
 
-            return function unregisterAmapLayerGroupChildSync() {
+            return function unregisterMapLayerGroupChildSync() {
                 childSyncs.delete(childSync)
             }
         },
@@ -375,16 +375,16 @@ export const OverlayGroup: FC<OverlayGroupProps> = ({
     onDestroy: _onDestroy,
     ...restProps
 }) => {
-    const context = useAmapContext()
-    const groupRef = useRef<AmapOverlayGroupInstance | null>(null)
-    const [contextValue, setContextValue] = useState<AmapOverlayGroupContextValue | null>(null)
+    const context = useMapContext()
+    const groupRef = useRef<MapOverlayGroupInstance | null>(null)
+    const [contextValue, setContextValue] = useState<MapOverlayGroupContextValue | null>(null)
     const currentMap = map ?? context.map
-    const currentAMap = (AMap ?? context.AMap) as AmapGroupNamespace | null
-    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
-    const currentEvents = mergeAmapEvents({
+    const currentAMap = (AMap ?? context.AMap) as MapGroupNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapGroupEvents
+    }) as MapGroupEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getCurrentOptions = useEffectEvent(() => restOptions)
@@ -397,18 +397,18 @@ export const OverlayGroup: FC<OverlayGroupProps> = ({
 
         currentMap.add?.(group)
         groupRef.current = group
-        setContextValue(createAmapOverlayGroupContextValue({
+        setContextValue(createMapOverlayGroupContextValue({
             group,
             getOptions: getCurrentOptions,
         }))
-        setAmapGroupRef(ref, group)
-        updateAmapGroup(group, initialOptions)
+        setMapGroupRef(ref, group)
+        updateMapGroup(group, initialOptions)
         onLoad(group)
 
         return () => {
             groupRef.current = null
             setContextValue(null)
-            setAmapGroupRef(ref, null)
+            setMapGroupRef(ref, null)
 
             try {
                 onDestroy(group)
@@ -422,7 +422,7 @@ export const OverlayGroup: FC<OverlayGroupProps> = ({
     useStableEffect(() => {
         if (!groupRef.current) return
 
-        updateAmapGroup(groupRef.current, restOptions)
+        updateMapGroup(groupRef.current, restOptions)
         contextValue?.syncChildren()
         if (restOptions.visible === false) groupRef.current.hide?.()
     }, [contextValue, restOptions])
@@ -430,7 +430,7 @@ export const OverlayGroup: FC<OverlayGroupProps> = ({
     useStableEffect(() => {
         if (!groupRef.current) return
 
-        return bindAmapGroupEvents(groupRef.current, currentEvents)
+        return bindMapGroupEvents(groupRef.current, currentEvents)
     }, [currentAMap, currentEvents, currentMap, ref])
 
     return <OverlayGroupContext value={contextValue}>{contextValue ? children : null}</OverlayGroupContext>
@@ -446,16 +446,16 @@ export const LayerGroup: FC<LayerGroupProps> = ({
     onDestroy: _onDestroy,
     ...restProps
 }) => {
-    const context = useAmapContext()
-    const groupRef = useRef<AmapLayerGroupInstance | null>(null)
-    const [contextValue, setContextValue] = useState<AmapLayerGroupContextValue | null>(null)
+    const context = useMapContext()
+    const groupRef = useRef<MapLayerGroupInstance | null>(null)
+    const [contextValue, setContextValue] = useState<MapLayerGroupContextValue | null>(null)
     const currentMap = map ?? context.map
-    const currentAMap = (AMap ?? context.AMap) as AmapGroupNamespace | null
-    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
-    const currentEvents = mergeAmapEvents({
+    const currentAMap = (AMap ?? context.AMap) as MapGroupNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapGroupEvents
+    }) as MapGroupEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getCurrentOptions = useEffectEvent(() => restOptions)
@@ -468,18 +468,18 @@ export const LayerGroup: FC<LayerGroupProps> = ({
 
         group.setMap?.(currentMap)
         groupRef.current = group
-        setContextValue(createAmapLayerGroupContextValue({
+        setContextValue(createMapLayerGroupContextValue({
             group,
             getOptions: getCurrentOptions,
         }))
-        setAmapGroupRef(ref, group)
-        updateAmapGroup(group, initialOptions)
+        setMapGroupRef(ref, group)
+        updateMapGroup(group, initialOptions)
         onLoad(group)
 
         return () => {
             groupRef.current = null
             setContextValue(null)
-            setAmapGroupRef(ref, null)
+            setMapGroupRef(ref, null)
 
             try {
                 onDestroy(group)
@@ -493,7 +493,7 @@ export const LayerGroup: FC<LayerGroupProps> = ({
     useStableEffect(() => {
         if (!groupRef.current) return
 
-        updateAmapGroup(groupRef.current, restOptions)
+        updateMapGroup(groupRef.current, restOptions)
         contextValue?.syncChildren()
         if (restOptions.visible === false) groupRef.current.hide?.()
     }, [contextValue, restOptions])
@@ -501,7 +501,7 @@ export const LayerGroup: FC<LayerGroupProps> = ({
     useStableEffect(() => {
         if (!groupRef.current) return
 
-        return bindAmapGroupEvents(groupRef.current, currentEvents)
+        return bindMapGroupEvents(groupRef.current, currentEvents)
     }, [currentAMap, currentEvents, currentMap, ref])
 
     return <LayerGroupContext value={contextValue}>{contextValue ? children : null}</LayerGroupContext>

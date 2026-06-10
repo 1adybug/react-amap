@@ -1,58 +1,58 @@
 import { type FC, type Ref, useEffectEvent, useRef } from "react"
 
-import { AmapPlugin, type AmapEventHandler, type AmapMapInstance, type AmapNamespace, useAmapContext } from "./Amap"
+import { MapPlugin, type MapEventHandler, type MapInstance, type MapNamespace, useMapContext } from "./Map"
 
-import { useAmapPlugin } from "../hooks/useAmapPlugin"
+import { useMapPlugin } from "../hooks/useMapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
 
 import {
-    type AmapMoveEvent,
-    type AmapOverlayEventMap,
-    type AmapOverlayEventShortcutProps,
-    type AmapOverlayInteractionEvent,
-    type AmapOverlayMouseEvent,
-    type AmapTargetEvent,
-    getAmapEventEntries,
-    mergeAmapEvents,
-    splitAmapEventShortcutProps,
-} from "../utils/amapEvents"
+    type MapMoveEvent,
+    type MapOverlayEventMap,
+    type MapOverlayEventShortcutProps,
+    type MapOverlayInteractionEvent,
+    type MapOverlayMouseEvent,
+    type MapTargetEvent,
+    getMapEventEntries,
+    mergeMapEvents,
+    splitMapEventShortcutProps,
+} from "../utils/mapEvents"
 import { optionalFn } from "../utils/optionalFn"
 
-export type AmapControlOnLoad<TInstance extends AmapControlInstance = AmapControlInstance> = (control: TInstance) => void
+export type MapControlOnLoad<TInstance extends MapControlInstance = MapControlInstance> = (control: TInstance) => void
 
-export type AmapControlOnDestroy<TInstance extends AmapControlInstance = AmapControlInstance> = (control: TInstance) => void
+export type MapControlOnDestroy<TInstance extends MapControlInstance = MapControlInstance> = (control: TInstance) => void
 
 /** 控件鼠标事件 */
-export interface AmapControlMouseEvent<TInstance = AmapControlInstance> extends AmapOverlayMouseEvent<TInstance> {}
+export interface MapControlMouseEvent<TInstance = MapControlInstance> extends MapOverlayMouseEvent<TInstance> {}
 
 /** 控件交互坐标事件 */
-export interface AmapControlInteractionEvent<TInstance = AmapControlInstance>
-    extends AmapOverlayInteractionEvent<TInstance> {}
+export interface MapControlInteractionEvent<TInstance = MapControlInstance>
+    extends MapOverlayInteractionEvent<TInstance> {}
 
 /** 控件目标事件 */
-export interface AmapControlTargetEvent<TInstance = AmapControlInstance> extends AmapTargetEvent<TInstance> {}
+export interface MapControlTargetEvent<TInstance = MapControlInstance> extends MapTargetEvent<TInstance> {}
 
 /** 控件移动动画事件 */
-export interface AmapControlMoveEvent<TInstance = AmapControlInstance> extends AmapMoveEvent<TInstance> {}
+export interface MapControlMoveEvent<TInstance = MapControlInstance> extends MapMoveEvent<TInstance> {}
 
 /** 控件事件快捷属性 */
-export interface AmapControlEventShortcutProps<TInstance = AmapControlInstance>
-    extends AmapOverlayEventShortcutProps<TInstance> {}
+export interface MapControlEventShortcutProps<TInstance = MapControlInstance>
+    extends MapOverlayEventShortcutProps<TInstance> {}
 
 /** 地图类型控件鼠标事件 */
-export interface AmapMapTypeMouseEvent extends AmapControlMouseEvent<AmapMapTypeInstance> {}
+export interface MapTypeMouseEvent extends MapControlMouseEvent<MapTypeInstance> {}
 
 /** 地图类型控件交互坐标事件 */
-export interface AmapMapTypeInteractionEvent extends AmapControlInteractionEvent<AmapMapTypeInstance> {}
+export interface MapTypeInteractionEvent extends MapControlInteractionEvent<MapTypeInstance> {}
 
 /** 地图类型控件目标事件 */
-export interface AmapMapTypeTargetEvent extends AmapControlTargetEvent<AmapMapTypeInstance> {}
+export interface MapTypeTargetEvent extends MapControlTargetEvent<MapTypeInstance> {}
 
 /** 地图类型控件移动动画事件 */
-export interface AmapMapTypeMoveEvent extends AmapControlMoveEvent<AmapMapTypeInstance> {}
+export interface MapTypeMoveEvent extends MapControlMoveEvent<MapTypeInstance> {}
 
 /** 地图类型控件事件快捷属性 */
-export interface AmapMapTypeEventShortcutProps extends AmapControlEventShortcutProps<AmapMapTypeInstance> {}
+export interface MapTypeEventShortcutProps extends MapControlEventShortcutProps<MapTypeInstance> {}
 
 /** 控件停靠位置 */
 export const ControlPosition = {
@@ -81,7 +81,7 @@ export const MapTypeDefaultType = {
 export type MapTypeDefaultType = (typeof MapTypeDefaultType)[keyof typeof MapTypeDefaultType]
 
 /** 控件停靠位置 */
-export interface AmapControlPositionObject {
+export interface MapControlPositionObject {
     /** 顶部距离 */
     top?: number
     /** 左侧距离 */
@@ -93,9 +93,9 @@ export interface AmapControlPositionObject {
 }
 
 /** 控件基础参数 */
-export interface AmapControlBaseOptions {
+export interface MapControlBaseOptions {
     /** 控件停靠位置 */
-    position?: ControlPosition | AmapControlPositionObject
+    position?: ControlPosition | MapControlPositionObject
     /** 控件偏移量 */
     offset?: [number, number]
     /** 是否可见 */
@@ -103,34 +103,34 @@ export interface AmapControlBaseOptions {
 }
 
 /** 控件事件映射 */
-export interface AmapControlEvents<TInstance = AmapControlInstance>
-    extends AmapOverlayEventMap<TInstance> {}
+export interface MapControlEvents<TInstance = MapControlInstance>
+    extends MapOverlayEventMap<TInstance> {}
 
 /** 控件实例 */
-export interface AmapControlInstance {
+export interface MapControlInstance {
     /** 添加到地图 */
-    addTo?: (map: AmapMapInstance) => void
+    addTo?: (map: MapInstance) => void
     /** 移除控件 */
     remove?: () => void
     /** 从地图移除控件 */
-    removeFrom?: (map?: AmapMapInstance) => void
+    removeFrom?: (map?: MapInstance) => void
     /** 显示控件 */
     show?: () => void
     /** 隐藏控件 */
     hide?: () => void
     /** 绑定事件 */
-    on?: (eventName: string, handler: AmapEventHandler) => void
+    on?: (eventName: string, handler: MapEventHandler) => void
     /** 解绑事件 */
-    off?: (eventName: string, handler: AmapEventHandler) => void
+    off?: (eventName: string, handler: MapEventHandler) => void
 }
 
 /** 控件构造器 */
-export interface AmapControlConstructor<TInstance extends AmapControlInstance, TOptions extends AmapControlBaseOptions> {
+export interface MapControlConstructor<TInstance extends MapControlInstance, TOptions extends MapControlBaseOptions> {
     new (options?: TOptions): TInstance
 }
 
 /** 地图类型图层信息 */
-export interface AmapMapTypeLayerInfo {
+export interface MapTypeLayerInfo {
     /** 图层 id */
     id: string
     /** 是否可用 */
@@ -146,7 +146,7 @@ export interface AmapMapTypeLayerInfo {
 }
 
 /** MapType 控件参数 */
-export interface AmapMapTypeOptions extends AmapControlBaseOptions {
+export interface MapTypeOptions extends MapControlBaseOptions {
     /** 初始化默认图层类型 */
     defaultType?: MapTypeDefaultType
     /** 是否展示交通图层 */
@@ -156,13 +156,13 @@ export interface AmapMapTypeOptions extends AmapControlBaseOptions {
 }
 
 /** ControlBar 控件参数 */
-export interface AmapControlBarOptions extends AmapControlBaseOptions {
+export interface MapControlBarOptions extends MapControlBaseOptions {
     /** 是否显示倾斜和旋转按钮 */
     showControlButton?: boolean
 }
 
 /** HawkEye 控件参数 */
-export interface AmapHawkEyeOptions extends AmapControlBaseOptions {
+export interface MapHawkEyeOptions extends MapControlBaseOptions {
     /** 是否随主图移动 */
     autoMove?: boolean
     /** 是否显示视口矩形 */
@@ -182,126 +182,126 @@ export interface AmapHawkEyeOptions extends AmapControlBaseOptions {
 }
 
 /** MapType 控件实例 */
-export interface AmapMapTypeInstance extends AmapControlInstance {
+export interface MapTypeInstance extends MapControlInstance {
     /** 添加图层 */
-    addLayer?: (layerInfo: AmapMapTypeLayerInfo) => void
+    addLayer?: (layerInfo: MapTypeLayerInfo) => void
     /** 移除图层 */
     removeLayer?: (id: string) => void
 }
 
 /** 支持控件构造器的高德命名空间 */
-export interface AmapControlNamespace extends AmapNamespace {
+export interface MapControlNamespace extends MapNamespace {
     /** Scale 构造器 */
-    Scale?: new (options?: AmapControlBaseOptions) => AmapControlInstance
+    Scale?: new (options?: MapControlBaseOptions) => MapControlInstance
     /** ToolBar 构造器 */
-    ToolBar?: new (options?: AmapControlBaseOptions) => AmapControlInstance
+    ToolBar?: new (options?: MapControlBaseOptions) => MapControlInstance
     /** ControlBar 构造器 */
-    ControlBar?: new (options?: AmapControlBarOptions) => AmapControlInstance
+    ControlBar?: new (options?: MapControlBarOptions) => MapControlInstance
     /** MapType 构造器 */
-    MapType?: new (options?: AmapMapTypeOptions) => AmapMapTypeInstance
+    MapType?: new (options?: MapTypeOptions) => MapTypeInstance
     /** HawkEye 构造器 */
-    HawkEye?: new (options?: AmapHawkEyeOptions) => AmapControlInstance
+    HawkEye?: new (options?: MapHawkEyeOptions) => MapControlInstance
 }
 
 /** 内部控件组件属性 */
-export interface AmapControlProps<TInstance extends AmapControlInstance, TOptions extends AmapControlBaseOptions>
-    extends AmapControlEventShortcutProps<TInstance> {
+export interface MapControlProps<TInstance extends MapControlInstance, TOptions extends MapControlBaseOptions>
+    extends MapControlEventShortcutProps<TInstance> {
     /** 控件实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 插件名称 */
-    pluginName: AmapPlugin
+    pluginName: MapPlugin
     /** 构造器名称 */
     constructorName: string
     /** 控件参数 */
     options: TOptions
     /** 控件事件映射 */
-    events?: AmapControlEvents<TInstance>
+    events?: MapControlEvents<TInstance>
     /** 创建完成回调 */
-    onLoad?: AmapControlOnLoad<TInstance>
+    onLoad?: MapControlOnLoad<TInstance>
     /** 销毁前回调 */
-    onDestroy?: AmapControlOnDestroy<TInstance>
+    onDestroy?: MapControlOnDestroy<TInstance>
 }
 
 /** 比例尺组件属性 */
-export interface ScaleProps extends AmapControlBaseOptions, AmapControlEventShortcutProps<AmapControlInstance> {
+export interface ScaleProps extends MapControlBaseOptions, MapControlEventShortcutProps<MapControlInstance> {
     /** 比例尺实例 ref */
-    ref?: Ref<AmapControlInstance | null>
+    ref?: Ref<MapControlInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 控件额外参数 */
-    controlOptions?: AmapControlBaseOptions
+    controlOptions?: MapControlBaseOptions
     /** 控件事件映射 */
-    events?: AmapControlEvents
+    events?: MapControlEvents
     /** 创建完成回调 */
-    onLoad?: AmapControlOnLoad
+    onLoad?: MapControlOnLoad
     /** 销毁前回调 */
-    onDestroy?: AmapControlOnDestroy
+    onDestroy?: MapControlOnDestroy
 }
 
 /** 工具条组件属性 */
 export interface ToolBarProps extends ScaleProps {}
 
 /** 组合控件组件属性 */
-export interface ControlBarProps extends AmapControlBarOptions, AmapControlEventShortcutProps<AmapControlInstance> {
+export interface ControlBarProps extends MapControlBarOptions, MapControlEventShortcutProps<MapControlInstance> {
     /** 组合控件实例 ref */
-    ref?: Ref<AmapControlInstance | null>
+    ref?: Ref<MapControlInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 控件额外参数 */
-    controlOptions?: AmapControlBarOptions
+    controlOptions?: MapControlBarOptions
     /** 控件事件映射 */
-    events?: AmapControlEvents
+    events?: MapControlEvents
     /** 创建完成回调 */
-    onLoad?: AmapControlOnLoad
+    onLoad?: MapControlOnLoad
     /** 销毁前回调 */
-    onDestroy?: AmapControlOnDestroy
+    onDestroy?: MapControlOnDestroy
 }
 
 /** 地图类型控件组件属性 */
-export interface MapTypeProps extends AmapMapTypeOptions, AmapMapTypeEventShortcutProps {
+export interface MapTypeProps extends MapTypeOptions, MapTypeEventShortcutProps {
     /** 地图类型控件实例 ref */
-    ref?: Ref<AmapMapTypeInstance | null>
+    ref?: Ref<MapTypeInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 控件额外参数 */
-    controlOptions?: AmapMapTypeOptions
+    controlOptions?: MapTypeOptions
     /** 控件事件映射 */
-    events?: AmapControlEvents<AmapMapTypeInstance>
+    events?: MapControlEvents<MapTypeInstance>
     /** 创建完成回调 */
-    onLoad?: AmapControlOnLoad<AmapMapTypeInstance>
+    onLoad?: MapControlOnLoad<MapTypeInstance>
     /** 销毁前回调 */
-    onDestroy?: AmapControlOnDestroy<AmapMapTypeInstance>
+    onDestroy?: MapControlOnDestroy<MapTypeInstance>
 }
 
 /** 鹰眼控件组件属性 */
-export interface HawkEyeProps extends AmapHawkEyeOptions, AmapControlEventShortcutProps<AmapControlInstance> {
+export interface HawkEyeProps extends MapHawkEyeOptions, MapControlEventShortcutProps<MapControlInstance> {
     /** 鹰眼控件实例 ref */
-    ref?: Ref<AmapControlInstance | null>
+    ref?: Ref<MapControlInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 控件额外参数 */
-    controlOptions?: AmapHawkEyeOptions
+    controlOptions?: MapHawkEyeOptions
     /** 控件事件映射 */
-    events?: AmapControlEvents
+    events?: MapControlEvents
     /** 创建完成回调 */
-    onLoad?: AmapControlOnLoad
+    onLoad?: MapControlOnLoad
     /** 销毁前回调 */
-    onDestroy?: AmapControlOnDestroy
+    onDestroy?: MapControlOnDestroy
 }
 
-function setAmapControlRef<TInstance extends AmapControlInstance>(ref: Ref<TInstance | null> | undefined, control: TInstance | null) {
+function setMapControlRef<TInstance extends MapControlInstance>(ref: Ref<TInstance | null> | undefined, control: TInstance | null) {
     if (!ref) return
 
     if (typeof ref === "function") {
@@ -312,28 +312,28 @@ function setAmapControlRef<TInstance extends AmapControlInstance>(ref: Ref<TInst
     ref.current = control
 }
 
-function getAmapControlConstructor<TInstance extends AmapControlInstance, TOptions extends AmapControlBaseOptions>(
-    AMap: AmapNamespace,
+function getMapControlConstructor<TInstance extends MapControlInstance, TOptions extends MapControlBaseOptions>(
+    AMap: MapNamespace,
     constructorName: string,
 ) {
     const constructor = (AMap as unknown as Record<string, unknown>)[constructorName]
 
     if (typeof constructor !== "function") return undefined
 
-    return constructor as AmapControlConstructor<TInstance, TOptions>
+    return constructor as MapControlConstructor<TInstance, TOptions>
 }
 
-function bindAmapControlEvents<TInstance extends AmapControlInstance>(control: TInstance, events?: AmapControlEvents) {
-    const eventEntries = getAmapEventEntries(events)
+function bindMapControlEvents<TInstance extends MapControlInstance>(control: TInstance, events?: MapControlEvents) {
+    const eventEntries = getMapEventEntries(events)
 
     eventEntries.forEach(({ eventName, handler }) => control.on?.(eventName, handler))
 
-    return function unbindAmapControlEvents() {
+    return function unbindMapControlEvents() {
         eventEntries.forEach(({ eventName, handler }) => control.off?.(eventName, handler))
     }
 }
 
-function mergeAmapControlOptions<TOptions extends AmapControlBaseOptions>(controlOptions: TOptions | undefined, extraOptions: TOptions) {
+function mergeMapControlOptions<TOptions extends MapControlBaseOptions>(controlOptions: TOptions | undefined, extraOptions: TOptions) {
     const nextOptions: TOptions = {
         ...controlOptions,
     } as TOptions
@@ -345,7 +345,7 @@ function mergeAmapControlOptions<TOptions extends AmapControlBaseOptions>(contro
     return nextOptions
 }
 
-function updateAmapControl<TInstance extends AmapControlInstance, TOptions extends AmapControlBaseOptions>(control: TInstance, options: TOptions) {
+function updateMapControl<TInstance extends MapControlInstance, TOptions extends MapControlBaseOptions>(control: TInstance, options: TOptions) {
     if (options.visible === undefined) return
 
     if (options.visible) {
@@ -356,7 +356,7 @@ function updateAmapControl<TInstance extends AmapControlInstance, TOptions exten
     control.hide?.()
 }
 
-function removeAmapControl<TInstance extends AmapControlInstance>(map: AmapMapInstance, control: TInstance, onDestroy?: AmapControlOnDestroy<TInstance>) {
+function removeMapControl<TInstance extends MapControlInstance>(map: MapInstance, control: TInstance, onDestroy?: MapControlOnDestroy<TInstance>) {
     try {
         onDestroy?.(control)
     } finally {
@@ -366,7 +366,7 @@ function removeAmapControl<TInstance extends AmapControlInstance>(map: AmapMapIn
     }
 }
 
-function AmapControl<TInstance extends AmapControlInstance, TOptions extends AmapControlBaseOptions>({
+function MapControl<TInstance extends MapControlInstance, TOptions extends MapControlBaseOptions>({
     ref,
     map,
     AMap,
@@ -377,13 +377,13 @@ function AmapControl<TInstance extends AmapControlInstance, TOptions extends Ama
     onLoad: _onLoad,
     onDestroy: _onDestroy,
     ...eventShortcuts
-}: AmapControlProps<TInstance, TOptions>) {
-    const context = useAmapContext()
+}: MapControlProps<TInstance, TOptions>) {
+    const context = useMapContext()
     const controlRef = useRef<TInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = AMap ?? context.AMap
 
-    const pluginLoaded = useAmapPlugin({
+    const pluginLoaded = useMapPlugin({
         map: currentMap,
         AMap: currentAMap,
         pluginName,
@@ -393,15 +393,15 @@ function AmapControl<TInstance extends AmapControlInstance, TOptions extends Ama
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getOptions = useEffectEvent(() => options)
-    const currentEvents = mergeAmapEvents({
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapControlEvents
+    }) as MapControlEvents
 
     useStableEffect(() => {
         if (!currentMap || !currentAMap || !pluginLoaded) return
 
-        const ControlConstructor = getAmapControlConstructor<TInstance, TOptions>(currentAMap, constructorName)
+        const ControlConstructor = getMapControlConstructor<TInstance, TOptions>(currentAMap, constructorName)
 
         if (!ControlConstructor) return
 
@@ -410,42 +410,42 @@ function AmapControl<TInstance extends AmapControlInstance, TOptions extends Ama
 
         currentMap.addControl?.(control)
         controlRef.current = control
-        setAmapControlRef(ref, control)
-        updateAmapControl(control, nextOptions)
+        setMapControlRef(ref, control)
+        updateMapControl(control, nextOptions)
         onLoad(control)
 
         return () => {
             controlRef.current = null
-            setAmapControlRef(ref, null)
-            removeAmapControl(currentMap, control, onDestroy)
+            setMapControlRef(ref, null)
+            removeMapControl(currentMap, control, onDestroy)
         }
     }, [constructorName, currentAMap, currentMap, pluginLoaded, ref])
 
     useStableEffect(() => {
         if (!controlRef.current) return
 
-        updateAmapControl(controlRef.current, options)
+        updateMapControl(controlRef.current, options)
     }, [options])
 
     useStableEffect(() => {
         if (!controlRef.current) return
 
-        return bindAmapControlEvents(controlRef.current, currentEvents)
+        return bindMapControlEvents(controlRef.current, currentEvents)
     }, [constructorName, currentAMap, currentEvents, currentMap, pluginLoaded, ref])
 
     return null
 }
 
 export const Scale: FC<ScaleProps> = ({ ref, map, AMap, controlOptions, events, onLoad, onDestroy, ...restOptions }) => {
-    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
-    const currentOptions = mergeAmapControlOptions(controlOptions, restProps as AmapControlBaseOptions)
+    const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
+    const currentOptions = mergeMapControlOptions(controlOptions, restProps as MapControlBaseOptions)
 
     return (
-        <AmapControl
+        <MapControl
             ref={ref}
             map={map}
             AMap={AMap}
-            pluginName={AmapPlugin.Scale}
+            pluginName={MapPlugin.Scale}
             constructorName="Scale"
             options={currentOptions}
             events={events}
@@ -457,15 +457,15 @@ export const Scale: FC<ScaleProps> = ({ ref, map, AMap, controlOptions, events, 
 }
 
 export const ToolBar: FC<ToolBarProps> = ({ ref, map, AMap, controlOptions, events, onLoad, onDestroy, ...restOptions }) => {
-    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
-    const currentOptions = mergeAmapControlOptions(controlOptions, restProps as AmapControlBaseOptions)
+    const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
+    const currentOptions = mergeMapControlOptions(controlOptions, restProps as MapControlBaseOptions)
 
     return (
-        <AmapControl
+        <MapControl
             ref={ref}
             map={map}
             AMap={AMap}
-            pluginName={AmapPlugin.ToolBar}
+            pluginName={MapPlugin.ToolBar}
             constructorName="ToolBar"
             options={currentOptions}
             events={events}
@@ -477,15 +477,15 @@ export const ToolBar: FC<ToolBarProps> = ({ ref, map, AMap, controlOptions, even
 }
 
 export const ControlBar: FC<ControlBarProps> = ({ ref, map, AMap, controlOptions, events, onLoad, onDestroy, ...restOptions }) => {
-    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
-    const currentOptions = mergeAmapControlOptions(controlOptions, restProps as AmapControlBarOptions)
+    const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
+    const currentOptions = mergeMapControlOptions(controlOptions, restProps as MapControlBarOptions)
 
     return (
-        <AmapControl
+        <MapControl
             ref={ref}
             map={map}
             AMap={AMap}
-            pluginName={AmapPlugin.ControlBar}
+            pluginName={MapPlugin.ControlBar}
             constructorName="ControlBar"
             options={currentOptions}
             events={events}
@@ -497,15 +497,15 @@ export const ControlBar: FC<ControlBarProps> = ({ ref, map, AMap, controlOptions
 }
 
 export const MapType: FC<MapTypeProps> = ({ ref, map, AMap, controlOptions, events, onLoad, onDestroy, ...restOptions }) => {
-    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
-    const currentOptions = mergeAmapControlOptions(controlOptions, restProps as AmapMapTypeOptions)
+    const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
+    const currentOptions = mergeMapControlOptions(controlOptions, restProps as MapTypeOptions)
 
     return (
-        <AmapControl
+        <MapControl
             ref={ref}
             map={map}
             AMap={AMap}
-            pluginName={AmapPlugin.MapType}
+            pluginName={MapPlugin.MapType}
             constructorName="MapType"
             options={currentOptions}
             events={events}
@@ -517,15 +517,15 @@ export const MapType: FC<MapTypeProps> = ({ ref, map, AMap, controlOptions, even
 }
 
 export const HawkEye: FC<HawkEyeProps> = ({ ref, map, AMap, controlOptions, events, onLoad, onDestroy, ...restOptions }) => {
-    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
-    const currentOptions = mergeAmapControlOptions(controlOptions, restProps as AmapHawkEyeOptions)
+    const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
+    const currentOptions = mergeMapControlOptions(controlOptions, restProps as MapHawkEyeOptions)
 
     return (
-        <AmapControl
+        <MapControl
             ref={ref}
             map={map}
             AMap={AMap}
-            pluginName={AmapPlugin.HawkEye}
+            pluginName={MapPlugin.HawkEye}
             constructorName="HawkEye"
             options={currentOptions}
             events={events}

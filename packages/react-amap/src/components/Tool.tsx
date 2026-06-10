@@ -1,57 +1,57 @@
 import { type FC, type Ref, useEffectEvent, useRef } from "react"
 
-import { AmapPlugin, type AmapEventHandler, type AmapMapInstance, type AmapNamespace, useAmapContext } from "./Amap"
-import type { AmapMarkerOptions } from "./Marker"
-import type { AmapPolylineOptions } from "./Vector"
+import { MapPlugin, type MapEventHandler, type MapInstance, type MapNamespace, useMapContext } from "./Map"
+import type { MapMarkerOptions } from "./Marker"
+import type { MapPolylineOptions } from "./Vector"
 import { optionalFn } from "../utils/optionalFn"
-import { useAmapPlugin } from "../hooks/useAmapPlugin"
+import { useMapPlugin } from "../hooks/useMapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapMoveEvent,
-    type AmapOverlayEventMap,
-    type AmapOverlayEventShortcutProps,
-    type AmapOverlayInteractionEvent,
-    type AmapOverlayMouseEvent,
-    type AmapTargetEvent,
-    getAmapEventEntries,
-    mergeAmapEvents,
-    splitAmapEventShortcutProps,
-} from "../utils/amapEvents"
+    type MapMoveEvent,
+    type MapOverlayEventMap,
+    type MapOverlayEventShortcutProps,
+    type MapOverlayInteractionEvent,
+    type MapOverlayMouseEvent,
+    type MapTargetEvent,
+    getMapEventEntries,
+    mergeMapEvents,
+    splitMapEventShortcutProps,
+} from "../utils/mapEvents"
 
-export type AmapRangingToolOnLoad = (rangingTool: AmapRangingToolInstance) => void
+export type MapRangingToolOnLoad = (rangingTool: MapRangingToolInstance) => void
 
-export type AmapRangingToolOnDestroy = (rangingTool: AmapRangingToolInstance) => void
+export type MapRangingToolOnDestroy = (rangingTool: MapRangingToolInstance) => void
 
 /** 测距工具鼠标事件 */
-export interface AmapRangingToolMouseEvent extends AmapOverlayMouseEvent<AmapRangingToolInstance> {}
+export interface MapRangingToolMouseEvent extends MapOverlayMouseEvent<MapRangingToolInstance> {}
 
 /** 测距工具交互坐标事件 */
-export interface AmapRangingToolInteractionEvent extends AmapOverlayInteractionEvent<AmapRangingToolInstance> {}
+export interface MapRangingToolInteractionEvent extends MapOverlayInteractionEvent<MapRangingToolInstance> {}
 
 /** 测距工具目标事件 */
-export interface AmapRangingToolTargetEvent extends AmapTargetEvent<AmapRangingToolInstance> {}
+export interface MapRangingToolTargetEvent extends MapTargetEvent<MapRangingToolInstance> {}
 
 /** 测距工具移动动画事件 */
-export interface AmapRangingToolMoveEvent extends AmapMoveEvent<AmapRangingToolInstance> {}
+export interface MapRangingToolMoveEvent extends MapMoveEvent<MapRangingToolInstance> {}
 
 /** 测距工具事件快捷属性 */
-export interface AmapRangingToolEventShortcutProps extends AmapOverlayEventShortcutProps<AmapRangingToolInstance> {}
+export interface MapRangingToolEventShortcutProps extends MapOverlayEventShortcutProps<MapRangingToolInstance> {}
 
 /** 测距工具事件映射 */
-export interface AmapRangingToolEvents extends AmapOverlayEventMap<AmapRangingToolInstance> {}
+export interface MapRangingToolEvents extends MapOverlayEventMap<MapRangingToolInstance> {}
 
 /** 测距工具参数 */
-export interface AmapRangingToolOptions {
+export interface MapRangingToolOptions {
     /** 起点标记样式 */
-    startMarkerOptions?: AmapMarkerOptions
+    startMarkerOptions?: MapMarkerOptions
     /** 中间点标记样式 */
-    midMarkerOptions?: AmapMarkerOptions
+    midMarkerOptions?: MapMarkerOptions
     /** 终点标记样式 */
-    endMarkerOptions?: AmapMarkerOptions
+    endMarkerOptions?: MapMarkerOptions
     /** 测距线样式 */
-    lineOptions?: AmapPolylineOptions
+    lineOptions?: MapPolylineOptions
     /** 临时测距线样式 */
-    tmpLineOptions?: AmapPolylineOptions
+    tmpLineOptions?: MapPolylineOptions
     /** 起点标签文字 */
     startLabelText?: string
     /** 中间点标签文字 */
@@ -67,46 +67,46 @@ export interface AmapRangingToolOptions {
 }
 
 /** 测距工具实例 */
-export interface AmapRangingToolInstance {
+export interface MapRangingToolInstance {
     /** 启动测距 */
     turnOn?: () => void
     /** 关闭测距 */
     turnOff?: (removeOverlays?: boolean) => void
     /** 绑定事件 */
-    on?: (eventName: string, handler: AmapEventHandler) => void
+    on?: (eventName: string, handler: MapEventHandler) => void
     /** 解绑事件 */
-    off?: (eventName: string, handler: AmapEventHandler) => void
+    off?: (eventName: string, handler: MapEventHandler) => void
 }
 
 /** 支持测距工具构造器的高德命名空间 */
-export interface AmapRangingToolNamespace extends AmapNamespace {
+export interface MapRangingToolNamespace extends MapNamespace {
     /** RangingTool 构造器 */
-    RangingTool?: new (map: AmapMapInstance, options?: AmapRangingToolOptions) => AmapRangingToolInstance
+    RangingTool?: new (map: MapInstance, options?: MapRangingToolOptions) => MapRangingToolInstance
 }
 
 /** 测距工具组件属性 */
-export interface RangingToolProps extends AmapRangingToolOptions, AmapRangingToolEventShortcutProps {
+export interface RangingToolProps extends MapRangingToolOptions, MapRangingToolEventShortcutProps {
     /** 测距工具实例 ref */
-    ref?: Ref<AmapRangingToolInstance | null>
+    ref?: Ref<MapRangingToolInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 是否启动测距 */
     active?: boolean
     /** 关闭时是否清除覆盖物 */
     removeOverlaysOnTurnOff?: boolean
     /** 测距工具额外参数 */
-    rangingToolOptions?: AmapRangingToolOptions
+    rangingToolOptions?: MapRangingToolOptions
     /** 事件映射 */
-    events?: AmapRangingToolEvents
+    events?: MapRangingToolEvents
     /** 创建完成回调 */
-    onLoad?: AmapRangingToolOnLoad
+    onLoad?: MapRangingToolOnLoad
     /** 销毁前回调 */
-    onDestroy?: AmapRangingToolOnDestroy
+    onDestroy?: MapRangingToolOnDestroy
 }
 
-function setAmapRangingToolRef(ref: Ref<AmapRangingToolInstance | null> | undefined, rangingTool: AmapRangingToolInstance | null) {
+function setMapRangingToolRef(ref: Ref<MapRangingToolInstance | null> | undefined, rangingTool: MapRangingToolInstance | null) {
     if (!ref) return
 
     if (typeof ref === "function") {
@@ -117,18 +117,18 @@ function setAmapRangingToolRef(ref: Ref<AmapRangingToolInstance | null> | undefi
     ref.current = rangingTool
 }
 
-function bindAmapRangingToolEvents(rangingTool: AmapRangingToolInstance, events?: AmapRangingToolEvents) {
-    const eventEntries = getAmapEventEntries(events)
+function bindMapRangingToolEvents(rangingTool: MapRangingToolInstance, events?: MapRangingToolEvents) {
+    const eventEntries = getMapEventEntries(events)
 
     eventEntries.forEach(({ eventName, handler }) => rangingTool.on?.(eventName, handler))
 
-    return function unbindAmapRangingToolEvents() {
+    return function unbindMapRangingToolEvents() {
         eventEntries.forEach(({ eventName, handler }) => rangingTool.off?.(eventName, handler))
     }
 }
 
-function mergeAmapRangingToolOptions(options: AmapRangingToolOptions | undefined, extraOptions: AmapRangingToolOptions) {
-    const nextOptions: AmapRangingToolOptions = {
+function mergeMapRangingToolOptions(options: MapRangingToolOptions | undefined, extraOptions: MapRangingToolOptions) {
+    const nextOptions: MapRangingToolOptions = {
         ...options,
     }
 
@@ -155,22 +155,22 @@ export const RangingTool: FC<RangingToolProps> = ({
     onDestroy: _onDestroy,
     ...restProps
 }) => {
-    const context = useAmapContext()
-    const rangingToolRef = useRef<AmapRangingToolInstance | null>(null)
+    const context = useMapContext()
+    const rangingToolRef = useRef<MapRangingToolInstance | null>(null)
     const currentMap = map ?? context.map
-    const currentAMap = (AMap ?? context.AMap) as AmapRangingToolNamespace | null
-    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
-    const pluginLoaded = useAmapPlugin({
+    const currentAMap = (AMap ?? context.AMap) as MapRangingToolNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
+    const pluginLoaded = useMapPlugin({
         map: currentMap,
         AMap: currentAMap,
-        pluginName: AmapPlugin.RangingTool,
+        pluginName: MapPlugin.RangingTool,
         constructorName: "RangingTool",
     })
-    const currentOptions = mergeAmapRangingToolOptions(rangingToolOptions, restOptions as AmapRangingToolOptions)
-    const currentEvents = mergeAmapEvents({
+    const currentOptions = mergeMapRangingToolOptions(rangingToolOptions, restOptions as MapRangingToolOptions)
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapRangingToolEvents
+    }) as MapRangingToolEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -181,13 +181,13 @@ export const RangingTool: FC<RangingToolProps> = ({
         const rangingTool = new currentAMap.RangingTool(currentMap, getInitialOptions())
 
         rangingToolRef.current = rangingTool
-        setAmapRangingToolRef(ref, rangingTool)
+        setMapRangingToolRef(ref, rangingTool)
         if (active) rangingTool.turnOn?.()
         onLoad(rangingTool)
 
         return () => {
             rangingToolRef.current = null
-            setAmapRangingToolRef(ref, null)
+            setMapRangingToolRef(ref, null)
 
             try {
                 onDestroy(rangingTool)
@@ -211,7 +211,7 @@ export const RangingTool: FC<RangingToolProps> = ({
     useStableEffect(() => {
         if (!rangingToolRef.current) return
 
-        return bindAmapRangingToolEvents(rangingToolRef.current, currentEvents)
+        return bindMapRangingToolEvents(rangingToolRef.current, currentEvents)
     }, [currentAMap, currentEvents, currentMap, pluginLoaded, ref])
 
     return null

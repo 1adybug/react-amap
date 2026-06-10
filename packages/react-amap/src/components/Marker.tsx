@@ -11,36 +11,36 @@ import {
 import { createPortal } from "react-dom"
 
 import {
-    type AmapEventHandler,
-    type AmapLngLatLike,
-    type AmapMapInstance,
-    type AmapNamespace,
-    type AmapZoomRange,
-    useAmapContext,
-} from "./Amap"
+    type MapEventHandler,
+    type MapLngLatLike,
+    type MapInstance,
+    type MapNamespace,
+    type MapZoomRange,
+    useMapContext,
+} from "./Map"
 import { useOverlayGroupContext } from "./Group"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapMoveEvent,
-    type AmapOverlayEventMap,
-    type AmapOverlayEventShortcutProps,
-    type AmapOverlayInteractionEvent,
-    type AmapOverlayMouseEvent,
-    type AmapTargetEvent,
-    getAmapEventEntries,
-    mergeAmapEvents,
-    splitAmapEventShortcutProps,
-} from "../utils/amapEvents"
+    type MapMoveEvent,
+    type MapOverlayEventMap,
+    type MapOverlayEventShortcutProps,
+    type MapOverlayInteractionEvent,
+    type MapOverlayMouseEvent,
+    type MapTargetEvent,
+    getMapEventEntries,
+    mergeMapEvents,
+    splitMapEventShortcutProps,
+} from "../utils/mapEvents"
 
-export type AmapVector2 = AMap.Vector2
+export type MapVector2 = AMap.Vector2
 
-export type AmapMarkerPosition = AmapLngLatLike
+export type MapMarkerPosition = MapLngLatLike
 
-export type AmapMarkerOffset = AmapVector2 | AmapPixelInstance
+export type MapMarkerOffset = MapVector2 | MapPixelInstance
 
 /** 覆盖物锚点 */
-export const AmapMarkerAnchor = {
+export const MapMarkerAnchor = {
     左上角: "top-left",
     顶部居中: "top-center",
     右上角: "top-right",
@@ -52,10 +52,10 @@ export const AmapMarkerAnchor = {
     右下角: "bottom-right",
 } as const
 
-export type AmapMarkerAnchor = (typeof AmapMarkerAnchor)[keyof typeof AmapMarkerAnchor] | AmapVector2
+export type MapMarkerAnchor = (typeof MapMarkerAnchor)[keyof typeof MapMarkerAnchor] | MapVector2
 
 /** 文本标注方位 */
-export const AmapMarkerLabelDirection = {
+export const MapMarkerLabelDirection = {
     上方: "top",
     右侧: "right",
     下方: "bottom",
@@ -63,63 +63,63 @@ export const AmapMarkerLabelDirection = {
     居中: "center",
 } as const
 
-export type AmapMarkerLabelDirection = (typeof AmapMarkerLabelDirection)[keyof typeof AmapMarkerLabelDirection]
+export type MapMarkerLabelDirection = (typeof MapMarkerLabelDirection)[keyof typeof MapMarkerLabelDirection]
 
-export type AmapMarkerIcon = string | AmapIconInstance
+export type MapMarkerIcon = string | MapIconInstance
 
-export type AmapMarkerContent = string | HTMLElement
+export type MapMarkerContent = string | HTMLElement
 
-export type AmapMarkerOnLoad = (marker: AmapMarkerInstance) => void
+export type MapMarkerOnLoad = (marker: MapMarkerInstance) => void
 
-export type AmapMarkerOnDestroy = (marker: AmapMarkerInstance) => void
+export type MapMarkerOnDestroy = (marker: MapMarkerInstance) => void
 
 /** 点标记鼠标事件 */
-export interface AmapMarkerMouseEvent extends AmapOverlayMouseEvent<AmapMarkerInstance> {}
+export interface MapMarkerMouseEvent extends MapOverlayMouseEvent<MapMarkerInstance> {}
 
 /** 点标记交互坐标事件 */
-export interface AmapMarkerInteractionEvent extends AmapOverlayInteractionEvent<AmapMarkerInstance> {}
+export interface MapMarkerInteractionEvent extends MapOverlayInteractionEvent<MapMarkerInstance> {}
 
 /** 点标记目标事件 */
-export interface AmapMarkerTargetEvent extends AmapTargetEvent<AmapMarkerInstance> {}
+export interface MapMarkerTargetEvent extends MapTargetEvent<MapMarkerInstance> {}
 
 /** 点标记移动动画事件 */
-export interface AmapMarkerMoveEvent extends AmapMoveEvent<AmapMarkerInstance> {}
+export interface MapMarkerMoveEvent extends MapMoveEvent<MapMarkerInstance> {}
 
 /** 点标记事件快捷属性 */
-export interface AmapMarkerEventShortcutProps extends AmapOverlayEventShortcutProps<AmapMarkerInstance> {}
+export interface MapMarkerEventShortcutProps extends MapOverlayEventShortcutProps<MapMarkerInstance> {}
 
 /** 高德 Pixel 实例 */
-export interface AmapPixelInstance extends AMap.Pixel {}
+export interface MapPixelInstance extends AMap.Pixel {}
 
 /** 高德 Icon 实例 */
-export interface AmapIconInstance extends AMap.Icon {}
+export interface MapIconInstance extends AMap.Icon {}
 
 /** 点标记文本标注参数 */
-export interface AmapMarkerLabelOptions {
+export interface MapMarkerLabelOptions {
     /** 文本标注内容 */
     content: string
     /** 文本标注偏移量 */
-    offset?: AmapMarkerOffset | number[]
+    offset?: MapMarkerOffset | number[]
     /** 文本标注方位 */
-    direction?: AmapMarkerLabelDirection
+    direction?: MapMarkerLabelDirection
 }
 
 /** 点标记实例文本标注参数 */
-export interface AmapMarkerInstanceLabelOptions extends Omit<AmapMarkerLabelOptions, "direction"> {
+export interface MapMarkerInstanceLabelOptions extends Omit<MapMarkerLabelOptions, "direction"> {
     /** 文本标注方位 */
-    direction?: AmapMarkerLabelDirection | string
+    direction?: MapMarkerLabelDirection | string
 }
 
 /** 点标记基础参数 */
-export interface AmapMarkerBaseOptions {
+export interface MapMarkerBaseOptions {
     /** 点标记所在地图 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 点标记坐标 */
-    position?: AmapMarkerPosition
+    position?: MapMarkerPosition
     /** 点标记图标 */
-    icon?: AmapMarkerIcon
+    icon?: MapMarkerIcon
     /** 点标记自定义内容 */
-    content?: AmapMarkerContent
+    content?: MapMarkerContent
     /** 鼠标悬停文字 */
     title?: string
     /** 是否可见 */
@@ -127,9 +127,9 @@ export interface AmapMarkerBaseOptions {
     /** 叠加层级 */
     zIndex?: number
     /** 点标记偏移量 */
-    offset?: AmapMarkerOffset
+    offset?: MapMarkerOffset
     /** 点标记锚点 */
-    anchor?: AmapMarkerAnchor
+    anchor?: MapMarkerAnchor
     /** 点标记旋转角度 */
     angle?: number
     /** 是否可点击 */
@@ -139,31 +139,31 @@ export interface AmapMarkerBaseOptions {
     /** 事件是否冒泡 */
     bubble?: boolean
     /** 显示缩放级别范围 */
-    zooms?: AmapZoomRange
+    zooms?: MapZoomRange
     /** 鼠标悬停样式 */
     cursor?: string
     /** 点击时是否置顶 */
     topWhenClick?: boolean
     /** 文本标注参数 */
-    label?: AmapMarkerLabelOptions
+    label?: MapMarkerLabelOptions
     /** 自定义数据 */
     extData?: unknown
 }
 
 /** 点标记构造参数 */
-export interface AmapMarkerOptions extends AmapMarkerBaseOptions {
+export interface MapMarkerOptions extends MapMarkerBaseOptions {
 }
 
 /** 点标记事件映射 */
-export interface AmapMarkerEvents<TInstance = AmapMarkerInstance>
-    extends AmapOverlayEventMap<TInstance> {}
+export interface MapMarkerEvents<TInstance = MapMarkerInstance>
+    extends MapOverlayEventMap<TInstance> {}
 
 /** 高德 Marker 实例 */
-export interface AmapMarkerInstance extends AMap.Marker {
+export interface MapMarkerInstance extends AMap.Marker {
     /** 获取地图实例 */
-    getMap(): AmapMapInstance | null
+    getMap(): MapInstance | null
     /** 设置地图实例 */
-    setMap(map: AmapMapInstance | null): void
+    setMap(map: MapInstance | null): void
     /** 移除点标记 */
     remove(): void
     /** 显示点标记 */
@@ -171,15 +171,15 @@ export interface AmapMarkerInstance extends AMap.Marker {
     /** 隐藏点标记 */
     hide(): void
     /** 绑定事件 */
-    on(eventName: string | string[], handler: AmapEventHandler, context?: unknown, once?: boolean): this
+    on(eventName: string | string[], handler: MapEventHandler, context?: unknown, once?: boolean): this
     /** 解绑事件 */
-    off(eventName: string, handler: AmapEventHandler, context?: unknown): this
+    off(eventName: string, handler: MapEventHandler, context?: unknown): this
     /** 设置坐标 */
-    setPosition(position: AmapMarkerPosition): void
+    setPosition(position: MapMarkerPosition): void
     /** 设置图标 */
-    setIcon(icon: AmapMarkerIcon): void
+    setIcon(icon: MapMarkerIcon): void
     /** 设置文本标注 */
-    setLabel(label: AmapMarkerInstanceLabelOptions): void
+    setLabel(label: MapMarkerInstanceLabelOptions): void
     /** 设置可点击状态 */
     setClickable(clickable: boolean): void
     /** 设置可拖拽状态 */
@@ -191,7 +191,7 @@ export interface AmapMarkerInstance extends AMap.Marker {
     /** 设置鼠标悬停文字 */
     setTitle(title: string): void
     /** 设置偏移量 */
-    setOffset(offset: AmapMarkerOffset): void
+    setOffset(offset: MapMarkerOffset): void
     /** 设置锚点 */
     setAnchor(anchor: string): void
     /** 设置旋转角度 */
@@ -201,21 +201,21 @@ export interface AmapMarkerInstance extends AMap.Marker {
     /** 设置置顶状态 */
     setTop(isTop: boolean): void
     /** 设置自定义内容 */
-    setContent(content: AmapMarkerContent): void
+    setContent(content: MapMarkerContent): void
 }
 
 /** 支持 Marker 构造器的高德命名空间 */
-export interface AmapMarkerNamespace extends AmapNamespace {
+export interface MapMarkerNamespace extends MapNamespace {
     /** Marker 构造器 */
-    Marker?: new (options?: AmapMarkerOptions) => AmapMarkerInstance
+    Marker?: new (options?: MapMarkerOptions) => MapMarkerInstance
 }
 
 /** 合并点标记参数 */
-export interface MergeAmapMarkerOptionsParams extends AmapMarkerBaseOptions {
+export interface MergeMapMarkerOptionsParams extends MapMarkerBaseOptions {
     /** 额外点标记参数 */
-    markerOptions?: AmapMarkerOptions
+    markerOptions?: MapMarkerOptions
     /** 透传点标记参数 */
-    extraOptions?: AmapMarkerOptions
+    extraOptions?: MapMarkerOptions
     /** React 子节点承载元素 */
     contentElement?: HTMLElement | null
     /** 是否使用 React 子节点作为内容 */
@@ -223,23 +223,23 @@ export interface MergeAmapMarkerOptionsParams extends AmapMarkerBaseOptions {
 }
 
 /** 设置点标记 ref 参数 */
-export interface SetAmapMarkerRefParams {
+export interface SetMapMarkerRefParams {
     /** 外部 ref */
-    ref?: Ref<AmapMarkerInstance | null>
+    ref?: Ref<MapMarkerInstance | null>
     /** 点标记实例 */
-    marker: AmapMarkerInstance | null
+    marker: MapMarkerInstance | null
 }
 
 /** 绑定点标记事件参数 */
-export interface BindAmapMarkerEventsParams {
+export interface BindMapMarkerEventsParams {
     /** 点标记实例 */
-    marker: AmapMarkerInstance
+    marker: MapMarkerInstance
     /** 事件映射 */
-    events?: AmapMarkerEvents
+    events?: MapMarkerEvents
 }
 
 /** 更新 React 子节点承载元素参数 */
-export interface UpdateAmapMarkerContentElementParams {
+export interface UpdateMapMarkerContentElementParams {
     /** React 子节点承载元素 */
     element: HTMLElement
     /** React 自定义内容类名 */
@@ -249,13 +249,13 @@ export interface UpdateAmapMarkerContentElementParams {
 }
 
 /** 点标记组件属性 */
-export interface MarkerProps extends AmapMarkerBaseOptions, AmapMarkerEventShortcutProps {
+export interface MarkerProps extends MapMarkerBaseOptions, MapMarkerEventShortcutProps {
     /** 点标记实例 ref */
-    ref?: Ref<AmapMarkerInstance | null>
+    ref?: Ref<MapMarkerInstance | null>
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 点标记额外参数 */
-    markerOptions?: AmapMarkerOptions
+    markerOptions?: MapMarkerOptions
     /** React 自定义内容 */
     children?: ReactNode
     /** React 自定义内容类名 */
@@ -263,22 +263,22 @@ export interface MarkerProps extends AmapMarkerBaseOptions, AmapMarkerEventShort
     /** React 自定义内容样式 */
     contentStyle?: CSSProperties
     /** 点标记事件映射 */
-    events?: AmapMarkerEvents
+    events?: MapMarkerEvents
     /** 点标记创建完成回调 */
-    onLoad?: AmapMarkerOnLoad
+    onLoad?: MapMarkerOnLoad
     /** 点标记销毁前回调 */
-    onDestroy?: AmapMarkerOnDestroy
+    onDestroy?: MapMarkerOnDestroy
 }
 
-function mergeAmapMarkerOptions({
+function mergeMapMarkerOptions({
     markerOptions,
     extraOptions,
     contentElement,
     hasChildrenContent,
     content,
     ...topLevelMarkerOptions
-}: MergeAmapMarkerOptionsParams) {
-    const nextMarkerOptions: AmapMarkerOptions = {
+}: MergeMapMarkerOptionsParams) {
+    const nextMarkerOptions: MapMarkerOptions = {
         ...markerOptions,
         ...extraOptions,
     }
@@ -301,7 +301,7 @@ function mergeAmapMarkerOptions({
     return nextMarkerOptions
 }
 
-function setAmapMarkerRef({ ref, marker }: SetAmapMarkerRefParams) {
+function setMapMarkerRef({ ref, marker }: SetMapMarkerRefParams) {
     if (!ref) return
 
     if (typeof ref === "function") {
@@ -312,17 +312,17 @@ function setAmapMarkerRef({ ref, marker }: SetAmapMarkerRefParams) {
     ref.current = marker
 }
 
-function bindAmapMarkerEvents({ marker, events }: BindAmapMarkerEventsParams) {
-    const eventEntries = getAmapEventEntries(events)
+function bindMapMarkerEvents({ marker, events }: BindMapMarkerEventsParams) {
+    const eventEntries = getMapEventEntries(events)
 
     eventEntries.forEach(({ eventName, handler }) => void marker.on?.(eventName, handler))
 
-    return function unbindAmapMarkerEvents() {
+    return function unbindMapMarkerEvents() {
         eventEntries.forEach(({ eventName, handler }) => void marker.off?.(eventName, handler))
     }
 }
 
-function removeAmapMarker(marker: AmapMarkerInstance, onDestroy?: AmapMarkerOnDestroy) {
+function removeMapMarker(marker: MapMarkerInstance, onDestroy?: MapMarkerOnDestroy) {
     try {
         onDestroy?.(marker)
     } finally {
@@ -334,18 +334,18 @@ function removeAmapMarker(marker: AmapMarkerInstance, onDestroy?: AmapMarkerOnDe
     }
 }
 
-function updateAmapMarkerContentElement({
+function updateMapMarkerContentElement({
     element,
     className,
     style,
-}: UpdateAmapMarkerContentElementParams) {
+}: UpdateMapMarkerContentElementParams) {
     element.className = className ?? ""
     element.removeAttribute("style")
 
     if (style) Object.assign(element.style, style)
 }
 
-function updateAmapMarker(marker: AmapMarkerInstance, options: AmapMarkerOptions) {
+function updateMapMarker(marker: MapMarkerInstance, options: MapMarkerOptions) {
     if (options.position !== undefined) marker.setPosition?.(options.position)
     if (options.icon !== undefined) marker.setIcon?.(options.icon)
     if (options.label !== undefined) marker.setLabel?.(options.label)
@@ -400,21 +400,21 @@ export const Marker: FC<MarkerProps> = ({
     extData,
     ...restProps
 }) => {
-    const context = useAmapContext()
+    const context = useMapContext()
     const contextGroup = useOverlayGroupContext()
-    const markerRef = useRef<AmapMarkerInstance | null>(null)
+    const markerRef = useRef<MapMarkerInstance | null>(null)
     const [contentElement, setContentElement] = useState<HTMLElement | null>(null)
     const hasChildrenContent = children !== undefined && children !== null && typeof children !== "boolean"
     const currentMap = map ?? context.map
-    const currentAMap = (AMap ?? context.AMap) as AmapMarkerNamespace | null
+    const currentAMap = (AMap ?? context.AMap) as MapMarkerNamespace | null
     const currentGroup = map ? null : contextGroup
-    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
-    const extraOptions = restOptions as AmapMarkerOptions
-    const currentEvents = mergeAmapEvents({
+    const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
+    const extraOptions = restOptions as MapMarkerOptions
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapMarkerEvents
-    const currentMarkerOptions = mergeAmapMarkerOptions({
+    }) as MapMarkerEvents
+    const currentMarkerOptions = mergeMapMarkerOptions({
         markerOptions,
         extraOptions,
         contentElement,
@@ -457,7 +457,7 @@ export const Marker: FC<MarkerProps> = ({
     useStableEffect(() => {
         if (!contentElement) return
 
-        updateAmapMarkerContentElement({
+        updateMapMarkerContentElement({
             element: contentElement,
             className: contentClassName,
             style: contentStyle,
@@ -479,7 +479,7 @@ export const Marker: FC<MarkerProps> = ({
 
         currentGroup?.addOverlay(marker)
         markerRef.current = marker
-        setAmapMarkerRef({
+        setMapMarkerRef({
             ref,
             marker,
         })
@@ -487,7 +487,7 @@ export const Marker: FC<MarkerProps> = ({
 
         return () => {
             markerRef.current = null
-            setAmapMarkerRef({
+            setMapMarkerRef({
                 ref,
                 marker: null,
             })
@@ -503,14 +503,14 @@ export const Marker: FC<MarkerProps> = ({
                 return
             }
 
-            removeAmapMarker(marker, onDestroy)
+            removeMapMarker(marker, onDestroy)
         }
     }, [contentElement, currentAMap, currentGroup, currentMap, hasChildrenContent, ref])
 
     useStableEffect(() => {
         if (!markerRef.current) return
 
-        updateAmapMarker(markerRef.current, currentMarkerOptions)
+        updateMapMarker(markerRef.current, currentMarkerOptions)
         currentGroup?.sync()
     }, [currentGroup, currentMarkerOptions])
 
@@ -520,14 +520,14 @@ export const Marker: FC<MarkerProps> = ({
         return currentGroup.registerChildSync(() => {
             if (!markerRef.current) return
 
-            updateAmapMarker(markerRef.current, currentMarkerOptions)
+            updateMapMarker(markerRef.current, currentMarkerOptions)
         })
     }, [currentGroup, currentMarkerOptions])
 
     useStableEffect(() => {
         if (!markerRef.current) return
 
-        return bindAmapMarkerEvents({
+        return bindMapMarkerEvents({
             marker: markerRef.current,
             events: currentEvents,
         })

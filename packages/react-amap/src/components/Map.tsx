@@ -14,14 +14,14 @@ import {
 
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapMapEventShortcuts,
-    type AmapMapEvents,
-    type AmapMapInteractionEvent as AmapMapInteractionEventBase,
-    type AmapMapMouseEvent as AmapMapMouseEventBase,
-    type AmapTargetEvent,
-    getAmapEventEntries,
-    mergeAmapEvents,
-} from "../utils/amapEvents"
+    type MapInstanceEventShortcuts,
+    type MapInstanceEvents,
+    type MapInstanceInteractionEvent as MapInstanceInteractionEventBase,
+    type MapInstanceMouseEvent as MapInstanceMouseEventBase,
+    type MapTargetEvent,
+    getMapEventEntries,
+    mergeMapEvents,
+} from "../utils/mapEvents"
 
 import "@amap/amap-jsapi-types"
 
@@ -38,7 +38,7 @@ const DEFAULT_LOADER_TIMEOUT = 15000
 const AMAP_IMMEDIATE_UPDATE = true
 
 /** 可通过 setStatus 同步的地图状态参数 */
-const amapMapStatusOptionKeys: (keyof AmapMapStatusOptions)[] = [
+const amapMapStatusOptionKeys: (keyof MapStatusOptions)[] = [
     "dragEnable",
     "zoomEnable",
     "jogEnable",
@@ -60,25 +60,25 @@ const rootStyle: CSSProperties = {
 }
 
 /** 地图视图模式 */
-export const AmapViewMode = {
+export const MapViewMode = {
     TwoDimensional: "2D",
     ThreeDimensional: "3D",
 } as const
 
-export type AmapViewMode = (typeof AmapViewMode)[keyof typeof AmapViewMode]
+export type MapViewMode = (typeof MapViewMode)[keyof typeof MapViewMode]
 
 /** 组件加载状态 */
-export const AmapStatus = {
+export const MapStatus = {
     Idle: "idle",
     Loading: "loading",
     Loaded: "loaded",
     Error: "error",
 } as const
 
-export type AmapStatus = (typeof AmapStatus)[keyof typeof AmapStatus]
+export type MapStatus = (typeof MapStatus)[keyof typeof MapStatus]
 
 /** 高德 JSAPI 插件 */
-export const AmapPlugin = {
+export const MapPlugin = {
     Scale: "AMap.Scale",
     ToolBar: "AMap.ToolBar",
     ControlBar: "AMap.ControlBar",
@@ -118,72 +118,72 @@ export const AmapPlugin = {
     RectangleEditor: "AMap.RectangleEditor",
 } as const
 
-export type AmapPlugin = (typeof AmapPlugin)[keyof typeof AmapPlugin]
+export type MapPlugin = (typeof MapPlugin)[keyof typeof MapPlugin]
 
 /** 默认插件列表 */
-const DEFAULT_PLUGINS: AmapPlugin[] = []
+const DEFAULT_PLUGINS: MapPlugin[] = []
 
-export type AmapLngLat = AMap.Vector2
+export type MapLngLat = AMap.Vector2
 
-export type AmapZoomRange = AMap.Vector2
+export type MapZoomRange = AMap.Vector2
 
-export type AmapColor = NonNullable<AMap.MapOptions["skyColor"]>
+export type MapColor = NonNullable<AMap.MapOptions["skyColor"]>
 
-export type AmapTouchZoomCenter = boolean | NonNullable<AMap.MapOptions["touchZoomCenter"]>
+export type MapTouchZoomCenter = boolean | NonNullable<AMap.MapOptions["touchZoomCenter"]>
 
 /** 高德事件处理函数双向兼容辅助类型 */
-export interface AmapEventHandlerBivariance<TArgs extends unknown[] = unknown[]> {
+export interface MapEventHandlerBivariance<TArgs extends unknown[] = unknown[]> {
     bivarianceHack(...args: TArgs): void
 }
 
-export type AmapEventHandler<TArgs extends unknown[] = unknown[]> = AmapEventHandlerBivariance<TArgs>["bivarianceHack"]
+export type MapEventHandler<TArgs extends unknown[] = unknown[]> = MapEventHandlerBivariance<TArgs>["bivarianceHack"]
 
-export type AmapOnMapLoad = (map: AmapMapInstance, AMap: AmapNamespace) => void
+export type MapOnMapLoad = (map: MapInstance, AMap: MapNamespace) => void
 
-export type AmapOnMapError = (error: unknown) => void
+export type MapOnMapError = (error: unknown) => void
 
-export type AmapOnDestroy = (map: AmapMapInstance) => void
+export type MapOnDestroy = (map: MapInstance) => void
 
-export type AmapOnStatusChange = (status: AmapStatus, error?: unknown) => void
+export type MapOnStatusChange = (status: MapStatus, error?: unknown) => void
 
 /** 地图鼠标事件 */
-export interface AmapMapInstanceMouseEvent extends AmapMapMouseEventBase<AmapMapInstance> {}
+export interface MapComponentMouseEvent extends MapInstanceMouseEventBase<MapInstance> {}
 
 /** 地图交互坐标事件 */
-export interface AmapMapInstanceInteractionEvent extends AmapMapInteractionEventBase<AmapMapInstance> {}
+export interface MapComponentInteractionEvent extends MapInstanceInteractionEventBase<MapInstance> {}
 
 /** 地图目标事件 */
-export interface AmapMapInstanceTargetEvent extends AmapTargetEvent<AmapMapInstance> {}
+export interface MapComponentTargetEvent extends MapTargetEvent<MapInstance> {}
 
 /** 地图事件映射 */
-export interface AmapEvents extends AmapMapEvents<AmapMapInstance> {}
+export interface MapEvents extends MapInstanceEvents<MapInstance> {}
 
 /** 地图上下文数据 */
-export interface AmapContextValue {
+export interface MapContextValue {
     /** 地图实例 */
-    map: AmapMapInstance | null
+    map: MapInstance | null
     /** 高德地图命名空间 */
-    AMap: AmapNamespace | null
+    AMap: MapNamespace | null
     /** 地图加载状态 */
-    status: AmapStatus
+    status: MapStatus
     /** 地图加载错误 */
     error?: unknown
 }
 
 /** 类 LngLat 对象 */
-export interface AmapLngLatObject {
+export interface MapLngLatObject {
     /** 经度 */
     lng: number
     /** 纬度 */
     lat: number
 }
 
-export type AmapLngLatLike = AMap.LngLatLike | AmapLngLatObject
+export type MapLngLatLike = AMap.LngLatLike | MapLngLatObject
 
 /** 基础地图参数 */
-export interface AmapMapBaseOptions {
+export interface MapBaseOptions {
     /** 地图中心点 */
-    center?: AmapLngLatLike
+    center?: MapLngLatLike
     /** 地图缩放级别 */
     zoom?: AMap.MapOptions["zoom"]
     /** 顺时针旋转角度 */
@@ -191,7 +191,7 @@ export interface AmapMapBaseOptions {
     /** 俯仰角度 */
     pitch?: AMap.MapOptions["pitch"]
     /** 视图模式 */
-    viewMode?: AMap.MapOptions["viewMode"] | AmapViewMode
+    viewMode?: AMap.MapOptions["viewMode"] | MapViewMode
     /** 地图显示元素 */
     features?: AMap.MapOptions["features"]
     /** 初始图层 */
@@ -219,7 +219,7 @@ export interface AmapMapBaseOptions {
     /** 是否允许触控缩放 */
     touchZoom?: AMap.MapOptions["touchZoom"]
     /** 触控缩放中心点策略 */
-    touchZoomCenter?: AmapTouchZoomCenter
+    touchZoomCenter?: MapTouchZoomCenter
     /** 是否显示文字和 POI 信息 */
     showLabel?: AMap.MapOptions["showLabel"]
     /** 默认鼠标样式 */
@@ -233,15 +233,15 @@ export interface AmapMapBaseOptions {
     /** 是否自动展示室内地图 */
     showIndoorMap?: AMap.MapOptions["showIndoorMap"]
     /** 天空颜色 */
-    skyColor?: AmapColor
+    skyColor?: MapColor
     /** WebGL 额外参数 */
     WebGLParams?: Record<string, unknown>
 }
 
 /** 可运行时同步的地图参数 */
-export interface AmapMapRuntimeOptions {
+export interface MapRuntimeOptions {
     /** 地图中心点 */
-    center?: AmapLngLatLike
+    center?: MapLngLatLike
     /** 地图缩放级别 */
     zoom?: AMap.MapOptions["zoom"]
     /** 顺时针旋转角度 */
@@ -275,7 +275,7 @@ export interface AmapMapRuntimeOptions {
     /** 是否允许触控缩放 */
     touchZoom?: AMap.MapOptions["touchZoom"]
     /** 触控缩放中心点策略 */
-    touchZoomCenter?: AmapTouchZoomCenter
+    touchZoomCenter?: MapTouchZoomCenter
     /** 默认鼠标样式 */
     defaultCursor?: AMap.MapOptions["defaultCursor"]
     /** 地图样式 */
@@ -283,7 +283,7 @@ export interface AmapMapRuntimeOptions {
 }
 
 /** 地图运行状态参数 */
-export interface AmapMapStatusOptions {
+export interface MapStatusOptions {
     /** 是否允许拖拽 */
     dragEnable?: boolean
     /** 是否允许缩放 */
@@ -305,25 +305,25 @@ export interface AmapMapStatusOptions {
     /** 是否允许触控缩放 */
     touchZoom?: boolean
     /** 触控缩放中心点策略 */
-    touchZoomCenter?: AmapTouchZoomCenter
+    touchZoomCenter?: MapTouchZoomCenter
 }
 
 /** 地图初始化参数 */
-export interface AmapMapOptions extends AmapMapBaseOptions {
+export interface MapOptions extends MapBaseOptions {
 }
 
 /** 地图实例 */
-export interface AmapMapInstance extends AMap.Map {
+export interface MapInstance extends AMap.Map {
     /** 设置中心点 */
-    setCenter(center: AmapLngLatLike, immediately?: boolean, duration?: number): void
+    setCenter(center: MapLngLatLike, immediately?: boolean, duration?: number): void
     /** 设置缩放级别 */
     setZoom(zoom: number, immediately?: boolean, duration?: number): void
     /** 设置缩放级别和中心点 */
-    setZoomAndCenter(zoom: number, center: AmapLngLatLike, immediately?: boolean, duration?: number): void
+    setZoomAndCenter(zoom: number, center: MapLngLatLike, immediately?: boolean, duration?: number): void
     /** 设置地图图层 */
     setLayers(layers: AMap.MapOptions["layers"] | unknown[]): void
     /** 设置地图运行状态 */
-    setStatus(status: AmapMapStatusOptions): void
+    setStatus(status: MapStatusOptions): void
     /** 添加覆盖物 */
     add(overlays: unknown | unknown[]): void
     /** 移除覆盖物 */
@@ -333,37 +333,37 @@ export interface AmapMapInstance extends AMap.Map {
     /** 移除图层 */
     removeLayer(layer: unknown): void
     /** 绑定事件 */
-    on(eventName: string | string[], handler: AmapEventHandler, context?: unknown, once?: boolean): this
+    on(eventName: string | string[], handler: MapEventHandler, context?: unknown, once?: boolean): this
     /** 解绑事件 */
-    off(eventName: string, handler: AmapEventHandler, context?: unknown): this
+    off(eventName: string, handler: MapEventHandler, context?: unknown): this
     /** 添加控件 */
     addControl(control: unknown): void
     /** 移除控件 */
     removeControl(control: unknown): void
     /** 加载 JSAPI 插件 */
-    plugin?: (plugins: AmapPlugin | AmapPlugin[], callback?: () => void) => void
+    plugin?: (plugins: MapPlugin | MapPlugin[], callback?: () => void) => void
 }
 
 /** 高德地图命名空间配置 */
-export interface AmapNamespaceConfig {
+export interface MapNamespaceConfig {
     /** 应用标识 */
     appname?: string
 }
 
-export type AmapNamespaceBase = Omit<typeof AMap, "Map" | "getConfig" | "plugin">
+export type MapNamespaceBase = Omit<typeof AMap, "Map" | "getConfig" | "plugin">
 
 /** 高德地图命名空间 */
-export interface AmapNamespace {
+export interface MapNamespace {
     /** 地图构造器 */
-    Map: new (container: string | HTMLDivElement, options?: AmapMapOptions) => AmapMapInstance
+    Map: new (container: string | HTMLDivElement, options?: MapOptions) => MapInstance
     /** 获取 JSAPI 配置 */
-    getConfig?: () => AmapNamespaceConfig
+    getConfig?: () => MapNamespaceConfig
     /** 加载 JSAPI 插件 */
-    plugin?: (plugins: AmapPlugin | AmapPlugin[], callback?: () => void) => void
+    plugin?: (plugins: MapPlugin | MapPlugin[], callback?: () => void) => void
 }
 
 /** 安全密钥配置 */
-export interface AmapSecurityConfig {
+export interface MapSecurityConfig {
     /** 安全密钥 */
     securityJsCode?: string
     /** 安全代理地址 */
@@ -371,7 +371,7 @@ export interface AmapSecurityConfig {
 }
 
 /** AMapUI 加载配置 */
-export interface AmapUiLoaderOptions {
+export interface MapUiLoaderOptions {
     /** AMapUI 版本 */
     version?: string
     /** AMapUI 插件列表 */
@@ -379,29 +379,29 @@ export interface AmapUiLoaderOptions {
 }
 
 /** Loca 加载配置 */
-export interface AmapLocaLoaderOptions {
+export interface MapLocaLoaderOptions {
     /** Loca 版本 */
     version?: string
 }
 
 /** JSAPI Loader 参数 */
-export interface AmapLoaderOptions {
+export interface MapLoaderOptions {
     /** 高德 Web 端开发者 Key */
     key: string
     /** JSAPI 版本 */
     version: string
     /** 预加载插件列表 */
-    plugins?: AmapPlugin[]
+    plugins?: MapPlugin[]
     /** AMapUI 加载配置 */
-    AMapUI?: AmapUiLoaderOptions
+    AMapUI?: MapUiLoaderOptions
     /** Loca 加载配置 */
-    Loca?: AmapLocaLoaderOptions
+    Loca?: MapLocaLoaderOptions
     /** 安全代理地址 */
     serviceHost?: string
 }
 
 /** JSAPI Loader 额外参数 */
-export interface AmapLoaderExtraOptions {
+export interface MapLoaderExtraOptions {
     /** 高德 Web 端开发者 Key 由 apiKey 统一设置 */
     key?: never
     /** JSAPI 版本由 version 统一设置 */
@@ -409,29 +409,29 @@ export interface AmapLoaderExtraOptions {
     /** 预加载插件列表由 plugins 统一设置 */
     plugins?: never
     /** AMapUI 加载配置 */
-    AMapUI?: AmapUiLoaderOptions
+    AMapUI?: MapUiLoaderOptions
     /** Loca 加载配置 */
-    Loca?: AmapLocaLoaderOptions
+    Loca?: MapLocaLoaderOptions
     /** 安全代理地址请通过 securityConfig.serviceHost 设置 */
     serviceHost?: never
 }
 
 /** JSAPI Loader 实例 */
-export interface AmapLoader {
+export interface MapLoader {
     /** 加载 JSAPI */
-    load: (options: AmapLoaderOptions) => Promise<AmapNamespace>
+    load: (options: MapLoaderOptions) => Promise<MapNamespace>
 }
 
 /** JSAPI Loader 模块结构 */
-export interface AmapLoaderModule {
+export interface MapLoaderModule {
     /** 加载 JSAPI */
-    load?: AmapLoader["load"]
+    load?: MapLoader["load"]
     /** CommonJS 默认导出 */
-    default?: AmapLoaderModule
+    default?: MapLoaderModule
 }
 
 /** 加载 Loader 脚本参数 */
-export interface LoadAmapLoaderParams {
+export interface LoadMapLoaderParams {
     /** Loader 脚本地址 */
     loaderUrl: string
     /** Loader 等待时间 */
@@ -439,82 +439,82 @@ export interface LoadAmapLoaderParams {
 }
 
 /** 解析 Loader 模块参数 */
-export interface ResolveAmapLoaderModuleParams {
+export interface ResolveMapLoaderModuleParams {
     /** 动态导入到的 Loader 模块 */
     loaderModule: unknown
 }
 
 /** 判断是否默认 Loader 地址参数 */
-export interface IsDefaultAmapLoaderUrlParams {
+export interface IsDefaultMapLoaderUrlParams {
     /** Loader 脚本地址 */
     loaderUrl: string
 }
 
 /** 配置安全密钥参数 */
-export interface ConfigureAmapSecurityParams {
+export interface ConfigureMapSecurityParams {
     /** 完整安全配置 */
-    securityConfig?: AmapSecurityConfig
+    securityConfig?: MapSecurityConfig
 }
 
 /** 合并地图初始化参数 */
-export interface MergeAmapMapOptionsParams extends AmapMapBaseOptions {
+export interface MergeMapOptionsParams extends MapBaseOptions {
     /** 额外地图初始化参数 */
-    mapOptions?: AmapMapOptions
+    mapOptions?: MapOptions
 }
 
 /** 同步地图运行时参数 */
-export interface SyncAmapMapRuntimeOptionsParams {
+export interface SyncMapRuntimeOptionsParams {
     /** 地图实例 */
-    map: AmapMapInstance
+    map: MapInstance
     /** 当前地图参数 */
-    nextOptions: AmapMapRuntimeOptions
+    nextOptions: MapRuntimeOptions
     /** 上一次同步的地图参数 */
-    previousOptions: AmapMapRuntimeOptions
+    previousOptions: MapRuntimeOptions
 }
 
 /** 绑定地图事件参数 */
-export interface BindAmapMapEventsParams {
+export interface BindMapInstanceEventsParams {
     /** 地图实例 */
-    map: AmapMapInstance
+    map: MapInstance
     /** 事件映射 */
-    events?: AmapEvents
+    events?: MapEvents
 }
 
 /** 获取变化的地图运行状态参数 */
-export interface GetChangedAmapMapStatusOptionsParams {
+export interface GetChangedMapStatusOptionsParams {
     /** 当前地图参数 */
-    nextOptions: AmapMapRuntimeOptions
+    nextOptions: MapRuntimeOptions
     /** 上一次同步的地图参数 */
-    previousOptions: AmapMapRuntimeOptions
+    previousOptions: MapRuntimeOptions
 }
 
 /** 高德地图上下文 */
-export const AmapContext = createContext<AmapContextValue>({
+export const MapContext = createContext<MapContextValue>({
     map: null,
     AMap: null,
-    status: AmapStatus.Idle,
+    status: MapStatus.Idle,
 })
 
-export function useAmapContext() {
-    return useContext(AmapContext)
+export function useMapContext() {
+    return useContext(MapContext)
 }
 
 declare global {
     interface Window {
         /** JSAPI Loader 全局实例 */
-        AMapLoader?: AmapLoader
+        AMapLoader?: MapLoader
         /** 高德地图安全配置 */
-        _AMapSecurityConfig?: AmapSecurityConfig
+        _AMapSecurityConfig?: MapSecurityConfig
     }
 }
 
 /** 地图组件属性 */
-export interface AmapProps
+export interface MapProps
     extends Omit<ComponentProps<"div">, "ref">,
-        AmapMapBaseOptions,
-        AmapMapEventShortcuts<AmapMapInstance> {
+        MapBaseOptions,
+        MapInstanceEventShortcuts<MapInstance> {
     /** 地图实例 ref */
-    ref?: Ref<AmapMapInstance | null>
+    ref?: Ref<MapInstance | null>
     /** 高德 Web 端开发者 Key */
     apiKey: string
     /** 地图容器 ref */
@@ -522,41 +522,41 @@ export interface AmapProps
     /** 地图子组件 */
     children?: ReactNode
     /** 完整安全配置 */
-    securityConfig?: AmapSecurityConfig
+    securityConfig?: MapSecurityConfig
     /** JSAPI 版本 */
     version?: string
     /** 预加载插件列表 */
-    plugins?: AmapPlugin[]
+    plugins?: MapPlugin[]
     /** Loader 脚本地址 */
     loaderUrl?: string
     /** Loader 额外参数 */
-    loaderOptions?: AmapLoaderExtraOptions
+    loaderOptions?: MapLoaderExtraOptions
     /** Loader 等待时间 */
     loaderTimeout?: number
     /** 应用标识 */
     appName?: string
     /** 额外地图初始化参数 */
-    mapOptions?: AmapMapOptions
+    mapOptions?: MapOptions
     /** 地图事件映射 */
-    events?: AmapEvents
+    events?: MapEvents
     /** 地图加载完成回调 */
-    onMapLoad?: AmapOnMapLoad
+    onMapLoad?: MapOnMapLoad
     /** 地图加载失败回调 */
-    onMapError?: AmapOnMapError
+    onMapError?: MapOnMapError
     /** 地图销毁前回调 */
-    onDestroy?: AmapOnDestroy
+    onDestroy?: MapOnDestroy
     /** 加载状态变化回调 */
-    onStatusChange?: AmapOnStatusChange
+    onStatusChange?: MapOnStatusChange
 }
 
 // 缓存官方 npm Loader 的动态导入，避免 SSR 场景在模块顶层访问 window。
-let officialLoaderPromise: Promise<AmapLoader> | undefined
+let officialLoaderPromise: Promise<MapLoader> | undefined
 
 // 缓存同一个自定义 Loader 地址的加载 Promise，避免多个地图重复插入脚本。
-const customLoaderPromises = new Map<string, Promise<AmapLoader>>()
+const customLoaderPromises = new globalThis.Map<string, Promise<MapLoader>>()
 
-function resolveAmapLoaderModule({ loaderModule }: ResolveAmapLoaderModuleParams) {
-    const moduleRecord = loaderModule as AmapLoaderModule
+function resolveMapLoaderModule({ loaderModule }: ResolveMapLoaderModuleParams) {
+    const moduleRecord = loaderModule as MapLoaderModule
     const loader = moduleRecord.load ? moduleRecord : moduleRecord.default
 
     if (!loader?.load) throw new Error("AMap npm loader loaded, but load is unavailable.")
@@ -566,12 +566,12 @@ function resolveAmapLoaderModule({ loaderModule }: ResolveAmapLoaderModuleParams
     }
 }
 
-function loadOfficialAmapLoader() {
+function loadOfficialMapLoader() {
     if (window.AMapLoader) return Promise.resolve(window.AMapLoader)
 
     officialLoaderPromise ??= import("@amap/amap-jsapi-loader")
         .then(loaderModule =>
-            resolveAmapLoaderModule({
+            resolveMapLoaderModule({
                 loaderModule,
             }))
         .catch(caughtError => {
@@ -583,24 +583,24 @@ function loadOfficialAmapLoader() {
     return officialLoaderPromise
 }
 
-function isDefaultAmapLoaderUrl({ loaderUrl }: IsDefaultAmapLoaderUrlParams) {
+function isDefaultMapLoaderUrl({ loaderUrl }: IsDefaultMapLoaderUrlParams) {
     return new URL(loaderUrl, document.baseURI).href === new URL(DEFAULT_LOADER_URL, document.baseURI).href
 }
 
-function getAmapLoaderScript(loaderUrl: string) {
+function getMapLoaderScript(loaderUrl: string) {
     const normalizedLoaderUrl = new URL(loaderUrl, document.baseURI).href
 
     return Array.from(document.scripts).find(script => script.src === normalizedLoaderUrl || script.getAttribute("src") === loaderUrl)
 }
 
-function loadCustomAmapLoader({ loaderUrl, loaderTimeout }: LoadAmapLoaderParams) {
+function loadCustomMapLoader({ loaderUrl, loaderTimeout }: LoadMapLoaderParams) {
     if (window.AMapLoader) return Promise.resolve(window.AMapLoader)
 
     const cachedPromise = customLoaderPromises.get(loaderUrl)
 
     if (cachedPromise) return cachedPromise
 
-    const promise = new Promise<AmapLoader>((resolve, reject) => {
+    const promise = new Promise<MapLoader>((resolve, reject) => {
         let script: HTMLScriptElement | undefined
         let timeoutId: number | undefined
 
@@ -636,7 +636,7 @@ function loadCustomAmapLoader({ loaderUrl, loaderTimeout }: LoadAmapLoaderParams
             failLoader(new Error(`Timed out while loading AMap loader script: ${loaderUrl}`))
         }
 
-        script = getAmapLoaderScript(loaderUrl) ?? document.createElement("script")
+        script = getMapLoaderScript(loaderUrl) ?? document.createElement("script")
         script.addEventListener("load", resolveLoader, { once: true })
         script.addEventListener("error", rejectLoader, { once: true })
         timeoutId = window.setTimeout(onTimeout, loaderTimeout)
@@ -653,33 +653,33 @@ function loadCustomAmapLoader({ loaderUrl, loaderTimeout }: LoadAmapLoaderParams
     return promise
 }
 
-function loadAmapLoader({ loaderUrl, loaderTimeout }: LoadAmapLoaderParams) {
+function loadMapLoader({ loaderUrl, loaderTimeout }: LoadMapLoaderParams) {
     if (typeof window === "undefined" || typeof document === "undefined")
-        return Promise.reject(new Error("Amap can only load the AMap JSAPI in a browser environment."))
+        return Promise.reject(new Error("Map can only load the AMap JSAPI in a browser environment."))
 
-    if (isDefaultAmapLoaderUrl({ loaderUrl })) return loadOfficialAmapLoader()
+    if (isDefaultMapLoaderUrl({ loaderUrl })) return loadOfficialMapLoader()
 
-    return loadCustomAmapLoader({
+    return loadCustomMapLoader({
         loaderTimeout,
         loaderUrl,
     })
 }
 
-function configureAmapSecurity({ securityConfig }: ConfigureAmapSecurityParams) {
-    const nextSecurityConfig: AmapSecurityConfig = {
+function configureMapSecurity({ securityConfig }: ConfigureMapSecurityParams) {
+    const nextSecurityConfig: MapSecurityConfig = {
         ...window._AMapSecurityConfig,
         ...securityConfig,
     }
 
     if (!nextSecurityConfig.securityJsCode && !nextSecurityConfig.serviceHost)
-        throw new Error("Amap requires securityJsCode or serviceHost before loading AMap JSAPI v2.0.")
+        throw new Error("Map requires securityJsCode or serviceHost before loading AMap JSAPI v2.0.")
 
     window._AMapSecurityConfig = nextSecurityConfig
 
     return nextSecurityConfig
 }
 
-function destroyAmapMap(map: AmapMapInstance, onDestroy?: AmapOnDestroy) {
+function destroyMap(map: MapInstance, onDestroy?: MapOnDestroy) {
     try {
         onDestroy?.(map)
     } finally {
@@ -687,17 +687,17 @@ function destroyAmapMap(map: AmapMapInstance, onDestroy?: AmapOnDestroy) {
     }
 }
 
-function bindAmapMapEvents({ map, events }: BindAmapMapEventsParams) {
-    const eventEntries = getAmapEventEntries(events)
+function bindMapInstanceEvents({ map, events }: BindMapInstanceEventsParams) {
+    const eventEntries = getMapEventEntries(events)
 
     eventEntries.forEach(({ eventName, handler }) => void map.on?.(eventName, handler))
 
-    return function unbindAmapMapEvents() {
+    return function unbindMapInstanceEvents() {
         eventEntries.forEach(({ eventName, handler }) => void map.off?.(eventName, handler))
     }
 }
 
-function setAmapMapRef(ref: Ref<AmapMapInstance | null> | undefined, map: AmapMapInstance | null) {
+function setMapRef(ref: Ref<MapInstance | null> | undefined, map: MapInstance | null) {
     if (!ref) return
 
     if (typeof ref === "function") {
@@ -708,7 +708,7 @@ function setAmapMapRef(ref: Ref<AmapMapInstance | null> | undefined, map: AmapMa
     ref.current = map
 }
 
-function setAmapContainerRef(ref: Ref<HTMLDivElement | null> | undefined, element: HTMLDivElement | null) {
+function setMapContainerRef(ref: Ref<HTMLDivElement | null> | undefined, element: HTMLDivElement | null) {
     if (!ref) return
 
     if (typeof ref === "function") {
@@ -719,8 +719,8 @@ function setAmapContainerRef(ref: Ref<HTMLDivElement | null> | undefined, elemen
     ref.current = element
 }
 
-function mergeAmapMapOptions({ mapOptions, ...topLevelMapOptions }: MergeAmapMapOptionsParams) {
-    const nextMapOptions: AmapMapOptions = {
+function mergeMapOptions({ mapOptions, ...topLevelMapOptions }: MergeMapOptionsParams) {
+    const nextMapOptions: MapOptions = {
         ...mapOptions,
     }
 
@@ -735,37 +735,37 @@ function mergeAmapMapOptions({ mapOptions, ...topLevelMapOptions }: MergeAmapMap
     return nextMapOptions
 }
 
-function isAmapLngLatObject(value: unknown): value is AmapLngLatObject {
+function isMapLngLatObject(value: unknown): value is MapLngLatObject {
     if (!value || typeof value !== "object" || Array.isArray(value)) return false
 
-    const valueRecord = value as Partial<AmapLngLatObject>
+    const valueRecord = value as Partial<MapLngLatObject>
 
     return typeof valueRecord.lng === "number" && typeof valueRecord.lat === "number"
 }
 
-function isEqualAmapMapValue(leftValue: unknown, rightValue: unknown): boolean {
+function isEqualMapValue(leftValue: unknown, rightValue: unknown): boolean {
     if (Object.is(leftValue, rightValue)) return true
 
     if (Array.isArray(leftValue) && Array.isArray(rightValue)) {
         if (leftValue.length !== rightValue.length) return false
 
-        return leftValue.every((item, index) => isEqualAmapMapValue(item, rightValue[index]))
+        return leftValue.every((item, index) => isEqualMapValue(item, rightValue[index]))
     }
 
-    if (isAmapLngLatObject(leftValue) && isAmapLngLatObject(rightValue))
+    if (isMapLngLatObject(leftValue) && isMapLngLatObject(rightValue))
         return Object.is(leftValue.lng, rightValue.lng) && Object.is(leftValue.lat, rightValue.lat)
 
     return false
 }
 
-function getChangedAmapMapStatusOptions({ nextOptions, previousOptions }: GetChangedAmapMapStatusOptionsParams) {
-    const statusOptions: AmapMapStatusOptions = {}
+function getChangedMapStatusOptions({ nextOptions, previousOptions }: GetChangedMapStatusOptionsParams) {
+    const statusOptions: MapStatusOptions = {}
 
     amapMapStatusOptionKeys.forEach(optionKey => {
         const nextValue = nextOptions[optionKey]
         const previousValue = previousOptions[optionKey]
 
-        if (nextValue === undefined || isEqualAmapMapValue(nextValue, previousValue)) return
+        if (nextValue === undefined || isEqualMapValue(nextValue, previousValue)) return
 
         Object.assign(statusOptions, {
             [optionKey]: nextValue,
@@ -775,14 +775,14 @@ function getChangedAmapMapStatusOptions({ nextOptions, previousOptions }: GetCha
     return statusOptions
 }
 
-function syncAmapMapRuntimeOptions({ map, nextOptions, previousOptions }: SyncAmapMapRuntimeOptionsParams) {
-    const statusOptions = getChangedAmapMapStatusOptions({
+function syncMapRuntimeOptions({ map, nextOptions, previousOptions }: SyncMapRuntimeOptionsParams) {
+    const statusOptions = getChangedMapStatusOptions({
         nextOptions,
         previousOptions,
     })
 
-    const centerChanged = nextOptions.center !== undefined && !isEqualAmapMapValue(nextOptions.center, previousOptions.center)
-    const zoomChanged = nextOptions.zoom !== undefined && !isEqualAmapMapValue(nextOptions.zoom, previousOptions.zoom)
+    const centerChanged = nextOptions.center !== undefined && !isEqualMapValue(nextOptions.center, previousOptions.center)
+    const zoomChanged = nextOptions.zoom !== undefined && !isEqualMapValue(nextOptions.zoom, previousOptions.zoom)
 
     if (Object.keys(statusOptions).length > 0) map.setStatus?.(statusOptions)
 
@@ -797,25 +797,25 @@ function syncAmapMapRuntimeOptions({ map, nextOptions, previousOptions }: SyncAm
         if (centerChanged && nextOptions.center !== undefined) map.setCenter?.(nextOptions.center, AMAP_IMMEDIATE_UPDATE)
     }
 
-    if (nextOptions.pitch !== undefined && !isEqualAmapMapValue(nextOptions.pitch, previousOptions.pitch))
+    if (nextOptions.pitch !== undefined && !isEqualMapValue(nextOptions.pitch, previousOptions.pitch))
         map.setPitch?.(nextOptions.pitch, AMAP_IMMEDIATE_UPDATE)
 
-    if (nextOptions.rotation !== undefined && !isEqualAmapMapValue(nextOptions.rotation, previousOptions.rotation))
+    if (nextOptions.rotation !== undefined && !isEqualMapValue(nextOptions.rotation, previousOptions.rotation))
         map.setRotation?.(nextOptions.rotation, AMAP_IMMEDIATE_UPDATE)
 
-    if (nextOptions.features !== undefined && !isEqualAmapMapValue(nextOptions.features, previousOptions.features)) map.setFeatures?.(nextOptions.features)
+    if (nextOptions.features !== undefined && !isEqualMapValue(nextOptions.features, previousOptions.features)) map.setFeatures?.(nextOptions.features)
 
-    if (nextOptions.layers !== undefined && !isEqualAmapMapValue(nextOptions.layers, previousOptions.layers)) map.setLayers?.(nextOptions.layers)
+    if (nextOptions.layers !== undefined && !isEqualMapValue(nextOptions.layers, previousOptions.layers)) map.setLayers?.(nextOptions.layers)
 
-    if (nextOptions.zooms !== undefined && !isEqualAmapMapValue(nextOptions.zooms, previousOptions.zooms)) map.setZooms?.(nextOptions.zooms)
+    if (nextOptions.zooms !== undefined && !isEqualMapValue(nextOptions.zooms, previousOptions.zooms)) map.setZooms?.(nextOptions.zooms)
 
-    if (nextOptions.defaultCursor !== undefined && !isEqualAmapMapValue(nextOptions.defaultCursor, previousOptions.defaultCursor))
+    if (nextOptions.defaultCursor !== undefined && !isEqualMapValue(nextOptions.defaultCursor, previousOptions.defaultCursor))
         map.setDefaultCursor?.(nextOptions.defaultCursor)
 
-    if (nextOptions.mapStyle !== undefined && !isEqualAmapMapValue(nextOptions.mapStyle, previousOptions.mapStyle)) map.setMapStyle?.(nextOptions.mapStyle)
+    if (nextOptions.mapStyle !== undefined && !isEqualMapValue(nextOptions.mapStyle, previousOptions.mapStyle)) map.setMapStyle?.(nextOptions.mapStyle)
 }
 
-export const Amap: FC<AmapProps> = ({
+export const Map: FC<MapProps> = ({
     ref,
     id,
     className,
@@ -892,16 +892,16 @@ export const Amap: FC<AmapProps> = ({
     ...rest
 }) => {
     const containerRef = useRef<HTMLDivElement>(null)
-    const mapRef = useRef<AmapMapInstance | null>(null)
-    const previousRuntimeMapOptionsRef = useRef<AmapMapRuntimeOptions>({})
+    const mapRef = useRef<MapInstance | null>(null)
+    const previousRuntimeMapOptionsRef = useRef<MapRuntimeOptions>({})
 
-    const [contextValue, setContextValue] = useState<AmapContextValue>({
+    const [contextValue, setContextValue] = useState<MapContextValue>({
         map: null,
         AMap: null,
-        status: AmapStatus.Idle,
+        status: MapStatus.Idle,
     })
 
-    const currentMapOptions = mergeAmapMapOptions({
+    const currentMapOptions = mergeMapOptions({
         mapOptions: _mapOptions,
         center,
         zoom,
@@ -932,7 +932,7 @@ export const Amap: FC<AmapProps> = ({
         WebGLParams,
     })
 
-    const currentRuntimeMapOptions: AmapMapRuntimeOptions = {
+    const currentRuntimeMapOptions: MapRuntimeOptions = {
         center,
         zoom,
         rotation,
@@ -955,9 +955,9 @@ export const Amap: FC<AmapProps> = ({
         mapStyle,
     }
 
-    currentMapOptions.viewMode ??= AmapViewMode.ThreeDimensional
+    currentMapOptions.viewMode ??= MapViewMode.ThreeDimensional
 
-    const currentEvents = mergeAmapEvents({
+    const currentEvents = mergeMapEvents({
         events,
         mapEventShortcuts: {
             onMapClick,
@@ -987,7 +987,7 @@ export const Amap: FC<AmapProps> = ({
             onMapZoomEnd,
             onMapZoomStart,
         },
-    }) as AmapEvents
+    }) as MapEvents
 
     const getPlugins = useEffectEvent(() => plugins)
     const getMapOptions = useEffectEvent(() => currentMapOptions)
@@ -1000,13 +1000,13 @@ export const Amap: FC<AmapProps> = ({
 
     function onContainerRef(element: HTMLDivElement | null) {
         containerRef.current = element
-        setAmapContainerRef(_containerRef, element)
+        setMapContainerRef(_containerRef, element)
     }
 
     useEffect(() => {
-        setAmapMapRef(ref, mapRef.current)
+        setMapRef(ref, mapRef.current)
 
-        return () => setAmapMapRef(ref, null)
+        return () => setMapRef(ref, null)
     }, [ref])
 
     useStableEffect(() => {
@@ -1014,21 +1014,21 @@ export const Amap: FC<AmapProps> = ({
 
         async function initMap() {
             try {
-                if (!apiKey) throw new Error("Amap requires apiKey.")
+                if (!apiKey) throw new Error("Map requires apiKey.")
 
                 setContextValue({
                     map: null,
                     AMap: null,
-                    status: AmapStatus.Loading,
+                    status: MapStatus.Loading,
                 })
 
-                getOnStatusChange()?.(AmapStatus.Loading)
+                getOnStatusChange()?.(MapStatus.Loading)
 
-                const nextSecurityConfig = configureAmapSecurity({
+                const nextSecurityConfig = configureMapSecurity({
                     securityConfig,
                 })
 
-                const loader = await loadAmapLoader({
+                const loader = await loadMapLoader({
                     loaderTimeout,
                     loaderUrl,
                 })
@@ -1046,16 +1046,16 @@ export const Amap: FC<AmapProps> = ({
                 const map = new AMap.Map(containerRef.current, getMapOptions())
 
                 mapRef.current = map
-                setAmapMapRef(getMapRef(), map)
+                setMapRef(getMapRef(), map)
                 previousRuntimeMapOptionsRef.current = getRuntimeMapOptions()
 
                 setContextValue({
                     map,
                     AMap,
-                    status: AmapStatus.Loaded,
+                    status: MapStatus.Loaded,
                 })
 
-                getOnStatusChange()?.(AmapStatus.Loaded)
+                getOnStatusChange()?.(MapStatus.Loaded)
                 getOnMapLoad()?.(map, AMap)
             } catch (caughtError) {
                 if (disposed) return
@@ -1063,11 +1063,11 @@ export const Amap: FC<AmapProps> = ({
                 setContextValue({
                     map: null,
                     AMap: null,
-                    status: AmapStatus.Error,
+                    status: MapStatus.Error,
                     error: caughtError,
                 })
 
-                getOnStatusChange()?.(AmapStatus.Error, caughtError)
+                getOnStatusChange()?.(MapStatus.Error, caughtError)
                 getOnMapError()?.(caughtError)
             }
         }
@@ -1081,9 +1081,9 @@ export const Amap: FC<AmapProps> = ({
             if (mapRef.current) {
                 const map = mapRef.current
                 mapRef.current = null
-                setAmapMapRef(getMapRef(), null)
+                setMapRef(getMapRef(), null)
 
-                destroyAmapMap(map, getOnDestroy())
+                destroyMap(map, getOnDestroy())
             }
         }
     }, [
@@ -1115,7 +1115,7 @@ export const Amap: FC<AmapProps> = ({
 
         const nextRuntimeMapOptions = getRuntimeMapOptions()
 
-        syncAmapMapRuntimeOptions({
+        syncMapRuntimeOptions({
             map: mapRef.current,
             nextOptions: nextRuntimeMapOptions,
             previousOptions: previousRuntimeMapOptionsRef.current,
@@ -1149,16 +1149,16 @@ export const Amap: FC<AmapProps> = ({
     useStableEffect(() => {
         if (!mapRef.current) return
 
-        return bindAmapMapEvents({
+        return bindMapInstanceEvents({
             map: mapRef.current,
             events: currentEvents,
         })
     }, [contextValue.status, currentEvents])
 
     return (
-        <AmapContext value={contextValue}>
+        <MapContext value={contextValue}>
             <div ref={onContainerRef} id={id} className={className} style={{ ...rootStyle, ...style }} {...rest} />
             {children}
-        </AmapContext>
+        </MapContext>
     )
 }

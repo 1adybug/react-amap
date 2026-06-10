@@ -10,42 +10,42 @@ import {
 } from "react"
 
 import {
-    AmapPlugin,
-    type AmapEventHandler,
-    type AmapLngLatLike,
-    type AmapMapInstance,
-    type AmapNamespace,
-    type AmapZoomRange,
-    useAmapContext,
-} from "./Amap"
-import { type AmapGroupChildSync, type AmapGroupChildSyncCleanup, useLayerGroupContext } from "./Group"
+    MapPlugin,
+    type MapEventHandler,
+    type MapLngLatLike,
+    type MapInstance,
+    type MapNamespace,
+    type MapZoomRange,
+    useMapContext,
+} from "./Map"
+import { type MapGroupChildSync, type MapGroupChildSyncCleanup, useLayerGroupContext } from "./Group"
 import type {
-    AmapMarkerAnchor,
-    AmapMarkerLabelDirection,
-    AmapMarkerOffset,
-    AmapMarkerPosition,
-    AmapMarkerEvents,
+    MapMarkerAnchor,
+    MapMarkerLabelDirection,
+    MapMarkerOffset,
+    MapMarkerPosition,
+    MapMarkerEvents,
 } from "./Marker"
 import { optionalFn } from "../utils/optionalFn"
-import { useAmapPlugin } from "../hooks/useAmapPlugin"
+import { useMapPlugin } from "../hooks/useMapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapMoveEvent,
-    type AmapOverlayEventShortcutProps,
-    type AmapOverlayInteractionEvent,
-    type AmapOverlayMouseEvent,
-    type AmapTargetEvent,
-    getAmapEventEntries,
-    mergeAmapEvents,
-    splitAmapEventShortcutProps,
-} from "../utils/amapEvents"
+    type MapMoveEvent,
+    type MapOverlayEventShortcutProps,
+    type MapOverlayInteractionEvent,
+    type MapOverlayMouseEvent,
+    type MapTargetEvent,
+    getMapEventEntries,
+    mergeMapEvents,
+    splitMapEventShortcutProps,
+} from "../utils/mapEvents"
 
-export type AmapTextStyle = Record<string, string | number>
+export type MapTextStyle = Record<string, string | number>
 
-export type AmapLabelMarkerPosition = AmapLngLatLike
+export type MapLabelMarkerPosition = MapLngLatLike
 
 /** 灵活点标记文本位置 */
-export const AmapElasticMarkerLabelPosition = {
+export const MapElasticMarkerLabelPosition = {
     左下角: "BL",
     底部居中: "BM",
     右下角: "BR",
@@ -56,40 +56,40 @@ export const AmapElasticMarkerLabelPosition = {
     右上角: "TR",
 } as const
 
-export type AmapElasticMarkerLabelPosition =
-    (typeof AmapElasticMarkerLabelPosition)[keyof typeof AmapElasticMarkerLabelPosition]
+export type MapElasticMarkerLabelPosition =
+    (typeof MapElasticMarkerLabelPosition)[keyof typeof MapElasticMarkerLabelPosition]
 
-export type AmapPointOverlayOnLoad<TInstance extends AmapPointOverlayInstance = AmapPointOverlayInstance> = (
+export type MapPointOverlayOnLoad<TInstance extends MapPointOverlayInstance = MapPointOverlayInstance> = (
     overlay: TInstance
 ) => void
 
-export type AmapPointOverlayOnDestroy<TInstance extends AmapPointOverlayInstance = AmapPointOverlayInstance> = (
+export type MapPointOverlayOnDestroy<TInstance extends MapPointOverlayInstance = MapPointOverlayInstance> = (
     overlay: TInstance
 ) => void
 
 /** 点覆盖物鼠标事件 */
-export interface AmapPointOverlayMouseEvent<TInstance = AmapPointOverlayInstance> extends AmapOverlayMouseEvent<TInstance> {}
+export interface MapPointOverlayMouseEvent<TInstance = MapPointOverlayInstance> extends MapOverlayMouseEvent<TInstance> {}
 
 /** 点覆盖物交互坐标事件 */
-export interface AmapPointOverlayInteractionEvent<TInstance = AmapPointOverlayInstance>
-    extends AmapOverlayInteractionEvent<TInstance> {}
+export interface MapPointOverlayInteractionEvent<TInstance = MapPointOverlayInstance>
+    extends MapOverlayInteractionEvent<TInstance> {}
 
 /** 点覆盖物目标事件 */
-export interface AmapPointOverlayTargetEvent<TInstance = AmapPointOverlayInstance> extends AmapTargetEvent<TInstance> {}
+export interface MapPointOverlayTargetEvent<TInstance = MapPointOverlayInstance> extends MapTargetEvent<TInstance> {}
 
 /** 点覆盖物移动动画事件 */
-export interface AmapPointOverlayMoveEvent<TInstance = AmapPointOverlayInstance> extends AmapMoveEvent<TInstance> {}
+export interface MapPointOverlayMoveEvent<TInstance = MapPointOverlayInstance> extends MapMoveEvent<TInstance> {}
 
 /** 点覆盖物事件快捷属性 */
-export interface AmapPointOverlayEventShortcutProps<TInstance = AmapPointOverlayInstance>
-    extends AmapOverlayEventShortcutProps<TInstance> {}
+export interface MapPointOverlayEventShortcutProps<TInstance = MapPointOverlayInstance>
+    extends MapOverlayEventShortcutProps<TInstance> {}
 
 /** 点标记覆盖物基础实例 */
-export interface AmapPointOverlayInstance {
+export interface MapPointOverlayInstance {
     /** 获取地图实例 */
-    getMap?: () => AmapMapInstance | null
+    getMap?: () => MapInstance | null
     /** 设置地图实例 */
-    setMap?: (map: AmapMapInstance | null) => void
+    setMap?: (map: MapInstance | null) => void
     /** 移除覆盖物 */
     remove?: () => void
     /** 显示覆盖物 */
@@ -97,13 +97,13 @@ export interface AmapPointOverlayInstance {
     /** 隐藏覆盖物 */
     hide?: () => void
     /** 绑定事件 */
-    on?: (eventName: string, handler: AmapEventHandler) => void
+    on?: (eventName: string, handler: MapEventHandler) => void
     /** 解绑事件 */
-    off?: (eventName: string, handler: AmapEventHandler) => void
+    off?: (eventName: string, handler: MapEventHandler) => void
     /** 设置参数 */
-    setOptions?: (options: AmapPointOverlayOptions) => void
+    setOptions?: (options: MapPointOverlayOptions) => void
     /** 设置位置 */
-    setPosition?: (position: AmapMarkerPosition) => void
+    setPosition?: (position: MapMarkerPosition) => void
     /** 设置鼠标悬停文字 */
     setTitle?: (title: string) => void
     /** 设置可点击状态 */
@@ -121,9 +121,9 @@ export interface AmapPointOverlayInstance {
 }
 
 /** 点标记覆盖物构造参数 */
-export interface AmapPointOverlayOptions {
+export interface MapPointOverlayOptions {
     /** 所在地图 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 是否可见 */
     visible?: boolean
     /** 自定义数据 */
@@ -131,9 +131,9 @@ export interface AmapPointOverlayOptions {
 }
 
 /** 点标记覆盖物运行时可同步参数 */
-export interface AmapPointOverlayRuntimeOptions extends AmapPointOverlayOptions {
+export interface MapPointOverlayRuntimeOptions extends MapPointOverlayOptions {
     /** 点标记坐标 */
-    position?: AmapMarkerPosition
+    position?: MapMarkerPosition
     /** 鼠标悬停文字 */
     title?: string
     /** 是否可点击 */
@@ -147,9 +147,9 @@ export interface AmapPointOverlayRuntimeOptions extends AmapPointOverlayOptions 
 }
 
 /** 文本标记基础参数 */
-export interface AmapTextBaseOptions extends AmapPointOverlayOptions {
+export interface MapTextBaseOptions extends MapPointOverlayOptions {
     /** 文本标记坐标 */
-    position?: AmapMarkerPosition
+    position?: MapMarkerPosition
     /** 文本内容 */
     text?: string
     /** 鼠标悬停文字 */
@@ -157,9 +157,9 @@ export interface AmapTextBaseOptions extends AmapPointOverlayOptions {
     /** 叠加层级 */
     zIndex?: number
     /** 偏移量 */
-    offset?: AmapMarkerOffset
+    offset?: MapMarkerOffset
     /** 锚点 */
-    anchor?: AmapMarkerAnchor
+    anchor?: MapMarkerAnchor
     /** 旋转角度 */
     angle?: number
     /** 是否可点击 */
@@ -169,47 +169,47 @@ export interface AmapTextBaseOptions extends AmapPointOverlayOptions {
     /** 事件是否冒泡 */
     bubble?: boolean
     /** 显示缩放级别范围 */
-    zooms?: AmapZoomRange
+    zooms?: MapZoomRange
     /** 鼠标悬停样式 */
     cursor?: string
     /** 点击时是否置顶 */
     topWhenClick?: boolean
     /** 文本样式 */
-    style?: AmapTextStyle
+    style?: MapTextStyle
 }
 
 /** 文本标记构造参数 */
-export interface AmapTextOptions extends AmapTextBaseOptions {
+export interface MapTextOptions extends MapTextBaseOptions {
 }
 
 /** 文本标记实例 */
-export interface AmapTextInstance extends AmapPointOverlayInstance {
+export interface MapTextInstance extends MapPointOverlayInstance {
     /** 获取文本内容 */
     getText?: () => string | undefined
     /** 设置文本内容 */
     setText?: (text: string) => void
     /** 设置文本样式 */
-    setStyle?: (style: AmapTextStyle) => void
+    setStyle?: (style: MapTextStyle) => void
     /** 设置偏移量 */
-    setOffset?: (offset: AmapMarkerOffset) => void
+    setOffset?: (offset: MapMarkerOffset) => void
     /** 设置锚点 */
-    setAnchor?: (anchor: AmapMarkerAnchor) => void
+    setAnchor?: (anchor: MapMarkerAnchor) => void
     /** 设置旋转角度 */
     setAngle?: (angle: number) => void
 }
 
 /** 灵活点标记图标样式 */
-export interface AmapElasticMarkerIconOptions {
+export interface MapElasticMarkerIconOptions {
     /** 图标地址 */
     img?: string
     /** 图标显示大小 */
-    size?: AmapMarkerOffset
+    size?: MapMarkerOffset
     /** 图标锚点 */
-    anchor?: AmapMarkerAnchor
+    anchor?: MapMarkerAnchor
     /** 图片偏移量 */
-    imageOffset?: AmapMarkerOffset
+    imageOffset?: MapMarkerOffset
     /** 图片大小 */
-    imageSize?: number | AmapMarkerOffset
+    imageSize?: number | MapMarkerOffset
     /** 最合适的缩放级别 */
     fitZoom?: number
     /** 缩放比例系数 */
@@ -221,33 +221,33 @@ export interface AmapElasticMarkerIconOptions {
 }
 
 /** 灵活点标记文本样式 */
-export interface AmapElasticMarkerLabelOptions {
+export interface MapElasticMarkerLabelOptions {
     /** 文本内容 */
     content?: string
     /** 文本位置 */
-    position?: AmapElasticMarkerLabelPosition
+    position?: MapElasticMarkerLabelPosition
     /** 文本偏移量 */
-    offset?: AmapMarkerOffset
+    offset?: MapMarkerOffset
     /** 最小显示级别 */
     minZoom?: number
 }
 
 /** 灵活点标记样式 */
-export interface AmapElasticMarkerStyleOptions {
+export interface MapElasticMarkerStyleOptions {
     /** 图标样式 */
-    icon?: AmapElasticMarkerIconOptions
+    icon?: MapElasticMarkerIconOptions
     /** 文本样式 */
-    label?: AmapElasticMarkerLabelOptions
+    label?: MapElasticMarkerLabelOptions
 }
 
 /** 灵活点标记基础参数 */
-export interface AmapElasticMarkerBaseOptions extends AmapPointOverlayOptions {
+export interface MapElasticMarkerBaseOptions extends MapPointOverlayOptions {
     /** 点标记坐标 */
-    position?: AmapMarkerPosition
+    position?: MapMarkerPosition
     /** 叠加层级 */
     zIndex?: number
     /** 偏移量 */
-    offset?: AmapMarkerOffset
+    offset?: MapMarkerOffset
     /** 是否可点击 */
     clickable?: boolean
     /** 是否可拖拽 */
@@ -261,34 +261,34 @@ export interface AmapElasticMarkerBaseOptions extends AmapPointOverlayOptions {
     /** 地图级别与样式索引映射 */
     zoomStyleMapping?: Record<string, number>
     /** 样式列表 */
-    styles?: AmapElasticMarkerStyleOptions[]
+    styles?: MapElasticMarkerStyleOptions[]
 }
 
 /** 灵活点标记构造参数 */
-export interface AmapElasticMarkerOptions extends AmapElasticMarkerBaseOptions {
+export interface MapElasticMarkerOptions extends MapElasticMarkerBaseOptions {
 }
 
 /** 灵活点标记实例 */
-export interface AmapElasticMarkerInstance extends AmapPointOverlayInstance {}
+export interface MapElasticMarkerInstance extends MapPointOverlayInstance {}
 
 /** 标注图标参数 */
-export interface AmapLabelMarkerIconOptions {
+export interface MapLabelMarkerIconOptions {
     /** 图标类型 */
     type?: string
     /** 图标地址 */
     image?: string
     /** 图标大小 */
-    size?: AmapMarkerOffset
+    size?: MapMarkerOffset
     /** 图片裁剪起点 */
-    clipOrigin?: AmapMarkerOffset
+    clipOrigin?: MapMarkerOffset
     /** 图片裁剪大小 */
-    clipSize?: AmapMarkerOffset
+    clipSize?: MapMarkerOffset
     /** 图标锚点 */
-    anchor?: AmapMarkerAnchor
+    anchor?: MapMarkerAnchor
 }
 
 /** 标注文本样式 */
-export interface AmapLabelMarkerTextStyle {
+export interface MapLabelMarkerTextStyle {
     /** 字体大小 */
     fontSize?: number
     /** 字体粗细 */
@@ -310,25 +310,25 @@ export interface AmapLabelMarkerTextStyle {
 }
 
 /** 标注文本参数 */
-export interface AmapLabelMarkerTextOptions {
+export interface MapLabelMarkerTextOptions {
     /** 文本内容 */
     content?: string
     /** 文本方向 */
-    direction?: AmapMarkerLabelDirection
+    direction?: MapMarkerLabelDirection
     /** 文本偏移量 */
-    offset?: AmapMarkerOffset
+    offset?: MapMarkerOffset
     /** 文本样式 */
-    style?: AmapLabelMarkerTextStyle
+    style?: MapLabelMarkerTextStyle
 }
 
 /** 标注基础参数 */
-export interface AmapLabelMarkerBaseOptions {
+export interface MapLabelMarkerBaseOptions {
     /** 标注名称 */
     name?: string
     /** 标注坐标 */
-    position?: AmapLabelMarkerPosition
+    position?: MapLabelMarkerPosition
     /** 显示缩放级别范围 */
-    zooms?: AmapZoomRange
+    zooms?: MapZoomRange
     /** 透明度 */
     opacity?: number
     /** 避让优先级 */
@@ -340,29 +340,29 @@ export interface AmapLabelMarkerBaseOptions {
     /** 自定义数据 */
     extData?: unknown
     /** 图标参数 */
-    icon?: AmapLabelMarkerIconOptions
+    icon?: MapLabelMarkerIconOptions
     /** 文本参数 */
-    text?: AmapLabelMarkerTextOptions
+    text?: MapLabelMarkerTextOptions
 }
 
 /** 标注构造参数 */
-export interface AmapLabelMarkerOptions extends AmapLabelMarkerBaseOptions {
+export interface MapLabelMarkerOptions extends MapLabelMarkerBaseOptions {
 }
 
 /** 标注实例 */
-export interface AmapLabelMarkerInstance {
+export interface MapLabelMarkerInstance {
     /** 显示标注 */
     show?: () => void
     /** 隐藏标注 */
     hide?: () => void
     /** 绑定事件 */
-    on?: (eventName: string, handler: AmapEventHandler) => void
+    on?: (eventName: string, handler: MapEventHandler) => void
     /** 解绑事件 */
-    off?: (eventName: string, handler: AmapEventHandler) => void
+    off?: (eventName: string, handler: MapEventHandler) => void
     /** 设置参数 */
-    setOptions?: (options: AmapLabelMarkerOptions) => void
+    setOptions?: (options: MapLabelMarkerOptions) => void
     /** 设置位置 */
-    setPosition?: (position: AmapLabelMarkerPosition) => void
+    setPosition?: (position: MapLabelMarkerPosition) => void
     /** 设置自定义数据 */
     setExtData?: (extData: unknown) => void
     /** 设置叠加层级 */
@@ -374,9 +374,9 @@ export interface AmapLabelMarkerInstance {
 }
 
 /** 标注图层基础参数 */
-export interface AmapLabelsLayerBaseOptions {
+export interface MapLabelsLayerBaseOptions {
     /** 图层缩放范围 */
-    zooms?: AmapZoomRange
+    zooms?: MapZoomRange
     /** 图层层级 */
     zIndex?: number
     /** 是否可见 */
@@ -390,21 +390,21 @@ export interface AmapLabelsLayerBaseOptions {
 }
 
 /** 标注图层构造参数 */
-export interface AmapLabelsLayerOptions extends AmapLabelsLayerBaseOptions {
+export interface MapLabelsLayerOptions extends MapLabelsLayerBaseOptions {
 }
 
 /** 标注图层实例 */
-export interface AmapLabelsLayerInstance {
+export interface MapLabelsLayerInstance {
     /** 添加标注 */
-    add?: (markers: AmapLabelMarkerInstance | AmapLabelMarkerInstance[]) => void
+    add?: (markers: MapLabelMarkerInstance | MapLabelMarkerInstance[]) => void
     /** 移除标注 */
-    remove?: (markers: AmapLabelMarkerInstance | AmapLabelMarkerInstance[]) => void
+    remove?: (markers: MapLabelMarkerInstance | MapLabelMarkerInstance[]) => void
     /** 清空标注 */
     clear?: () => void
     /** 设置地图 */
-    setMap?: (map: AmapMapInstance | null) => void
+    setMap?: (map: MapInstance | null) => void
     /** 设置参数 */
-    setOptions?: (options: AmapLabelsLayerOptions) => void
+    setOptions?: (options: MapLabelsLayerOptions) => void
     /** 设置是否允许和底图标注重叠 */
     setAllowCollision?: (allowCollision: boolean) => void
     /** 设置层级 */
@@ -414,71 +414,71 @@ export interface AmapLabelsLayerInstance {
     /** 隐藏图层 */
     hide?: () => void
     /** 绑定事件 */
-    on?: (eventName: string, handler: AmapEventHandler) => void
+    on?: (eventName: string, handler: MapEventHandler) => void
     /** 解绑事件 */
-    off?: (eventName: string, handler: AmapEventHandler) => void
+    off?: (eventName: string, handler: MapEventHandler) => void
 }
 
 /** 海量点数据 */
-export interface AmapMassMarksData {
+export interface MapMassMarksData {
     /** 经纬度 */
-    lnglat: AmapLngLatLike
+    lnglat: MapLngLatLike
     /** 样式索引 */
     style?: number
 }
 
 /** 海量点样式 */
-export interface AmapMassMarksStyleOptions {
+export interface MapMassMarksStyleOptions {
     /** 图标地址 */
     url?: string
     /** 图标大小 */
-    size?: AmapMarkerOffset
+    size?: MapMarkerOffset
     /** 旋转角度 */
     rotation?: number
     /** 锚点 */
-    anchor?: AmapMarkerOffset
+    anchor?: MapMarkerOffset
     /** 层级 */
     zIndex?: number
 }
 
 /** 海量点基础参数 */
-export interface AmapMassMarksBaseOptions {
+export interface MapMassMarksBaseOptions {
     /** 透明度 */
     opacity?: number
     /** 图层层级 */
     zIndex?: number
     /** 缩放范围 */
-    zooms?: AmapZoomRange
+    zooms?: MapZoomRange
     /** 鼠标悬停样式 */
     cursor?: string
     /** 样式 */
-    style?: AmapMassMarksStyleOptions | AmapMassMarksStyleOptions[]
+    style?: MapMassMarksStyleOptions | MapMassMarksStyleOptions[]
     /** 是否可见 */
     visible?: boolean
 }
 
 /** 海量点构造参数 */
-export interface AmapMassMarksOptions extends AmapMassMarksBaseOptions {
+export interface MapMassMarksOptions extends MapMassMarksBaseOptions {
 }
 
 /** 海量点实例 */
-export interface AmapMassMarksInstance {
+export interface MapMassMarksInstance {
     /** 设置地图 */
-    setMap?: (map: AmapMapInstance | null) => void
+    setMap?: (map: MapInstance | null) => void
     /** 获取数据 */
-    getData?: () => AmapMassMarksData[]
+    getData?: () => MapMassMarksData[]
     /** 设置数据 */
-    setData?: (data: AmapMassMarksData[]) => void
+    setData?: (data: MapMassMarksData[]) => void
     /** 获取样式 */
-    getStyle?: () => AmapMassMarksStyleOptions | AmapMassMarksStyleOptions[]
+    getStyle?: () => MapMassMarksStyleOptions | MapMassMarksStyleOptions[]
     /** 设置样式 */
-    setStyle?: (style: AmapMassMarksStyleOptions | AmapMassMarksStyleOptions[]) => void
+    setStyle?: (style: MapMassMarksStyleOptions | MapMassMarksStyleOptions[]) => void
     /** 设置透明度 */
     setOpacity?: (opacity: number) => void
     /** 设置层级 */
     setzIndex?: (zIndex: number) => void
     /** 设置缩放范围 */
-    setZooms?: (zooms: AmapZoomRange) => void
+    setZooms?: (zooms: MapZoomRange) => void
     /** 显示 */
     show?: () => void
     /** 隐藏 */
@@ -486,21 +486,21 @@ export interface AmapMassMarksInstance {
     /** 清空 */
     clear?: () => void
     /** 绑定事件 */
-    on?: (eventName: string, handler: AmapEventHandler) => void
+    on?: (eventName: string, handler: MapEventHandler) => void
     /** 解绑事件 */
-    off?: (eventName: string, handler: AmapEventHandler) => void
+    off?: (eventName: string, handler: MapEventHandler) => void
 }
 
 /** 点聚合数据 */
-export interface AmapMarkerClusterData {
+export interface MapMarkerClusterData {
     /** 经纬度 */
-    lnglat: AmapLngLatLike
+    lnglat: MapLngLatLike
     /** 权重 */
     weight?: number
 }
 
 /** 点聚合样式 */
-export interface AmapMarkerClusterStyleOptions {
+export interface MapMarkerClusterStyleOptions {
     /** 图标地址 */
     url?: string
     /** 图标大小 */
@@ -516,7 +516,7 @@ export interface AmapMarkerClusterStyleOptions {
 }
 
 /** 点聚合基础参数 */
-export interface AmapMarkerClusterBaseOptions {
+export interface MapMarkerClusterBaseOptions {
     /** 聚合网格像素大小 */
     gridSize?: number
     /** 最大聚合缩放级别 */
@@ -526,7 +526,7 @@ export interface AmapMarkerClusterBaseOptions {
     /** 地图缩放过程中是否聚合 */
     clusterByZoomChange?: boolean
     /** 聚合样式 */
-    styles?: AmapMarkerClusterStyleOptions[]
+    styles?: MapMarkerClusterStyleOptions[]
     /** 自定义聚合点渲染 */
     renderClusterMarker?: (context: Record<string, unknown>) => void
     /** 自定义非聚合点渲染 */
@@ -534,145 +534,145 @@ export interface AmapMarkerClusterBaseOptions {
 }
 
 /** 点聚合构造参数 */
-export interface AmapMarkerClusterOptions extends AmapMarkerClusterBaseOptions {
+export interface MapMarkerClusterOptions extends MapMarkerClusterBaseOptions {
 }
 
 /** 点聚合实例 */
-export interface AmapMarkerClusterInstance {
+export interface MapMarkerClusterInstance {
     /** 添加数据 */
-    addData?: (data: AmapMarkerClusterData[]) => void
+    addData?: (data: MapMarkerClusterData[]) => void
     /** 设置数据 */
-    setData?: (data: AmapMarkerClusterData[]) => void
+    setData?: (data: MapMarkerClusterData[]) => void
     /** 设置网格大小 */
     setGridSize?: (size: number) => void
     /** 设置最大聚合缩放级别 */
     setMaxZoom?: (zoom: number) => void
     /** 设置样式 */
-    setStyles?: (styles: AmapMarkerClusterStyleOptions[]) => void
+    setStyles?: (styles: MapMarkerClusterStyleOptions[]) => void
     /** 设置平均中心 */
     setAverageCenter?: (averageCenter: boolean) => void
     /** 设置地图 */
-    setMap?: (map: AmapMapInstance | null) => void
+    setMap?: (map: MapInstance | null) => void
     /** 获取地图 */
-    getMap?: () => AmapMapInstance | null
+    getMap?: () => MapInstance | null
     /** 绑定事件 */
-    on?: (eventName: string, handler: AmapEventHandler) => void
+    on?: (eventName: string, handler: MapEventHandler) => void
     /** 解绑事件 */
-    off?: (eventName: string, handler: AmapEventHandler) => void
+    off?: (eventName: string, handler: MapEventHandler) => void
 }
 
 /** 文本标记鼠标事件 */
-export interface AmapTextMouseEvent extends AmapPointOverlayMouseEvent<AmapTextInstance> {}
+export interface MapTextMouseEvent extends MapPointOverlayMouseEvent<MapTextInstance> {}
 
 /** 文本标记交互坐标事件 */
-export interface AmapTextInteractionEvent extends AmapPointOverlayInteractionEvent<AmapTextInstance> {}
+export interface MapTextInteractionEvent extends MapPointOverlayInteractionEvent<MapTextInstance> {}
 
 /** 文本标记目标事件 */
-export interface AmapTextTargetEvent extends AmapPointOverlayTargetEvent<AmapTextInstance> {}
+export interface MapTextTargetEvent extends MapPointOverlayTargetEvent<MapTextInstance> {}
 
 /** 文本标记移动动画事件 */
-export interface AmapTextMoveEvent extends AmapPointOverlayMoveEvent<AmapTextInstance> {}
+export interface MapTextMoveEvent extends MapPointOverlayMoveEvent<MapTextInstance> {}
 
 /** 文本标记事件快捷属性 */
-export interface AmapTextEventShortcutProps extends AmapPointOverlayEventShortcutProps<AmapTextInstance> {}
+export interface MapTextEventShortcutProps extends MapPointOverlayEventShortcutProps<MapTextInstance> {}
 
 /** 灵活点标记鼠标事件 */
-export interface AmapElasticMarkerMouseEvent extends AmapPointOverlayMouseEvent<AmapElasticMarkerInstance> {}
+export interface MapElasticMarkerMouseEvent extends MapPointOverlayMouseEvent<MapElasticMarkerInstance> {}
 
 /** 灵活点标记交互坐标事件 */
-export interface AmapElasticMarkerInteractionEvent extends AmapPointOverlayInteractionEvent<AmapElasticMarkerInstance> {}
+export interface MapElasticMarkerInteractionEvent extends MapPointOverlayInteractionEvent<MapElasticMarkerInstance> {}
 
 /** 灵活点标记目标事件 */
-export interface AmapElasticMarkerTargetEvent extends AmapPointOverlayTargetEvent<AmapElasticMarkerInstance> {}
+export interface MapElasticMarkerTargetEvent extends MapPointOverlayTargetEvent<MapElasticMarkerInstance> {}
 
 /** 灵活点标记移动动画事件 */
-export interface AmapElasticMarkerMoveEvent extends AmapPointOverlayMoveEvent<AmapElasticMarkerInstance> {}
+export interface MapElasticMarkerMoveEvent extends MapPointOverlayMoveEvent<MapElasticMarkerInstance> {}
 
 /** 灵活点标记事件快捷属性 */
-export interface AmapElasticMarkerEventShortcutProps extends AmapPointOverlayEventShortcutProps<AmapElasticMarkerInstance> {}
+export interface MapElasticMarkerEventShortcutProps extends MapPointOverlayEventShortcutProps<MapElasticMarkerInstance> {}
 
 /** 标注图层鼠标事件 */
-export interface AmapLabelsLayerMouseEvent extends AmapPointOverlayMouseEvent<AmapLabelsLayerInstance> {}
+export interface MapLabelsLayerMouseEvent extends MapPointOverlayMouseEvent<MapLabelsLayerInstance> {}
 
 /** 标注图层交互坐标事件 */
-export interface AmapLabelsLayerInteractionEvent extends AmapPointOverlayInteractionEvent<AmapLabelsLayerInstance> {}
+export interface MapLabelsLayerInteractionEvent extends MapPointOverlayInteractionEvent<MapLabelsLayerInstance> {}
 
 /** 标注图层目标事件 */
-export interface AmapLabelsLayerTargetEvent extends AmapPointOverlayTargetEvent<AmapLabelsLayerInstance> {}
+export interface MapLabelsLayerTargetEvent extends MapPointOverlayTargetEvent<MapLabelsLayerInstance> {}
 
 /** 标注图层移动动画事件 */
-export interface AmapLabelsLayerMoveEvent extends AmapPointOverlayMoveEvent<AmapLabelsLayerInstance> {}
+export interface MapLabelsLayerMoveEvent extends MapPointOverlayMoveEvent<MapLabelsLayerInstance> {}
 
 /** 标注图层事件快捷属性 */
-export interface AmapLabelsLayerEventShortcutProps extends AmapPointOverlayEventShortcutProps<AmapLabelsLayerInstance> {}
+export interface MapLabelsLayerEventShortcutProps extends MapPointOverlayEventShortcutProps<MapLabelsLayerInstance> {}
 
 /** 标注鼠标事件 */
-export interface AmapLabelMarkerMouseEvent extends AmapPointOverlayMouseEvent<AmapLabelMarkerInstance> {}
+export interface MapLabelMarkerMouseEvent extends MapPointOverlayMouseEvent<MapLabelMarkerInstance> {}
 
 /** 标注交互坐标事件 */
-export interface AmapLabelMarkerInteractionEvent extends AmapPointOverlayInteractionEvent<AmapLabelMarkerInstance> {}
+export interface MapLabelMarkerInteractionEvent extends MapPointOverlayInteractionEvent<MapLabelMarkerInstance> {}
 
 /** 标注目标事件 */
-export interface AmapLabelMarkerTargetEvent extends AmapPointOverlayTargetEvent<AmapLabelMarkerInstance> {}
+export interface MapLabelMarkerTargetEvent extends MapPointOverlayTargetEvent<MapLabelMarkerInstance> {}
 
 /** 标注移动动画事件 */
-export interface AmapLabelMarkerMoveEvent extends AmapPointOverlayMoveEvent<AmapLabelMarkerInstance> {}
+export interface MapLabelMarkerMoveEvent extends MapPointOverlayMoveEvent<MapLabelMarkerInstance> {}
 
 /** 标注事件快捷属性 */
-export interface AmapLabelMarkerEventShortcutProps extends AmapPointOverlayEventShortcutProps<AmapLabelMarkerInstance> {}
+export interface MapLabelMarkerEventShortcutProps extends MapPointOverlayEventShortcutProps<MapLabelMarkerInstance> {}
 
 /** 海量点鼠标事件 */
-export interface AmapMassMarksMouseEvent extends AmapPointOverlayMouseEvent<AmapMassMarksInstance> {}
+export interface MapMassMarksMouseEvent extends MapPointOverlayMouseEvent<MapMassMarksInstance> {}
 
 /** 海量点交互坐标事件 */
-export interface AmapMassMarksInteractionEvent extends AmapPointOverlayInteractionEvent<AmapMassMarksInstance> {}
+export interface MapMassMarksInteractionEvent extends MapPointOverlayInteractionEvent<MapMassMarksInstance> {}
 
 /** 海量点目标事件 */
-export interface AmapMassMarksTargetEvent extends AmapPointOverlayTargetEvent<AmapMassMarksInstance> {}
+export interface MapMassMarksTargetEvent extends MapPointOverlayTargetEvent<MapMassMarksInstance> {}
 
 /** 海量点移动动画事件 */
-export interface AmapMassMarksMoveEvent extends AmapPointOverlayMoveEvent<AmapMassMarksInstance> {}
+export interface MapMassMarksMoveEvent extends MapPointOverlayMoveEvent<MapMassMarksInstance> {}
 
 /** 海量点事件快捷属性 */
-export interface AmapMassMarksEventShortcutProps extends AmapPointOverlayEventShortcutProps<AmapMassMarksInstance> {}
+export interface MapMassMarksEventShortcutProps extends MapPointOverlayEventShortcutProps<MapMassMarksInstance> {}
 
 /** 点聚合鼠标事件 */
-export interface AmapMarkerClusterMouseEvent extends AmapPointOverlayMouseEvent<AmapMarkerClusterInstance> {}
+export interface MapMarkerClusterMouseEvent extends MapPointOverlayMouseEvent<MapMarkerClusterInstance> {}
 
 /** 点聚合交互坐标事件 */
-export interface AmapMarkerClusterInteractionEvent extends AmapPointOverlayInteractionEvent<AmapMarkerClusterInstance> {}
+export interface MapMarkerClusterInteractionEvent extends MapPointOverlayInteractionEvent<MapMarkerClusterInstance> {}
 
 /** 点聚合目标事件 */
-export interface AmapMarkerClusterTargetEvent extends AmapPointOverlayTargetEvent<AmapMarkerClusterInstance> {}
+export interface MapMarkerClusterTargetEvent extends MapPointOverlayTargetEvent<MapMarkerClusterInstance> {}
 
 /** 点聚合移动动画事件 */
-export interface AmapMarkerClusterMoveEvent extends AmapPointOverlayMoveEvent<AmapMarkerClusterInstance> {}
+export interface MapMarkerClusterMoveEvent extends MapPointOverlayMoveEvent<MapMarkerClusterInstance> {}
 
 /** 点聚合事件快捷属性 */
-export interface AmapMarkerClusterEventShortcutProps extends AmapPointOverlayEventShortcutProps<AmapMarkerClusterInstance> {}
+export interface MapMarkerClusterEventShortcutProps extends MapPointOverlayEventShortcutProps<MapMarkerClusterInstance> {}
 
 /** 支持点标记扩展构造器的高德命名空间 */
-export interface AmapPointNamespace extends AmapNamespace {
+export interface MapPointNamespace extends MapNamespace {
     /** Text 构造器 */
-    Text?: new (options?: AmapTextOptions) => AmapTextInstance
+    Text?: new (options?: MapTextOptions) => MapTextInstance
     /** ElasticMarker 构造器 */
-    ElasticMarker?: new (options?: AmapElasticMarkerOptions) => AmapElasticMarkerInstance
+    ElasticMarker?: new (options?: MapElasticMarkerOptions) => MapElasticMarkerInstance
     /** LabelMarker 构造器 */
-    LabelMarker?: new (options?: AmapLabelMarkerOptions) => AmapLabelMarkerInstance
+    LabelMarker?: new (options?: MapLabelMarkerOptions) => MapLabelMarkerInstance
     /** LabelsLayer 构造器 */
-    LabelsLayer?: new (options?: AmapLabelsLayerOptions) => AmapLabelsLayerInstance
+    LabelsLayer?: new (options?: MapLabelsLayerOptions) => MapLabelsLayerInstance
     /** MassMarks 构造器 */
-    MassMarks?: new (data?: AmapMassMarksData[], options?: AmapMassMarksOptions) => AmapMassMarksInstance
+    MassMarks?: new (data?: MapMassMarksData[], options?: MapMassMarksOptions) => MapMassMarksInstance
     /** MarkerCluster 构造器 */
     MarkerCluster?: new (
-        map: AmapMapInstance,
-        data?: AmapMarkerClusterData[],
-        options?: AmapMarkerClusterOptions
-    ) => AmapMarkerClusterInstance
+        map: MapInstance,
+        data?: MapMarkerClusterData[],
+        options?: MapMarkerClusterOptions
+    ) => MapMarkerClusterInstance
 }
 
 /** 设置 ref 参数 */
-export interface SetAmapPointRefParams<TInstance> {
+export interface SetMapPointRefParams<TInstance> {
     /** 外部 ref */
     ref?: Ref<TInstance | null>
     /** 实例 */
@@ -680,165 +680,165 @@ export interface SetAmapPointRefParams<TInstance> {
 }
 
 /** 事件绑定参数 */
-export interface BindAmapPointEventsParams<TInstance extends AmapPointEventTarget> {
+export interface BindMapPointEventsParams<TInstance extends MapPointEventTarget> {
     /** 实例 */
     instance: TInstance
     /** 事件映射 */
-    events?: AmapMarkerEvents
+    events?: MapMarkerEvents
 }
 
 /** 点事件目标 */
-export interface AmapPointEventTarget {
+export interface MapPointEventTarget {
     /** 绑定事件 */
-    on?: (eventName: string, handler: AmapEventHandler) => void
+    on?: (eventName: string, handler: MapEventHandler) => void
     /** 解绑事件 */
-    off?: (eventName: string, handler: AmapEventHandler) => void
+    off?: (eventName: string, handler: MapEventHandler) => void
 }
 
 /** 文本标记组件属性 */
-export interface TextProps extends AmapTextBaseOptions, AmapTextEventShortcutProps {
+export interface TextProps extends MapTextBaseOptions, MapTextEventShortcutProps {
     /** 文本标记实例 ref */
-    ref?: Ref<AmapTextInstance | null>
+    ref?: Ref<MapTextInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 文本标记额外参数 */
-    textOptions?: AmapTextOptions
+    textOptions?: MapTextOptions
     /** 文本标记事件映射 */
-    events?: AmapMarkerEvents<AmapTextInstance>
+    events?: MapMarkerEvents<MapTextInstance>
     /** 创建完成回调 */
-    onLoad?: AmapPointOverlayOnLoad<AmapTextInstance>
+    onLoad?: MapPointOverlayOnLoad<MapTextInstance>
     /** 销毁前回调 */
-    onDestroy?: AmapPointOverlayOnDestroy<AmapTextInstance>
+    onDestroy?: MapPointOverlayOnDestroy<MapTextInstance>
 }
 
 /** 灵活点标记组件属性 */
-export interface ElasticMarkerProps extends AmapElasticMarkerBaseOptions, AmapElasticMarkerEventShortcutProps {
+export interface ElasticMarkerProps extends MapElasticMarkerBaseOptions, MapElasticMarkerEventShortcutProps {
     /** 灵活点标记实例 ref */
-    ref?: Ref<AmapElasticMarkerInstance | null>
+    ref?: Ref<MapElasticMarkerInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 灵活点标记额外参数 */
-    elasticMarkerOptions?: AmapElasticMarkerOptions
+    elasticMarkerOptions?: MapElasticMarkerOptions
     /** 灵活点标记事件映射 */
-    events?: AmapMarkerEvents<AmapElasticMarkerInstance>
+    events?: MapMarkerEvents<MapElasticMarkerInstance>
     /** 创建完成回调 */
-    onLoad?: AmapPointOverlayOnLoad<AmapElasticMarkerInstance>
+    onLoad?: MapPointOverlayOnLoad<MapElasticMarkerInstance>
     /** 销毁前回调 */
-    onDestroy?: AmapPointOverlayOnDestroy<AmapElasticMarkerInstance>
+    onDestroy?: MapPointOverlayOnDestroy<MapElasticMarkerInstance>
 }
 
 /** 标注图层组件属性 */
-export interface LabelsLayerProps extends AmapLabelsLayerBaseOptions, AmapLabelsLayerEventShortcutProps {
+export interface LabelsLayerProps extends MapLabelsLayerBaseOptions, MapLabelsLayerEventShortcutProps {
     /** 标注图层实例 ref */
-    ref?: Ref<AmapLabelsLayerInstance | null>
+    ref?: Ref<MapLabelsLayerInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 子标注 */
     children?: ReactNode
     /** 标注图层额外参数 */
-    labelsLayerOptions?: AmapLabelsLayerOptions
+    labelsLayerOptions?: MapLabelsLayerOptions
     /** 标注图层事件映射 */
-    events?: AmapMarkerEvents<AmapLabelsLayerInstance>
+    events?: MapMarkerEvents<MapLabelsLayerInstance>
     /** 创建完成回调 */
-    onLoad?: (layer: AmapLabelsLayerInstance) => void
+    onLoad?: (layer: MapLabelsLayerInstance) => void
     /** 销毁前回调 */
-    onDestroy?: (layer: AmapLabelsLayerInstance) => void
+    onDestroy?: (layer: MapLabelsLayerInstance) => void
 }
 
 /** 标注组件属性 */
-export interface LabelMarkerProps extends AmapLabelMarkerBaseOptions, AmapLabelMarkerEventShortcutProps {
+export interface LabelMarkerProps extends MapLabelMarkerBaseOptions, MapLabelMarkerEventShortcutProps {
     /** 标注实例 ref */
-    ref?: Ref<AmapLabelMarkerInstance | null>
+    ref?: Ref<MapLabelMarkerInstance | null>
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 标注额外参数 */
-    labelMarkerOptions?: AmapLabelMarkerOptions
+    labelMarkerOptions?: MapLabelMarkerOptions
     /** 标注事件映射 */
-    events?: AmapMarkerEvents<AmapLabelMarkerInstance>
+    events?: MapMarkerEvents<MapLabelMarkerInstance>
     /** 创建完成回调 */
-    onLoad?: (marker: AmapLabelMarkerInstance) => void
+    onLoad?: (marker: MapLabelMarkerInstance) => void
     /** 销毁前回调 */
-    onDestroy?: (marker: AmapLabelMarkerInstance) => void
+    onDestroy?: (marker: MapLabelMarkerInstance) => void
 }
 
 /** 海量点组件属性 */
-export interface MassMarksProps extends AmapMassMarksBaseOptions, AmapMassMarksEventShortcutProps {
+export interface MassMarksProps extends MapMassMarksBaseOptions, MapMassMarksEventShortcutProps {
     /** 海量点实例 ref */
-    ref?: Ref<AmapMassMarksInstance | null>
+    ref?: Ref<MapMassMarksInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 海量点数据 */
-    data?: AmapMassMarksData[]
+    data?: MapMassMarksData[]
     /** 海量点额外参数 */
-    massMarksOptions?: AmapMassMarksOptions
+    massMarksOptions?: MapMassMarksOptions
     /** 海量点事件映射 */
-    events?: AmapMarkerEvents<AmapMassMarksInstance>
+    events?: MapMarkerEvents<MapMassMarksInstance>
     /** 创建完成回调 */
-    onLoad?: (massMarks: AmapMassMarksInstance) => void
+    onLoad?: (massMarks: MapMassMarksInstance) => void
     /** 销毁前回调 */
-    onDestroy?: (massMarks: AmapMassMarksInstance) => void
+    onDestroy?: (massMarks: MapMassMarksInstance) => void
 }
 
 /** 点聚合组件属性 */
-export interface MarkerClusterProps extends AmapMarkerClusterBaseOptions, AmapMarkerClusterEventShortcutProps {
+export interface MarkerClusterProps extends MapMarkerClusterBaseOptions, MapMarkerClusterEventShortcutProps {
     /** 点聚合实例 ref */
-    ref?: Ref<AmapMarkerClusterInstance | null>
+    ref?: Ref<MapMarkerClusterInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 聚合数据 */
-    data?: AmapMarkerClusterData[]
+    data?: MapMarkerClusterData[]
     /** 点聚合额外参数 */
-    markerClusterOptions?: AmapMarkerClusterOptions
+    markerClusterOptions?: MapMarkerClusterOptions
     /** 点聚合事件映射 */
-    events?: AmapMarkerEvents<AmapMarkerClusterInstance>
+    events?: MapMarkerEvents<MapMarkerClusterInstance>
     /** 创建完成回调 */
-    onLoad?: (markerCluster: AmapMarkerClusterInstance) => void
+    onLoad?: (markerCluster: MapMarkerClusterInstance) => void
     /** 销毁前回调 */
-    onDestroy?: (markerCluster: AmapMarkerClusterInstance) => void
+    onDestroy?: (markerCluster: MapMarkerClusterInstance) => void
 }
 
 /** LabelsLayer 上下文数据 */
-export interface AmapLabelsLayerContextValue {
+export interface MapLabelsLayerContextValue {
     /** 标注图层实例 */
-    layer: AmapLabelsLayerInstance
+    layer: MapLabelsLayerInstance
     /** 添加标注并同步图层状态 */
-    addMarker(marker: AmapLabelMarkerInstance): void
+    addMarker(marker: MapLabelMarkerInstance): void
     /** 移除标注 */
-    removeMarker(marker: AmapLabelMarkerInstance): void
+    removeMarker(marker: MapLabelMarkerInstance): void
     /** 同步子标注变更后的图层状态 */
     sync(): void
     /** 同步所有子标注 */
     syncChildren(): void
     /** 注册子标注同步函数 */
-    registerChildSync(sync: AmapGroupChildSync): AmapGroupChildSyncCleanup
+    registerChildSync(sync: MapGroupChildSync): MapGroupChildSyncCleanup
 }
 
 /** 创建 LabelsLayer 上下文参数 */
-export interface CreateAmapLabelsLayerContextValueParams {
+export interface CreateMapLabelsLayerContextValueParams {
     /** 标注图层实例 */
-    layer: AmapLabelsLayerInstance
+    layer: MapLabelsLayerInstance
     /** 获取最新标注图层参数 */
-    getOptions: () => AmapLabelsLayerOptions
+    getOptions: () => MapLabelsLayerOptions
 }
 
 /** LabelsLayer 上下文 */
-export const LabelsLayerContext = createContext<AmapLabelsLayerContextValue | null>(null)
+export const LabelsLayerContext = createContext<MapLabelsLayerContextValue | null>(null)
 
 export function useLabelsLayerContext() {
     return useContext(LabelsLayerContext)
 }
 
-function setAmapPointRef<TInstance>({ ref, instance }: SetAmapPointRefParams<TInstance>) {
+function setMapPointRef<TInstance>({ ref, instance }: SetMapPointRefParams<TInstance>) {
     if (!ref) return
 
     if (typeof ref === "function") {
@@ -849,22 +849,22 @@ function setAmapPointRef<TInstance>({ ref, instance }: SetAmapPointRefParams<TIn
     ref.current = instance
 }
 
-function bindAmapPointEvents<TInstance extends AmapPointEventTarget>({
+function bindMapPointEvents<TInstance extends MapPointEventTarget>({
     instance,
     events,
-}: BindAmapPointEventsParams<TInstance>) {
-    const eventEntries = getAmapEventEntries(events)
+}: BindMapPointEventsParams<TInstance>) {
+    const eventEntries = getMapEventEntries(events)
 
     eventEntries.forEach(({ eventName, handler }) => instance.on?.(eventName, handler))
 
-    return function unbindAmapPointEvents() {
+    return function unbindMapPointEvents() {
         eventEntries.forEach(({ eventName, handler }) => instance.off?.(eventName, handler))
     }
 }
 
-function removeAmapPointOverlay<TInstance extends AmapPointOverlayInstance>(
+function removeMapPointOverlay<TInstance extends MapPointOverlayInstance>(
     overlay: TInstance,
-    onDestroy?: AmapPointOverlayOnDestroy<TInstance>
+    onDestroy?: MapPointOverlayOnDestroy<TInstance>
 ) {
     try {
         onDestroy?.(overlay)
@@ -877,11 +877,11 @@ function removeAmapPointOverlay<TInstance extends AmapPointOverlayInstance>(
     }
 }
 
-function updateAmapPointOverlay<TInstance extends AmapPointOverlayInstance>(
+function updateMapPointOverlay<TInstance extends MapPointOverlayInstance>(
     overlay: TInstance,
-    options: AmapPointOverlayOptions
+    options: MapPointOverlayOptions
 ) {
-    const runtimeOptions = options as AmapPointOverlayRuntimeOptions
+    const runtimeOptions = options as MapPointOverlayRuntimeOptions
 
     overlay.setOptions?.(options)
 
@@ -903,8 +903,8 @@ function updateAmapPointOverlay<TInstance extends AmapPointOverlayInstance>(
     overlay.hide?.()
 }
 
-function updateAmapText(text: AmapTextInstance, options: AmapTextOptions) {
-    updateAmapPointOverlay(text, options)
+function updateMapText(text: MapTextInstance, options: MapTextOptions) {
+    updateMapPointOverlay(text, options)
 
     if (typeof options.text === "string") text.setText?.(options.text)
     if (options.style) text.setStyle?.(options.style)
@@ -913,7 +913,7 @@ function updateAmapText(text: AmapTextInstance, options: AmapTextOptions) {
     if (typeof options.angle === "number") text.setAngle?.(options.angle)
 }
 
-function mergeAmapPointOptions<TOptions extends object>(
+function mergeMapPointOptions<TOptions extends object>(
     options: TOptions | undefined,
     extraOptions: TOptions
 ) {
@@ -928,7 +928,7 @@ function mergeAmapPointOptions<TOptions extends object>(
     return nextOptions
 }
 
-function updateAmapLabelsLayer(layer: AmapLabelsLayerInstance, options: AmapLabelsLayerOptions) {
+function updateMapLabelsLayer(layer: MapLabelsLayerInstance, options: MapLabelsLayerOptions) {
     layer.setOptions?.(options)
 
     if (typeof options.allowCollision === "boolean") layer.setAllowCollision?.(options.allowCollision)
@@ -944,22 +944,22 @@ function updateAmapLabelsLayer(layer: AmapLabelsLayerInstance, options: AmapLabe
     layer.hide?.()
 }
 
-function syncAmapLabelsLayerAfterChildChange(layer: AmapLabelsLayerInstance, options: AmapLabelsLayerOptions) {
+function syncMapLabelsLayerAfterChildChange(layer: MapLabelsLayerInstance, options: MapLabelsLayerOptions) {
     const { visible, ...setOptions } = options
 
-    updateAmapLabelsLayer(layer, setOptions)
+    updateMapLabelsLayer(layer, setOptions)
 
     if (visible === false) layer.hide?.()
 }
 
-function createAmapLabelsLayerContextValue({
+function createMapLabelsLayerContextValue({
     layer,
     getOptions,
-}: CreateAmapLabelsLayerContextValueParams): AmapLabelsLayerContextValue {
-    const childSyncs = new Set<AmapGroupChildSync>()
+}: CreateMapLabelsLayerContextValueParams): MapLabelsLayerContextValue {
+    const childSyncs = new Set<MapGroupChildSync>()
 
     function sync() {
-        syncAmapLabelsLayerAfterChildChange(layer, getOptions())
+        syncMapLabelsLayerAfterChildChange(layer, getOptions())
     }
 
     function syncChildren() {
@@ -980,14 +980,14 @@ function createAmapLabelsLayerContextValue({
         registerChildSync(childSync) {
             childSyncs.add(childSync)
 
-            return function unregisterAmapLabelsLayerChildSync() {
+            return function unregisterMapLabelsLayerChildSync() {
                 childSyncs.delete(childSync)
             }
         },
     }
 }
 
-function removeAmapLabelsLayer(layer: AmapLabelsLayerInstance, onDestroy?: (layer: AmapLabelsLayerInstance) => void) {
+function removeMapLabelsLayer(layer: MapLabelsLayerInstance, onDestroy?: (layer: MapLabelsLayerInstance) => void) {
     try {
         onDestroy?.(layer)
     } finally {
@@ -996,7 +996,7 @@ function removeAmapLabelsLayer(layer: AmapLabelsLayerInstance, onDestroy?: (laye
     }
 }
 
-function updateAmapLabelMarker(marker: AmapLabelMarkerInstance, options: AmapLabelMarkerOptions) {
+function updateMapLabelMarker(marker: MapLabelMarkerInstance, options: MapLabelMarkerOptions) {
     marker.setOptions?.(options)
 
     if (options.position !== undefined) marker.setPosition?.(options.position)
@@ -1015,7 +1015,7 @@ function updateAmapLabelMarker(marker: AmapLabelMarkerInstance, options: AmapLab
     marker.hide?.()
 }
 
-function updateAmapMassMarks(massMarks: AmapMassMarksInstance, data: AmapMassMarksData[], options: AmapMassMarksOptions) {
+function updateMapMassMarks(massMarks: MapMassMarksInstance, data: MapMassMarksData[], options: MapMassMarksOptions) {
     massMarks.setData?.(data)
 
     if (options.style) massMarks.setStyle?.(options.style)
@@ -1033,10 +1033,10 @@ function updateAmapMassMarks(massMarks: AmapMassMarksInstance, data: AmapMassMar
     massMarks.hide?.()
 }
 
-function updateAmapMarkerCluster(
-    markerCluster: AmapMarkerClusterInstance,
-    data: AmapMarkerClusterData[],
-    options: AmapMarkerClusterOptions
+function updateMapMarkerCluster(
+    markerCluster: MapMarkerClusterInstance,
+    data: MapMarkerClusterData[],
+    options: MapMarkerClusterOptions
 ) {
     markerCluster.setData?.(data)
 
@@ -1056,16 +1056,16 @@ export const Text: FC<TextProps> = ({
     onDestroy: _onDestroy,
     ...restProps
 }) => {
-    const context = useAmapContext()
-    const textRef = useRef<AmapTextInstance | null>(null)
+    const context = useMapContext()
+    const textRef = useRef<MapTextInstance | null>(null)
     const currentMap = map ?? context.map
-    const currentAMap = (AMap ?? context.AMap) as AmapPointNamespace | null
-    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
-    const currentOptions = mergeAmapPointOptions(textOptions, restOptions as AmapTextOptions)
-    const currentEvents = mergeAmapEvents({
+    const currentAMap = (AMap ?? context.AMap) as MapPointNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
+    const currentOptions = mergeMapPointOptions(textOptions, restOptions as MapTextOptions)
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapMarkerEvents
+    }) as MapMarkerEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -1078,34 +1078,34 @@ export const Text: FC<TextProps> = ({
 
         currentMap.add?.(text)
         textRef.current = text
-        setAmapPointRef({
+        setMapPointRef({
             ref,
             instance: text,
         })
-        updateAmapText(text, initialOptions)
+        updateMapText(text, initialOptions)
         onLoad(text)
 
         return () => {
             textRef.current = null
-            setAmapPointRef({
+            setMapPointRef({
                 ref,
                 instance: null,
             })
 
-            removeAmapPointOverlay(text, onDestroy)
+            removeMapPointOverlay(text, onDestroy)
         }
     }, [currentAMap, currentMap, ref])
 
     useStableEffect(() => {
         if (!textRef.current) return
 
-        updateAmapText(textRef.current, currentOptions)
+        updateMapText(textRef.current, currentOptions)
     }, [currentOptions])
 
     useStableEffect(() => {
         if (!textRef.current) return
 
-        return bindAmapPointEvents({
+        return bindMapPointEvents({
             instance: textRef.current,
             events: currentEvents,
         })
@@ -1124,22 +1124,22 @@ export const ElasticMarker: FC<ElasticMarkerProps> = ({
     onDestroy: _onDestroy,
     ...restProps
 }) => {
-    const context = useAmapContext()
-    const markerRef = useRef<AmapElasticMarkerInstance | null>(null)
+    const context = useMapContext()
+    const markerRef = useRef<MapElasticMarkerInstance | null>(null)
     const currentMap = map ?? context.map
-    const currentAMap = (AMap ?? context.AMap) as AmapPointNamespace | null
-    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
-    const pluginLoaded = useAmapPlugin({
+    const currentAMap = (AMap ?? context.AMap) as MapPointNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
+    const pluginLoaded = useMapPlugin({
         map: currentMap,
         AMap: currentAMap,
-        pluginName: AmapPlugin.ElasticMarker,
+        pluginName: MapPlugin.ElasticMarker,
         constructorName: "ElasticMarker",
     })
-    const currentOptions = mergeAmapPointOptions(elasticMarkerOptions, restOptions as AmapElasticMarkerOptions)
-    const currentEvents = mergeAmapEvents({
+    const currentOptions = mergeMapPointOptions(elasticMarkerOptions, restOptions as MapElasticMarkerOptions)
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapMarkerEvents
+    }) as MapMarkerEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -1152,34 +1152,34 @@ export const ElasticMarker: FC<ElasticMarkerProps> = ({
 
         currentMap.add?.(marker)
         markerRef.current = marker
-        setAmapPointRef({
+        setMapPointRef({
             ref,
             instance: marker,
         })
-        updateAmapPointOverlay(marker, initialOptions)
+        updateMapPointOverlay(marker, initialOptions)
         onLoad(marker)
 
         return () => {
             markerRef.current = null
-            setAmapPointRef({
+            setMapPointRef({
                 ref,
                 instance: null,
             })
 
-            removeAmapPointOverlay(marker, onDestroy)
+            removeMapPointOverlay(marker, onDestroy)
         }
     }, [currentAMap, currentMap, pluginLoaded, ref])
 
     useStableEffect(() => {
         if (!markerRef.current) return
 
-        updateAmapPointOverlay(markerRef.current, currentOptions)
+        updateMapPointOverlay(markerRef.current, currentOptions)
     }, [currentOptions])
 
     useStableEffect(() => {
         if (!markerRef.current) return
 
-        return bindAmapPointEvents({
+        return bindMapPointEvents({
             instance: markerRef.current,
             events: currentEvents,
         })
@@ -1199,19 +1199,19 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
     onDestroy: _onDestroy,
     ...restProps
 }) => {
-    const context = useAmapContext()
+    const context = useMapContext()
     const contextGroup = useLayerGroupContext()
-    const layerRef = useRef<AmapLabelsLayerInstance | null>(null)
-    const [contextValue, setContextValue] = useState<AmapLabelsLayerContextValue | null>(null)
+    const layerRef = useRef<MapLabelsLayerInstance | null>(null)
+    const [contextValue, setContextValue] = useState<MapLabelsLayerContextValue | null>(null)
     const currentMap = map ?? context.map
-    const currentAMap = (AMap ?? context.AMap) as AmapPointNamespace | null
+    const currentAMap = (AMap ?? context.AMap) as MapPointNamespace | null
     const currentGroup = map ? null : contextGroup
-    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
-    const currentOptions = mergeAmapPointOptions(labelsLayerOptions, restOptions as AmapLabelsLayerOptions)
-    const currentEvents = mergeAmapEvents({
+    const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
+    const currentOptions = mergeMapPointOptions(labelsLayerOptions, restOptions as MapLabelsLayerOptions)
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapMarkerEvents
+    }) as MapMarkerEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getCurrentOptions = useEffectEvent(() => currentOptions)
@@ -1226,22 +1226,22 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
         else currentMap.add?.(layer)
 
         layerRef.current = layer
-        setContextValue(createAmapLabelsLayerContextValue({
+        setContextValue(createMapLabelsLayerContextValue({
             layer,
             getOptions: getCurrentOptions,
         }))
-        setAmapPointRef({
+        setMapPointRef({
             ref,
             instance: layer,
         })
-        updateAmapLabelsLayer(layer, initialOptions)
+        updateMapLabelsLayer(layer, initialOptions)
         currentGroup?.sync()
         onLoad(layer)
 
         return () => {
             layerRef.current = null
             setContextValue(null)
-            setAmapPointRef({
+            setMapPointRef({
                 ref,
                 instance: null,
             })
@@ -1258,14 +1258,14 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
                 return
             }
 
-            removeAmapLabelsLayer(layer, onDestroy)
+            removeMapLabelsLayer(layer, onDestroy)
         }
     }, [currentAMap, currentGroup, currentMap, ref])
 
     useStableEffect(() => {
         if (!layerRef.current) return
 
-        updateAmapLabelsLayer(layerRef.current, currentOptions)
+        updateMapLabelsLayer(layerRef.current, currentOptions)
         currentGroup?.sync()
         contextValue?.syncChildren()
         if (currentOptions.visible === false) layerRef.current.hide?.()
@@ -1277,7 +1277,7 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
         return currentGroup.registerChildSync(() => {
             if (!layerRef.current) return
 
-            updateAmapLabelsLayer(layerRef.current, currentOptions)
+            updateMapLabelsLayer(layerRef.current, currentOptions)
             contextValue?.syncChildren()
             if (currentOptions.visible === false) layerRef.current.hide?.()
         })
@@ -1286,7 +1286,7 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
     useStableEffect(() => {
         if (!layerRef.current) return
 
-        return bindAmapPointEvents({
+        return bindMapPointEvents({
             instance: layerRef.current,
             events: currentEvents,
         })
@@ -1304,17 +1304,17 @@ export const LabelMarker: FC<LabelMarkerProps> = ({
     onDestroy: _onDestroy,
     ...restProps
 }) => {
-    const context = useAmapContext()
+    const context = useMapContext()
     const contextLayer = useLabelsLayerContext()
-    const markerRef = useRef<AmapLabelMarkerInstance | null>(null)
+    const markerRef = useRef<MapLabelMarkerInstance | null>(null)
     const currentLayer = contextLayer
-    const currentAMap = (AMap ?? context.AMap) as AmapPointNamespace | null
-    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
-    const currentOptions = mergeAmapPointOptions(labelMarkerOptions, restOptions as AmapLabelMarkerOptions)
-    const currentEvents = mergeAmapEvents({
+    const currentAMap = (AMap ?? context.AMap) as MapPointNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
+    const currentOptions = mergeMapPointOptions(labelMarkerOptions, restOptions as MapLabelMarkerOptions)
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapMarkerEvents
+    }) as MapMarkerEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -1327,17 +1327,17 @@ export const LabelMarker: FC<LabelMarkerProps> = ({
 
         currentLayer.addMarker(marker)
         markerRef.current = marker
-        setAmapPointRef({
+        setMapPointRef({
             ref,
             instance: marker,
         })
-        updateAmapLabelMarker(marker, initialOptions)
+        updateMapLabelMarker(marker, initialOptions)
         currentLayer.sync()
         onLoad(marker)
 
         return () => {
             markerRef.current = null
-            setAmapPointRef({
+            setMapPointRef({
                 ref,
                 instance: null,
             })
@@ -1353,7 +1353,7 @@ export const LabelMarker: FC<LabelMarkerProps> = ({
     useStableEffect(() => {
         if (!markerRef.current) return
 
-        updateAmapLabelMarker(markerRef.current, currentOptions)
+        updateMapLabelMarker(markerRef.current, currentOptions)
         currentLayer?.sync()
     }, [currentLayer, currentOptions])
 
@@ -1363,14 +1363,14 @@ export const LabelMarker: FC<LabelMarkerProps> = ({
         return currentLayer.registerChildSync(() => {
             if (!markerRef.current) return
 
-            updateAmapLabelMarker(markerRef.current, currentOptions)
+            updateMapLabelMarker(markerRef.current, currentOptions)
         })
     }, [currentLayer, currentOptions])
 
     useStableEffect(() => {
         if (!markerRef.current) return
 
-        return bindAmapPointEvents({
+        return bindMapPointEvents({
             instance: markerRef.current,
             events: currentEvents,
         })
@@ -1390,16 +1390,16 @@ export const MassMarks: FC<MassMarksProps> = ({
     onDestroy: _onDestroy,
     ...restProps
 }) => {
-    const context = useAmapContext()
-    const massMarksRef = useRef<AmapMassMarksInstance | null>(null)
+    const context = useMapContext()
+    const massMarksRef = useRef<MapMassMarksInstance | null>(null)
     const currentMap = map ?? context.map
-    const currentAMap = (AMap ?? context.AMap) as AmapPointNamespace | null
-    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
-    const currentOptions = mergeAmapPointOptions(massMarksOptions, restOptions as AmapMassMarksOptions)
-    const currentEvents = mergeAmapEvents({
+    const currentAMap = (AMap ?? context.AMap) as MapPointNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
+    const currentOptions = mergeMapPointOptions(massMarksOptions, restOptions as MapMassMarksOptions)
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapMarkerEvents
+    }) as MapMarkerEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -1414,16 +1414,16 @@ export const MassMarks: FC<MassMarksProps> = ({
 
         currentMap.add?.(massMarks)
         massMarksRef.current = massMarks
-        setAmapPointRef({
+        setMapPointRef({
             ref,
             instance: massMarks,
         })
-        updateAmapMassMarks(massMarks, initialData, initialOptions)
+        updateMapMassMarks(massMarks, initialData, initialOptions)
         onLoad(massMarks)
 
         return () => {
             massMarksRef.current = null
-            setAmapPointRef({
+            setMapPointRef({
                 ref,
                 instance: null,
             })
@@ -1440,13 +1440,13 @@ export const MassMarks: FC<MassMarksProps> = ({
     useStableEffect(() => {
         if (!massMarksRef.current) return
 
-        updateAmapMassMarks(massMarksRef.current, data, currentOptions)
+        updateMapMassMarks(massMarksRef.current, data, currentOptions)
     }, [currentOptions, data])
 
     useStableEffect(() => {
         if (!massMarksRef.current) return
 
-        return bindAmapPointEvents({
+        return bindMapPointEvents({
             instance: massMarksRef.current,
             events: currentEvents,
         })
@@ -1466,22 +1466,22 @@ export const MarkerCluster: FC<MarkerClusterProps> = ({
     onDestroy: _onDestroy,
     ...restProps
 }) => {
-    const context = useAmapContext()
-    const markerClusterRef = useRef<AmapMarkerClusterInstance | null>(null)
+    const context = useMapContext()
+    const markerClusterRef = useRef<MapMarkerClusterInstance | null>(null)
     const currentMap = map ?? context.map
-    const currentAMap = (AMap ?? context.AMap) as AmapPointNamespace | null
-    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
-    const pluginLoaded = useAmapPlugin({
+    const currentAMap = (AMap ?? context.AMap) as MapPointNamespace | null
+    const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
+    const pluginLoaded = useMapPlugin({
         map: currentMap,
         AMap: currentAMap,
-        pluginName: AmapPlugin.MarkerCluster,
+        pluginName: MapPlugin.MarkerCluster,
         constructorName: "MarkerCluster",
     })
-    const currentOptions = mergeAmapPointOptions(markerClusterOptions, restOptions as AmapMarkerClusterOptions)
-    const currentEvents = mergeAmapEvents({
+    const currentOptions = mergeMapPointOptions(markerClusterOptions, restOptions as MapMarkerClusterOptions)
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapMarkerEvents
+    }) as MapMarkerEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -1495,16 +1495,16 @@ export const MarkerCluster: FC<MarkerClusterProps> = ({
         const markerCluster = new currentAMap.MarkerCluster(currentMap, initialData, initialOptions)
 
         markerClusterRef.current = markerCluster
-        setAmapPointRef({
+        setMapPointRef({
             ref,
             instance: markerCluster,
         })
-        updateAmapMarkerCluster(markerCluster, initialData, initialOptions)
+        updateMapMarkerCluster(markerCluster, initialData, initialOptions)
         onLoad(markerCluster)
 
         return () => {
             markerClusterRef.current = null
-            setAmapPointRef({
+            setMapPointRef({
                 ref,
                 instance: null,
             })
@@ -1520,13 +1520,13 @@ export const MarkerCluster: FC<MarkerClusterProps> = ({
     useStableEffect(() => {
         if (!markerClusterRef.current) return
 
-        updateAmapMarkerCluster(markerClusterRef.current, data, currentOptions)
+        updateMapMarkerCluster(markerClusterRef.current, data, currentOptions)
     }, [currentOptions, data])
 
     useStableEffect(() => {
         if (!markerClusterRef.current) return
 
-        return bindAmapPointEvents({
+        return bindMapPointEvents({
             instance: markerClusterRef.current,
             events: currentEvents,
         })

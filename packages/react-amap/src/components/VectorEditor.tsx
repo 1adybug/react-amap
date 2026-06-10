@@ -1,125 +1,125 @@
 import { type FC, type Ref, useEffectEvent, useRef } from "react"
 
 import {
-    AmapPlugin,
-    type AmapEventHandler,
-    type AmapMapInstance,
-    type AmapNamespace,
-    useAmapContext,
-} from "./Amap"
+    MapPlugin,
+    type MapEventHandler,
+    type MapInstance,
+    type MapNamespace,
+    useMapContext,
+} from "./Map"
 import {
-    type AmapBezierCurveInstance,
-    type AmapCircleInstance,
-    type AmapCircleMarkerOptions,
-    type AmapEllipseInstance,
-    type AmapPolygonInstance,
-    type AmapPolylineInstance,
-    type AmapPolylineOptions,
-    type AmapRectangleInstance,
-    type AmapVectorOverlayBaseOptions,
+    type MapBezierCurveInstance,
+    type MapCircleInstance,
+    type MapCircleMarkerOptions,
+    type MapEllipseInstance,
+    type MapPolygonInstance,
+    type MapPolylineInstance,
+    type MapPolylineOptions,
+    type MapRectangleInstance,
+    type MapVectorOverlayBaseOptions,
 } from "./Vector"
-import type { AmapMarkerOptions } from "./Marker"
+import type { MapMarkerOptions } from "./Marker"
 import { optionalFn } from "../utils/optionalFn"
-import { useAmapPlugin } from "../hooks/useAmapPlugin"
+import { useMapPlugin } from "../hooks/useMapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapMoveEvent,
-    type AmapOverlayEventMap,
-    type AmapOverlayEventShortcutProps,
-    type AmapOverlayInteractionEvent,
-    type AmapOverlayMouseEvent,
-    type AmapTargetEvent,
-    getAmapEventEntries,
-    mergeAmapEvents,
-    splitAmapEventShortcutProps,
-} from "../utils/amapEvents"
+    type MapMoveEvent,
+    type MapOverlayEventMap,
+    type MapOverlayEventShortcutProps,
+    type MapOverlayInteractionEvent,
+    type MapOverlayMouseEvent,
+    type MapTargetEvent,
+    getMapEventEntries,
+    mergeMapEvents,
+    splitMapEventShortcutProps,
+} from "../utils/mapEvents"
 
-export type AmapPolyEditorTarget = AmapPolygonInstance | AmapPolylineInstance
+export type MapPolyEditorTarget = MapPolygonInstance | MapPolylineInstance
 
-export type AmapVectorEditorOnLoad<TInstance extends AmapVectorEditorInstance = AmapVectorEditorInstance> = (
+export type MapVectorEditorOnLoad<TInstance extends MapVectorEditorInstance = MapVectorEditorInstance> = (
     editor: TInstance
 ) => void
 
-export type AmapVectorEditorOnDestroy<TInstance extends AmapVectorEditorInstance = AmapVectorEditorInstance> = (
+export type MapVectorEditorOnDestroy<TInstance extends MapVectorEditorInstance = MapVectorEditorInstance> = (
     editor: TInstance
 ) => void
 
 /** 矢量编辑器事件映射 */
-export interface AmapVectorEditorEvents<TInstance = AmapVectorEditorInstance>
-    extends AmapOverlayEventMap<TInstance> {}
+export interface MapVectorEditorEvents<TInstance = MapVectorEditorInstance>
+    extends MapOverlayEventMap<TInstance> {}
 
 /** 矢量编辑器基础参数 */
-export interface AmapVectorEditorBaseOptions {
+export interface MapVectorEditorBaseOptions {
     /** 新创建对象样式 */
-    createOptions?: AmapVectorOverlayBaseOptions
+    createOptions?: MapVectorOverlayBaseOptions
     /** 编辑对象样式 */
-    editOptions?: AmapVectorOverlayBaseOptions
+    editOptions?: MapVectorOverlayBaseOptions
 }
 
 /** 多边形编辑器参数 */
-export interface AmapPolygonEditorOptions extends AmapVectorEditorBaseOptions {
+export interface MapPolygonEditorOptions extends MapVectorEditorBaseOptions {
     /** 顶点样式 */
-    controlPoint?: AmapCircleMarkerOptions
+    controlPoint?: MapCircleMarkerOptions
     /** 中间点样式 */
-    midControlPoint?: AmapCircleMarkerOptions
+    midControlPoint?: MapCircleMarkerOptions
 }
 
 /** 折线编辑器参数 */
-export interface AmapPolylineEditorOptions extends AmapVectorEditorBaseOptions {
+export interface MapPolylineEditorOptions extends MapVectorEditorBaseOptions {
     /** 顶点样式 */
-    controlPoint?: AmapCircleMarkerOptions
+    controlPoint?: MapCircleMarkerOptions
     /** 中间点样式 */
-    midControlPoint?: AmapCircleMarkerOptions
+    midControlPoint?: MapCircleMarkerOptions
 }
 
 /** 通用 PolyEditor 参数 */
-export interface AmapPolyEditorOptions extends AmapVectorEditorBaseOptions {
+export interface MapPolyEditorOptions extends MapVectorEditorBaseOptions {
     /** 顶点样式 */
-    controlPoint?: AmapCircleMarkerOptions
+    controlPoint?: MapCircleMarkerOptions
     /** 中间点样式 */
-    midControlPoint?: AmapCircleMarkerOptions
+    midControlPoint?: MapCircleMarkerOptions
 }
 
 /** 圆形编辑器参数 */
-export interface AmapCircleEditorOptions extends AmapVectorEditorBaseOptions {
+export interface MapCircleEditorOptions extends MapVectorEditorBaseOptions {
     /** 移动点样式 */
-    movePoint?: AmapMarkerOptions
+    movePoint?: MapMarkerOptions
     /** 调整半径点样式 */
-    resizePoint?: AmapMarkerOptions
+    resizePoint?: MapMarkerOptions
 }
 
 /** 贝塞尔曲线编辑器参数 */
-export interface AmapBezierCurveEditorOptions extends AmapVectorEditorBaseOptions {
+export interface MapBezierCurveEditorOptions extends MapVectorEditorBaseOptions {
     /** 顶点样式 */
-    controlPoint?: AmapMarkerOptions
+    controlPoint?: MapMarkerOptions
     /** 中间点样式 */
-    midControlPoint?: AmapMarkerOptions
+    midControlPoint?: MapMarkerOptions
     /** 贝塞尔控制点样式 */
-    bezierControlPoint?: AmapMarkerOptions
+    bezierControlPoint?: MapMarkerOptions
     /** 贝塞尔控制线样式 */
-    bezierControlLine?: AmapPolylineOptions
+    bezierControlLine?: MapPolylineOptions
 }
 
 /** 椭圆编辑器参数 */
-export interface AmapEllipseEditorOptions extends AmapVectorEditorBaseOptions {
+export interface MapEllipseEditorOptions extends MapVectorEditorBaseOptions {
     /** 移动点样式 */
-    movePoint?: AmapMarkerOptions
+    movePoint?: MapMarkerOptions
     /** 横向调整点样式 */
-    resizeXPoint?: AmapMarkerOptions
+    resizeXPoint?: MapMarkerOptions
     /** 纵向调整点样式 */
-    resizeYPoint?: AmapMarkerOptions
+    resizeYPoint?: MapMarkerOptions
 }
 
 /** 矩形编辑器参数 */
-export interface AmapRectangleEditorOptions extends AmapVectorEditorBaseOptions {
+export interface MapRectangleEditorOptions extends MapVectorEditorBaseOptions {
     /** 西南点样式 */
-    southWestPoint?: AmapMarkerOptions
+    southWestPoint?: MapMarkerOptions
     /** 东北点样式 */
-    northEastPoint?: AmapMarkerOptions
+    northEastPoint?: MapMarkerOptions
 }
 
 /** 矢量编辑器实例 */
-export interface AmapVectorEditorInstance<TTarget = unknown> {
+export interface MapVectorEditorInstance<TTarget = unknown> {
     /** 开始编辑 */
     open?(): void
     /** 停止编辑 */
@@ -129,231 +129,231 @@ export interface AmapVectorEditorInstance<TTarget = unknown> {
     /** 获取编辑对象 */
     getTarget?(): TTarget | undefined
     /** 绑定事件 */
-    on?(eventName: string, handler: AmapEventHandler): void
+    on?(eventName: string, handler: MapEventHandler): void
     /** 解绑事件 */
-    off?(eventName: string, handler: AmapEventHandler): void
+    off?(eventName: string, handler: MapEventHandler): void
 }
 
 /** 多边形编辑器实例 */
-export interface AmapPolygonEditorInstance extends AmapVectorEditorInstance<AmapPolygonInstance> {
+export interface MapPolygonEditorInstance extends MapVectorEditorInstance<MapPolygonInstance> {
     /** 设置吸附多边形 */
-    setAdsorbPolygons?: (list: AmapPolygonInstance | AmapPolygonInstance[]) => void
+    setAdsorbPolygons?: (list: MapPolygonInstance | MapPolygonInstance[]) => void
     /** 清空吸附多边形 */
     clearAdsorbPolygons?: () => void
     /** 添加吸附多边形 */
-    addAdsorbPolygons?: (list: AmapPolygonInstance | AmapPolygonInstance[]) => void
+    addAdsorbPolygons?: (list: MapPolygonInstance | MapPolygonInstance[]) => void
     /** 移除吸附多边形 */
-    removeAdsorbPolygons?: (list: AmapPolygonInstance | AmapPolygonInstance[]) => void
+    removeAdsorbPolygons?: (list: MapPolygonInstance | MapPolygonInstance[]) => void
 }
 
 /** 折线编辑器实例 */
-export interface AmapPolylineEditorInstance extends AmapVectorEditorInstance<AmapPolylineInstance> {}
+export interface MapPolylineEditorInstance extends MapVectorEditorInstance<MapPolylineInstance> {}
 
 /** 通用 PolyEditor 实例 */
-export interface AmapPolyEditorInstance extends AmapVectorEditorInstance<AmapPolyEditorTarget> {
+export interface MapPolyEditorInstance extends MapVectorEditorInstance<MapPolyEditorTarget> {
     /** 设置吸附多边形 */
-    setAdsorbPolygons?: (list: AmapPolygonInstance | AmapPolygonInstance[]) => void
+    setAdsorbPolygons?: (list: MapPolygonInstance | MapPolygonInstance[]) => void
     /** 清空吸附多边形 */
     clearAdsorbPolygons?: () => void
     /** 添加吸附多边形 */
-    addAdsorbPolygons?: (list: AmapPolygonInstance | AmapPolygonInstance[]) => void
+    addAdsorbPolygons?: (list: MapPolygonInstance | MapPolygonInstance[]) => void
     /** 移除吸附多边形 */
-    removeAdsorbPolygons?: (list: AmapPolygonInstance | AmapPolygonInstance[]) => void
+    removeAdsorbPolygons?: (list: MapPolygonInstance | MapPolygonInstance[]) => void
 }
 
 /** 圆形编辑器实例 */
-export interface AmapCircleEditorInstance extends AmapVectorEditorInstance<AmapCircleInstance> {}
+export interface MapCircleEditorInstance extends MapVectorEditorInstance<MapCircleInstance> {}
 
 /** 贝塞尔曲线编辑器实例 */
-export interface AmapBezierCurveEditorInstance extends AmapVectorEditorInstance<AmapBezierCurveInstance> {}
+export interface MapBezierCurveEditorInstance extends MapVectorEditorInstance<MapBezierCurveInstance> {}
 
 /** 椭圆编辑器实例 */
-export interface AmapEllipseEditorInstance extends AmapVectorEditorInstance<AmapEllipseInstance> {}
+export interface MapEllipseEditorInstance extends MapVectorEditorInstance<MapEllipseInstance> {}
 
 /** 矩形编辑器实例 */
-export interface AmapRectangleEditorInstance extends AmapVectorEditorInstance<AmapRectangleInstance> {}
+export interface MapRectangleEditorInstance extends MapVectorEditorInstance<MapRectangleInstance> {}
 
 /** 矢量编辑器鼠标事件 */
-export interface AmapVectorEditorMouseEvent<TInstance = AmapVectorEditorInstance> extends AmapOverlayMouseEvent<TInstance> {}
+export interface MapVectorEditorMouseEvent<TInstance = MapVectorEditorInstance> extends MapOverlayMouseEvent<TInstance> {}
 
 /** 矢量编辑器交互坐标事件 */
-export interface AmapVectorEditorInteractionEvent<TInstance = AmapVectorEditorInstance>
-    extends AmapOverlayInteractionEvent<TInstance> {}
+export interface MapVectorEditorInteractionEvent<TInstance = MapVectorEditorInstance>
+    extends MapOverlayInteractionEvent<TInstance> {}
 
 /** 矢量编辑器目标事件 */
-export interface AmapVectorEditorTargetEvent<TInstance = AmapVectorEditorInstance> extends AmapTargetEvent<TInstance> {}
+export interface MapVectorEditorTargetEvent<TInstance = MapVectorEditorInstance> extends MapTargetEvent<TInstance> {}
 
 /** 矢量编辑器移动动画事件 */
-export interface AmapVectorEditorMoveEvent<TInstance = AmapVectorEditorInstance> extends AmapMoveEvent<TInstance> {}
+export interface MapVectorEditorMoveEvent<TInstance = MapVectorEditorInstance> extends MapMoveEvent<TInstance> {}
 
 /** 矢量编辑器事件快捷属性 */
-export interface AmapVectorEditorEventShortcutProps<TInstance = AmapVectorEditorInstance>
-    extends AmapOverlayEventShortcutProps<TInstance> {}
+export interface MapVectorEditorEventShortcutProps<TInstance = MapVectorEditorInstance>
+    extends MapOverlayEventShortcutProps<TInstance> {}
 
 /** 多边形编辑器鼠标事件 */
-export interface AmapPolygonEditorMouseEvent extends AmapVectorEditorMouseEvent<AmapPolygonEditorInstance> {}
+export interface MapPolygonEditorMouseEvent extends MapVectorEditorMouseEvent<MapPolygonEditorInstance> {}
 
 /** 多边形编辑器交互坐标事件 */
-export interface AmapPolygonEditorInteractionEvent extends AmapVectorEditorInteractionEvent<AmapPolygonEditorInstance> {}
+export interface MapPolygonEditorInteractionEvent extends MapVectorEditorInteractionEvent<MapPolygonEditorInstance> {}
 
 /** 多边形编辑器目标事件 */
-export interface AmapPolygonEditorTargetEvent extends AmapVectorEditorTargetEvent<AmapPolygonEditorInstance> {}
+export interface MapPolygonEditorTargetEvent extends MapVectorEditorTargetEvent<MapPolygonEditorInstance> {}
 
 /** 多边形编辑器移动动画事件 */
-export interface AmapPolygonEditorMoveEvent extends AmapVectorEditorMoveEvent<AmapPolygonEditorInstance> {}
+export interface MapPolygonEditorMoveEvent extends MapVectorEditorMoveEvent<MapPolygonEditorInstance> {}
 
 /** 多边形编辑器事件快捷属性 */
-export interface AmapPolygonEditorEventShortcutProps extends AmapVectorEditorEventShortcutProps<AmapPolygonEditorInstance> {}
+export interface MapPolygonEditorEventShortcutProps extends MapVectorEditorEventShortcutProps<MapPolygonEditorInstance> {}
 
 /** 折线编辑器鼠标事件 */
-export interface AmapPolylineEditorMouseEvent extends AmapVectorEditorMouseEvent<AmapPolylineEditorInstance> {}
+export interface MapPolylineEditorMouseEvent extends MapVectorEditorMouseEvent<MapPolylineEditorInstance> {}
 
 /** 折线编辑器交互坐标事件 */
-export interface AmapPolylineEditorInteractionEvent extends AmapVectorEditorInteractionEvent<AmapPolylineEditorInstance> {}
+export interface MapPolylineEditorInteractionEvent extends MapVectorEditorInteractionEvent<MapPolylineEditorInstance> {}
 
 /** 折线编辑器目标事件 */
-export interface AmapPolylineEditorTargetEvent extends AmapVectorEditorTargetEvent<AmapPolylineEditorInstance> {}
+export interface MapPolylineEditorTargetEvent extends MapVectorEditorTargetEvent<MapPolylineEditorInstance> {}
 
 /** 折线编辑器移动动画事件 */
-export interface AmapPolylineEditorMoveEvent extends AmapVectorEditorMoveEvent<AmapPolylineEditorInstance> {}
+export interface MapPolylineEditorMoveEvent extends MapVectorEditorMoveEvent<MapPolylineEditorInstance> {}
 
 /** 折线编辑器事件快捷属性 */
-export interface AmapPolylineEditorEventShortcutProps extends AmapVectorEditorEventShortcutProps<AmapPolylineEditorInstance> {}
+export interface MapPolylineEditorEventShortcutProps extends MapVectorEditorEventShortcutProps<MapPolylineEditorInstance> {}
 
 /** 通用 PolyEditor 鼠标事件 */
-export interface AmapPolyEditorMouseEvent extends AmapVectorEditorMouseEvent<AmapPolyEditorInstance> {}
+export interface MapPolyEditorMouseEvent extends MapVectorEditorMouseEvent<MapPolyEditorInstance> {}
 
 /** 通用 PolyEditor 交互坐标事件 */
-export interface AmapPolyEditorInteractionEvent extends AmapVectorEditorInteractionEvent<AmapPolyEditorInstance> {}
+export interface MapPolyEditorInteractionEvent extends MapVectorEditorInteractionEvent<MapPolyEditorInstance> {}
 
 /** 通用 PolyEditor 目标事件 */
-export interface AmapPolyEditorTargetEvent extends AmapVectorEditorTargetEvent<AmapPolyEditorInstance> {}
+export interface MapPolyEditorTargetEvent extends MapVectorEditorTargetEvent<MapPolyEditorInstance> {}
 
 /** 通用 PolyEditor 移动动画事件 */
-export interface AmapPolyEditorMoveEvent extends AmapVectorEditorMoveEvent<AmapPolyEditorInstance> {}
+export interface MapPolyEditorMoveEvent extends MapVectorEditorMoveEvent<MapPolyEditorInstance> {}
 
 /** 通用 PolyEditor 事件快捷属性 */
-export interface AmapPolyEditorEventShortcutProps extends AmapVectorEditorEventShortcutProps<AmapPolyEditorInstance> {}
+export interface MapPolyEditorEventShortcutProps extends MapVectorEditorEventShortcutProps<MapPolyEditorInstance> {}
 
 /** 圆形编辑器鼠标事件 */
-export interface AmapCircleEditorMouseEvent extends AmapVectorEditorMouseEvent<AmapCircleEditorInstance> {}
+export interface MapCircleEditorMouseEvent extends MapVectorEditorMouseEvent<MapCircleEditorInstance> {}
 
 /** 圆形编辑器交互坐标事件 */
-export interface AmapCircleEditorInteractionEvent extends AmapVectorEditorInteractionEvent<AmapCircleEditorInstance> {}
+export interface MapCircleEditorInteractionEvent extends MapVectorEditorInteractionEvent<MapCircleEditorInstance> {}
 
 /** 圆形编辑器目标事件 */
-export interface AmapCircleEditorTargetEvent extends AmapVectorEditorTargetEvent<AmapCircleEditorInstance> {}
+export interface MapCircleEditorTargetEvent extends MapVectorEditorTargetEvent<MapCircleEditorInstance> {}
 
 /** 圆形编辑器移动动画事件 */
-export interface AmapCircleEditorMoveEvent extends AmapVectorEditorMoveEvent<AmapCircleEditorInstance> {}
+export interface MapCircleEditorMoveEvent extends MapVectorEditorMoveEvent<MapCircleEditorInstance> {}
 
 /** 圆形编辑器事件快捷属性 */
-export interface AmapCircleEditorEventShortcutProps extends AmapVectorEditorEventShortcutProps<AmapCircleEditorInstance> {}
+export interface MapCircleEditorEventShortcutProps extends MapVectorEditorEventShortcutProps<MapCircleEditorInstance> {}
 
 /** 贝塞尔曲线编辑器鼠标事件 */
-export interface AmapBezierCurveEditorMouseEvent extends AmapVectorEditorMouseEvent<AmapBezierCurveEditorInstance> {}
+export interface MapBezierCurveEditorMouseEvent extends MapVectorEditorMouseEvent<MapBezierCurveEditorInstance> {}
 
 /** 贝塞尔曲线编辑器交互坐标事件 */
-export interface AmapBezierCurveEditorInteractionEvent extends AmapVectorEditorInteractionEvent<AmapBezierCurveEditorInstance> {}
+export interface MapBezierCurveEditorInteractionEvent extends MapVectorEditorInteractionEvent<MapBezierCurveEditorInstance> {}
 
 /** 贝塞尔曲线编辑器目标事件 */
-export interface AmapBezierCurveEditorTargetEvent extends AmapVectorEditorTargetEvent<AmapBezierCurveEditorInstance> {}
+export interface MapBezierCurveEditorTargetEvent extends MapVectorEditorTargetEvent<MapBezierCurveEditorInstance> {}
 
 /** 贝塞尔曲线编辑器移动动画事件 */
-export interface AmapBezierCurveEditorMoveEvent extends AmapVectorEditorMoveEvent<AmapBezierCurveEditorInstance> {}
+export interface MapBezierCurveEditorMoveEvent extends MapVectorEditorMoveEvent<MapBezierCurveEditorInstance> {}
 
 /** 贝塞尔曲线编辑器事件快捷属性 */
-export interface AmapBezierCurveEditorEventShortcutProps
-    extends AmapVectorEditorEventShortcutProps<AmapBezierCurveEditorInstance> {}
+export interface MapBezierCurveEditorEventShortcutProps
+    extends MapVectorEditorEventShortcutProps<MapBezierCurveEditorInstance> {}
 
 /** 椭圆编辑器鼠标事件 */
-export interface AmapEllipseEditorMouseEvent extends AmapVectorEditorMouseEvent<AmapEllipseEditorInstance> {}
+export interface MapEllipseEditorMouseEvent extends MapVectorEditorMouseEvent<MapEllipseEditorInstance> {}
 
 /** 椭圆编辑器交互坐标事件 */
-export interface AmapEllipseEditorInteractionEvent extends AmapVectorEditorInteractionEvent<AmapEllipseEditorInstance> {}
+export interface MapEllipseEditorInteractionEvent extends MapVectorEditorInteractionEvent<MapEllipseEditorInstance> {}
 
 /** 椭圆编辑器目标事件 */
-export interface AmapEllipseEditorTargetEvent extends AmapVectorEditorTargetEvent<AmapEllipseEditorInstance> {}
+export interface MapEllipseEditorTargetEvent extends MapVectorEditorTargetEvent<MapEllipseEditorInstance> {}
 
 /** 椭圆编辑器移动动画事件 */
-export interface AmapEllipseEditorMoveEvent extends AmapVectorEditorMoveEvent<AmapEllipseEditorInstance> {}
+export interface MapEllipseEditorMoveEvent extends MapVectorEditorMoveEvent<MapEllipseEditorInstance> {}
 
 /** 椭圆编辑器事件快捷属性 */
-export interface AmapEllipseEditorEventShortcutProps extends AmapVectorEditorEventShortcutProps<AmapEllipseEditorInstance> {}
+export interface MapEllipseEditorEventShortcutProps extends MapVectorEditorEventShortcutProps<MapEllipseEditorInstance> {}
 
 /** 矩形编辑器鼠标事件 */
-export interface AmapRectangleEditorMouseEvent extends AmapVectorEditorMouseEvent<AmapRectangleEditorInstance> {}
+export interface MapRectangleEditorMouseEvent extends MapVectorEditorMouseEvent<MapRectangleEditorInstance> {}
 
 /** 矩形编辑器交互坐标事件 */
-export interface AmapRectangleEditorInteractionEvent extends AmapVectorEditorInteractionEvent<AmapRectangleEditorInstance> {}
+export interface MapRectangleEditorInteractionEvent extends MapVectorEditorInteractionEvent<MapRectangleEditorInstance> {}
 
 /** 矩形编辑器目标事件 */
-export interface AmapRectangleEditorTargetEvent extends AmapVectorEditorTargetEvent<AmapRectangleEditorInstance> {}
+export interface MapRectangleEditorTargetEvent extends MapVectorEditorTargetEvent<MapRectangleEditorInstance> {}
 
 /** 矩形编辑器移动动画事件 */
-export interface AmapRectangleEditorMoveEvent extends AmapVectorEditorMoveEvent<AmapRectangleEditorInstance> {}
+export interface MapRectangleEditorMoveEvent extends MapVectorEditorMoveEvent<MapRectangleEditorInstance> {}
 
 /** 矩形编辑器事件快捷属性 */
-export interface AmapRectangleEditorEventShortcutProps
-    extends AmapVectorEditorEventShortcutProps<AmapRectangleEditorInstance> {}
+export interface MapRectangleEditorEventShortcutProps
+    extends MapVectorEditorEventShortcutProps<MapRectangleEditorInstance> {}
 
 /** 矢量编辑器构造器 */
-export interface AmapVectorEditorConstructor<
-    TInstance extends AmapVectorEditorInstance<TTarget>,
+export interface MapVectorEditorConstructor<
+    TInstance extends MapVectorEditorInstance<TTarget>,
     TTarget,
-    TOptions extends AmapVectorEditorBaseOptions,
+    TOptions extends MapVectorEditorBaseOptions,
 > {
-    new (map: AmapMapInstance, target?: TTarget | null, options?: TOptions): TInstance
+    new (map: MapInstance, target?: TTarget | null, options?: TOptions): TInstance
 }
 
 /** 支持矢量编辑器构造器的高德命名空间 */
-export interface AmapVectorEditorNamespace extends AmapNamespace {
+export interface MapVectorEditorNamespace extends MapNamespace {
     /** PolygonEditor 构造器 */
     PolygonEditor?: new (
-        map: AmapMapInstance,
-        target?: AmapPolygonInstance | null,
-        options?: AmapPolygonEditorOptions
-    ) => AmapPolygonEditorInstance
+        map: MapInstance,
+        target?: MapPolygonInstance | null,
+        options?: MapPolygonEditorOptions
+    ) => MapPolygonEditorInstance
     /** PolylineEditor 构造器 */
     PolylineEditor?: new (
-        map: AmapMapInstance,
-        target?: AmapPolylineInstance | null,
-        options?: AmapPolylineEditorOptions
-    ) => AmapPolylineEditorInstance
+        map: MapInstance,
+        target?: MapPolylineInstance | null,
+        options?: MapPolylineEditorOptions
+    ) => MapPolylineEditorInstance
     /** PolyEditor 构造器 */
     PolyEditor?: new (
-        map: AmapMapInstance,
-        target?: AmapPolyEditorTarget | null,
-        options?: AmapPolyEditorOptions
-    ) => AmapPolyEditorInstance
+        map: MapInstance,
+        target?: MapPolyEditorTarget | null,
+        options?: MapPolyEditorOptions
+    ) => MapPolyEditorInstance
     /** CircleEditor 构造器 */
     CircleEditor?: new (
-        map: AmapMapInstance,
-        target?: AmapCircleInstance | null,
-        options?: AmapCircleEditorOptions
-    ) => AmapCircleEditorInstance
+        map: MapInstance,
+        target?: MapCircleInstance | null,
+        options?: MapCircleEditorOptions
+    ) => MapCircleEditorInstance
     /** BezierCurveEditor 构造器 */
     BezierCurveEditor?: new (
-        map: AmapMapInstance,
-        target?: AmapBezierCurveInstance | null,
-        options?: AmapBezierCurveEditorOptions
-    ) => AmapBezierCurveEditorInstance
+        map: MapInstance,
+        target?: MapBezierCurveInstance | null,
+        options?: MapBezierCurveEditorOptions
+    ) => MapBezierCurveEditorInstance
     /** EllipseEditor 构造器 */
     EllipseEditor?: new (
-        map: AmapMapInstance,
-        target?: AmapEllipseInstance | null,
-        options?: AmapEllipseEditorOptions
-    ) => AmapEllipseEditorInstance
+        map: MapInstance,
+        target?: MapEllipseInstance | null,
+        options?: MapEllipseEditorOptions
+    ) => MapEllipseEditorInstance
     /** RectangleEditor 构造器 */
     RectangleEditor?: new (
-        map: AmapMapInstance,
-        target?: AmapRectangleInstance | null,
-        options?: AmapRectangleEditorOptions
-    ) => AmapRectangleEditorInstance
+        map: MapInstance,
+        target?: MapRectangleInstance | null,
+        options?: MapRectangleEditorOptions
+    ) => MapRectangleEditorInstance
 }
 
 /** 合并矢量编辑器参数 */
-export interface MergeAmapVectorEditorOptionsParams<TOptions extends AmapVectorEditorBaseOptions> {
+export interface MergeMapVectorEditorOptionsParams<TOptions extends MapVectorEditorBaseOptions> {
     /** 额外编辑器参数 */
     editorOptions?: TOptions
     /** 透传编辑器参数 */
@@ -361,7 +361,7 @@ export interface MergeAmapVectorEditorOptionsParams<TOptions extends AmapVectorE
 }
 
 /** 设置矢量编辑器 ref 参数 */
-export interface SetAmapVectorEditorRefParams<TInstance extends AmapVectorEditorInstance> {
+export interface SetMapVectorEditorRefParams<TInstance extends MapVectorEditorInstance> {
     /** 外部 ref */
     ref?: Ref<TInstance | null>
     /** 编辑器实例 */
@@ -369,217 +369,217 @@ export interface SetAmapVectorEditorRefParams<TInstance extends AmapVectorEditor
 }
 
 /** 获取矢量编辑器构造器参数 */
-export interface GetAmapVectorEditorConstructorParams {
+export interface GetMapVectorEditorConstructorParams {
     /** 高德地图命名空间 */
-    AMap: AmapNamespace
+    AMap: MapNamespace
     /** 构造器名称 */
     constructorName: string
 }
 
 /** 绑定矢量编辑器事件参数 */
-export interface BindAmapVectorEditorEventsParams<TInstance extends AmapVectorEditorInstance> {
+export interface BindMapVectorEditorEventsParams<TInstance extends MapVectorEditorInstance> {
     /** 编辑器实例 */
     editor: TInstance
     /** 事件映射 */
-    events?: AmapVectorEditorEvents<TInstance>
+    events?: MapVectorEditorEvents<TInstance>
 }
 
 /** 移除矢量编辑器参数 */
-export interface RemoveAmapVectorEditorParams<TInstance extends AmapVectorEditorInstance> {
+export interface RemoveMapVectorEditorParams<TInstance extends MapVectorEditorInstance> {
     /** 编辑器实例 */
     editor: TInstance
     /** 销毁前回调 */
-    onDestroy?: AmapVectorEditorOnDestroy<TInstance>
+    onDestroy?: MapVectorEditorOnDestroy<TInstance>
 }
 
 /** 内部矢量编辑器组件属性 */
-export interface AmapVectorEditorProps<
-    TInstance extends AmapVectorEditorInstance<TTarget>,
+export interface MapVectorEditorProps<
+    TInstance extends MapVectorEditorInstance<TTarget>,
     TTarget,
-    TOptions extends AmapVectorEditorBaseOptions,
-> extends AmapVectorEditorEventShortcutProps<TInstance> {
+    TOptions extends MapVectorEditorBaseOptions,
+> extends MapVectorEditorEventShortcutProps<TInstance> {
     /** 编辑器实例 ref */
     ref?: Ref<TInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 编辑对象 */
     target?: TTarget | null
     /** 是否开启编辑 */
     active?: boolean
     /** 插件名称 */
-    pluginName: AmapPlugin
+    pluginName: MapPlugin
     /** 构造器名称 */
     constructorName: string
     /** 编辑器参数 */
     options: TOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents<TInstance>
+    events?: MapVectorEditorEvents<TInstance>
     /** 编辑器创建完成回调 */
-    onLoad?: AmapVectorEditorOnLoad<TInstance>
+    onLoad?: MapVectorEditorOnLoad<TInstance>
     /** 编辑器销毁前回调 */
-    onDestroy?: AmapVectorEditorOnDestroy<TInstance>
+    onDestroy?: MapVectorEditorOnDestroy<TInstance>
 }
 
 /** 多边形编辑器组件属性 */
-export interface PolygonEditorProps extends AmapPolygonEditorOptions, AmapPolygonEditorEventShortcutProps {
+export interface PolygonEditorProps extends MapPolygonEditorOptions, MapPolygonEditorEventShortcutProps {
     /** 编辑器实例 ref */
-    ref?: Ref<AmapPolygonEditorInstance | null>
+    ref?: Ref<MapPolygonEditorInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 编辑对象 */
-    target?: AmapPolygonInstance | null
+    target?: MapPolygonInstance | null
     /** 是否开启编辑 */
     active?: boolean
     /** 编辑器额外参数 */
-    editorOptions?: AmapPolygonEditorOptions
+    editorOptions?: MapPolygonEditorOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents<AmapPolygonEditorInstance>
+    events?: MapVectorEditorEvents<MapPolygonEditorInstance>
     /** 编辑器创建完成回调 */
-    onLoad?: AmapVectorEditorOnLoad<AmapPolygonEditorInstance>
+    onLoad?: MapVectorEditorOnLoad<MapPolygonEditorInstance>
     /** 编辑器销毁前回调 */
-    onDestroy?: AmapVectorEditorOnDestroy<AmapPolygonEditorInstance>
+    onDestroy?: MapVectorEditorOnDestroy<MapPolygonEditorInstance>
 }
 
 /** 折线编辑器组件属性 */
-export interface PolylineEditorProps extends AmapPolylineEditorOptions, AmapPolylineEditorEventShortcutProps {
+export interface PolylineEditorProps extends MapPolylineEditorOptions, MapPolylineEditorEventShortcutProps {
     /** 编辑器实例 ref */
-    ref?: Ref<AmapPolylineEditorInstance | null>
+    ref?: Ref<MapPolylineEditorInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 编辑对象 */
-    target?: AmapPolylineInstance | null
+    target?: MapPolylineInstance | null
     /** 是否开启编辑 */
     active?: boolean
     /** 编辑器额外参数 */
-    editorOptions?: AmapPolylineEditorOptions
+    editorOptions?: MapPolylineEditorOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents<AmapPolylineEditorInstance>
+    events?: MapVectorEditorEvents<MapPolylineEditorInstance>
     /** 编辑器创建完成回调 */
-    onLoad?: AmapVectorEditorOnLoad<AmapPolylineEditorInstance>
+    onLoad?: MapVectorEditorOnLoad<MapPolylineEditorInstance>
     /** 编辑器销毁前回调 */
-    onDestroy?: AmapVectorEditorOnDestroy<AmapPolylineEditorInstance>
+    onDestroy?: MapVectorEditorOnDestroy<MapPolylineEditorInstance>
 }
 
 /** 通用 PolyEditor 组件属性 */
-export interface PolyEditorProps extends AmapPolyEditorOptions, AmapPolyEditorEventShortcutProps {
+export interface PolyEditorProps extends MapPolyEditorOptions, MapPolyEditorEventShortcutProps {
     /** 编辑器实例 ref */
-    ref?: Ref<AmapPolyEditorInstance | null>
+    ref?: Ref<MapPolyEditorInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 编辑对象 */
-    target?: AmapPolyEditorTarget | null
+    target?: MapPolyEditorTarget | null
     /** 是否开启编辑 */
     active?: boolean
     /** 编辑器额外参数 */
-    editorOptions?: AmapPolyEditorOptions
+    editorOptions?: MapPolyEditorOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents<AmapPolyEditorInstance>
+    events?: MapVectorEditorEvents<MapPolyEditorInstance>
     /** 编辑器创建完成回调 */
-    onLoad?: AmapVectorEditorOnLoad<AmapPolyEditorInstance>
+    onLoad?: MapVectorEditorOnLoad<MapPolyEditorInstance>
     /** 编辑器销毁前回调 */
-    onDestroy?: AmapVectorEditorOnDestroy<AmapPolyEditorInstance>
+    onDestroy?: MapVectorEditorOnDestroy<MapPolyEditorInstance>
 }
 
 /** 圆形编辑器组件属性 */
-export interface CircleEditorProps extends AmapCircleEditorOptions, AmapCircleEditorEventShortcutProps {
+export interface CircleEditorProps extends MapCircleEditorOptions, MapCircleEditorEventShortcutProps {
     /** 编辑器实例 ref */
-    ref?: Ref<AmapCircleEditorInstance | null>
+    ref?: Ref<MapCircleEditorInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 编辑对象 */
-    target?: AmapCircleInstance | null
+    target?: MapCircleInstance | null
     /** 是否开启编辑 */
     active?: boolean
     /** 编辑器额外参数 */
-    editorOptions?: AmapCircleEditorOptions
+    editorOptions?: MapCircleEditorOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents<AmapCircleEditorInstance>
+    events?: MapVectorEditorEvents<MapCircleEditorInstance>
     /** 编辑器创建完成回调 */
-    onLoad?: AmapVectorEditorOnLoad<AmapCircleEditorInstance>
+    onLoad?: MapVectorEditorOnLoad<MapCircleEditorInstance>
     /** 编辑器销毁前回调 */
-    onDestroy?: AmapVectorEditorOnDestroy<AmapCircleEditorInstance>
+    onDestroy?: MapVectorEditorOnDestroy<MapCircleEditorInstance>
 }
 
 /** 贝塞尔曲线编辑器组件属性 */
-export interface BezierCurveEditorProps extends AmapBezierCurveEditorOptions, AmapBezierCurveEditorEventShortcutProps {
+export interface BezierCurveEditorProps extends MapBezierCurveEditorOptions, MapBezierCurveEditorEventShortcutProps {
     /** 编辑器实例 ref */
-    ref?: Ref<AmapBezierCurveEditorInstance | null>
+    ref?: Ref<MapBezierCurveEditorInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 编辑对象 */
-    target?: AmapBezierCurveInstance | null
+    target?: MapBezierCurveInstance | null
     /** 是否开启编辑 */
     active?: boolean
     /** 编辑器额外参数 */
-    editorOptions?: AmapBezierCurveEditorOptions
+    editorOptions?: MapBezierCurveEditorOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents<AmapBezierCurveEditorInstance>
+    events?: MapVectorEditorEvents<MapBezierCurveEditorInstance>
     /** 编辑器创建完成回调 */
-    onLoad?: AmapVectorEditorOnLoad<AmapBezierCurveEditorInstance>
+    onLoad?: MapVectorEditorOnLoad<MapBezierCurveEditorInstance>
     /** 编辑器销毁前回调 */
-    onDestroy?: AmapVectorEditorOnDestroy<AmapBezierCurveEditorInstance>
+    onDestroy?: MapVectorEditorOnDestroy<MapBezierCurveEditorInstance>
 }
 
 /** 椭圆编辑器组件属性 */
-export interface EllipseEditorProps extends AmapEllipseEditorOptions, AmapEllipseEditorEventShortcutProps {
+export interface EllipseEditorProps extends MapEllipseEditorOptions, MapEllipseEditorEventShortcutProps {
     /** 编辑器实例 ref */
-    ref?: Ref<AmapEllipseEditorInstance | null>
+    ref?: Ref<MapEllipseEditorInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 编辑对象 */
-    target?: AmapEllipseInstance | null
+    target?: MapEllipseInstance | null
     /** 是否开启编辑 */
     active?: boolean
     /** 编辑器额外参数 */
-    editorOptions?: AmapEllipseEditorOptions
+    editorOptions?: MapEllipseEditorOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents<AmapEllipseEditorInstance>
+    events?: MapVectorEditorEvents<MapEllipseEditorInstance>
     /** 编辑器创建完成回调 */
-    onLoad?: AmapVectorEditorOnLoad<AmapEllipseEditorInstance>
+    onLoad?: MapVectorEditorOnLoad<MapEllipseEditorInstance>
     /** 编辑器销毁前回调 */
-    onDestroy?: AmapVectorEditorOnDestroy<AmapEllipseEditorInstance>
+    onDestroy?: MapVectorEditorOnDestroy<MapEllipseEditorInstance>
 }
 
 /** 矩形编辑器组件属性 */
-export interface RectangleEditorProps extends AmapRectangleEditorOptions, AmapRectangleEditorEventShortcutProps {
+export interface RectangleEditorProps extends MapRectangleEditorOptions, MapRectangleEditorEventShortcutProps {
     /** 编辑器实例 ref */
-    ref?: Ref<AmapRectangleEditorInstance | null>
+    ref?: Ref<MapRectangleEditorInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 编辑对象 */
-    target?: AmapRectangleInstance | null
+    target?: MapRectangleInstance | null
     /** 是否开启编辑 */
     active?: boolean
     /** 编辑器额外参数 */
-    editorOptions?: AmapRectangleEditorOptions
+    editorOptions?: MapRectangleEditorOptions
     /** 编辑器事件映射 */
-    events?: AmapVectorEditorEvents<AmapRectangleEditorInstance>
+    events?: MapVectorEditorEvents<MapRectangleEditorInstance>
     /** 编辑器创建完成回调 */
-    onLoad?: AmapVectorEditorOnLoad<AmapRectangleEditorInstance>
+    onLoad?: MapVectorEditorOnLoad<MapRectangleEditorInstance>
     /** 编辑器销毁前回调 */
-    onDestroy?: AmapVectorEditorOnDestroy<AmapRectangleEditorInstance>
+    onDestroy?: MapVectorEditorOnDestroy<MapRectangleEditorInstance>
 }
 
-function mergeAmapVectorEditorOptions<TOptions extends AmapVectorEditorBaseOptions>({
+function mergeMapVectorEditorOptions<TOptions extends MapVectorEditorBaseOptions>({
     editorOptions,
     extraOptions,
-}: MergeAmapVectorEditorOptionsParams<TOptions>) {
+}: MergeMapVectorEditorOptionsParams<TOptions>) {
     const nextOptions: TOptions = {
         ...editorOptions,
     } as TOptions
@@ -591,10 +591,10 @@ function mergeAmapVectorEditorOptions<TOptions extends AmapVectorEditorBaseOptio
     return nextOptions
 }
 
-function setAmapVectorEditorRef<TInstance extends AmapVectorEditorInstance>({
+function setMapVectorEditorRef<TInstance extends MapVectorEditorInstance>({
     ref,
     editor,
-}: SetAmapVectorEditorRefParams<TInstance>) {
+}: SetMapVectorEditorRefParams<TInstance>) {
     if (!ref) return
 
     if (typeof ref === "function") {
@@ -605,35 +605,35 @@ function setAmapVectorEditorRef<TInstance extends AmapVectorEditorInstance>({
     ref.current = editor
 }
 
-function getAmapVectorEditorConstructor<
-    TInstance extends AmapVectorEditorInstance<TTarget>,
+function getMapVectorEditorConstructor<
+    TInstance extends MapVectorEditorInstance<TTarget>,
     TTarget,
-    TOptions extends AmapVectorEditorBaseOptions,
->({ AMap, constructorName }: GetAmapVectorEditorConstructorParams) {
+    TOptions extends MapVectorEditorBaseOptions,
+>({ AMap, constructorName }: GetMapVectorEditorConstructorParams) {
     const constructor = (AMap as unknown as Record<string, unknown>)[constructorName]
 
     if (typeof constructor !== "function") return undefined
 
-    return constructor as AmapVectorEditorConstructor<TInstance, TTarget, TOptions>
+    return constructor as MapVectorEditorConstructor<TInstance, TTarget, TOptions>
 }
 
-function bindAmapVectorEditorEvents<TInstance extends AmapVectorEditorInstance>({
+function bindMapVectorEditorEvents<TInstance extends MapVectorEditorInstance>({
     editor,
     events,
-}: BindAmapVectorEditorEventsParams<TInstance>) {
-    const eventEntries = getAmapEventEntries(events)
+}: BindMapVectorEditorEventsParams<TInstance>) {
+    const eventEntries = getMapEventEntries(events)
 
     eventEntries.forEach(({ eventName, handler }) => editor.on?.(eventName, handler))
 
-    return function unbindAmapVectorEditorEvents() {
+    return function unbindMapVectorEditorEvents() {
         eventEntries.forEach(({ eventName, handler }) => editor.off?.(eventName, handler))
     }
 }
 
-function removeAmapVectorEditor<TInstance extends AmapVectorEditorInstance>({
+function removeMapVectorEditor<TInstance extends MapVectorEditorInstance>({
     editor,
     onDestroy,
-}: RemoveAmapVectorEditorParams<TInstance>) {
+}: RemoveMapVectorEditorParams<TInstance>) {
     try {
         onDestroy?.(editor)
     } finally {
@@ -641,10 +641,10 @@ function removeAmapVectorEditor<TInstance extends AmapVectorEditorInstance>({
     }
 }
 
-function AmapVectorEditor<
-    TInstance extends AmapVectorEditorInstance<TTarget>,
+function MapVectorEditor<
+    TInstance extends MapVectorEditorInstance<TTarget>,
     TTarget,
-    TOptions extends AmapVectorEditorBaseOptions,
+    TOptions extends MapVectorEditorBaseOptions,
 >({
     ref,
     map,
@@ -658,12 +658,12 @@ function AmapVectorEditor<
     onLoad: _onLoad,
     onDestroy: _onDestroy,
     ...eventShortcuts
-}: AmapVectorEditorProps<TInstance, TTarget, TOptions>) {
-    const context = useAmapContext()
+}: MapVectorEditorProps<TInstance, TTarget, TOptions>) {
+    const context = useMapContext()
     const editorRef = useRef<TInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = AMap ?? context.AMap
-    const pluginLoaded = useAmapPlugin({
+    const pluginLoaded = useMapPlugin({
         map: currentMap,
         AMap: currentAMap,
         pluginName,
@@ -674,15 +674,15 @@ function AmapVectorEditor<
     const getInitialTarget = useEffectEvent(() => target)
     const getInitialOptions = useEffectEvent(() => options)
     const getInitialActive = useEffectEvent(() => active)
-    const currentEvents = mergeAmapEvents({
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapVectorEditorEvents
+    }) as MapVectorEditorEvents
 
     useStableEffect(() => {
         if (!currentMap || !currentAMap || !pluginLoaded) return
 
-        const EditorConstructor = getAmapVectorEditorConstructor<TInstance, TTarget, TOptions>({
+        const EditorConstructor = getMapVectorEditorConstructor<TInstance, TTarget, TOptions>({
             AMap: currentAMap,
             constructorName,
         })
@@ -692,7 +692,7 @@ function AmapVectorEditor<
         const editor = new EditorConstructor(currentMap, getInitialTarget(), getInitialOptions())
 
         editorRef.current = editor
-        setAmapVectorEditorRef({
+        setMapVectorEditorRef({
             ref,
             editor,
         })
@@ -703,11 +703,11 @@ function AmapVectorEditor<
 
         return () => {
             editorRef.current = null
-            setAmapVectorEditorRef({
+            setMapVectorEditorRef({
                 ref,
                 editor: null,
             })
-            removeAmapVectorEditor({
+            removeMapVectorEditor({
                 editor,
                 onDestroy,
             })
@@ -734,7 +734,7 @@ function AmapVectorEditor<
     useStableEffect(() => {
         if (!editorRef.current) return
 
-        return bindAmapVectorEditorEvents({
+        return bindMapVectorEditorEvents({
             editor: editorRef.current,
             events: currentEvents,
         })
@@ -755,20 +755,20 @@ export const PolygonEditor: FC<PolygonEditorProps> = ({
     onDestroy,
     ...restOptions
 }) => {
-    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
-    const currentOptions = mergeAmapVectorEditorOptions({
+    const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
+    const currentOptions = mergeMapVectorEditorOptions({
         editorOptions,
-        extraOptions: restProps as AmapPolygonEditorOptions,
+        extraOptions: restProps as MapPolygonEditorOptions,
     })
 
     return (
-        <AmapVectorEditor
+        <MapVectorEditor
             ref={ref}
             map={map}
             AMap={AMap}
             target={target}
             active={active}
-            pluginName={AmapPlugin.PolygonEditor}
+            pluginName={MapPlugin.PolygonEditor}
             constructorName="PolygonEditor"
             options={currentOptions}
             events={events}
@@ -791,20 +791,20 @@ export const PolylineEditor: FC<PolylineEditorProps> = ({
     onDestroy,
     ...restOptions
 }) => {
-    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
-    const currentOptions = mergeAmapVectorEditorOptions({
+    const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
+    const currentOptions = mergeMapVectorEditorOptions({
         editorOptions,
-        extraOptions: restProps as AmapPolylineEditorOptions,
+        extraOptions: restProps as MapPolylineEditorOptions,
     })
 
     return (
-        <AmapVectorEditor
+        <MapVectorEditor
             ref={ref}
             map={map}
             AMap={AMap}
             target={target}
             active={active}
-            pluginName={AmapPlugin.PolylineEditor}
+            pluginName={MapPlugin.PolylineEditor}
             constructorName="PolylineEditor"
             options={currentOptions}
             events={events}
@@ -827,20 +827,20 @@ export const PolyEditor: FC<PolyEditorProps> = ({
     onDestroy,
     ...restOptions
 }) => {
-    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
-    const currentOptions = mergeAmapVectorEditorOptions({
+    const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
+    const currentOptions = mergeMapVectorEditorOptions({
         editorOptions,
-        extraOptions: restProps as AmapPolyEditorOptions,
+        extraOptions: restProps as MapPolyEditorOptions,
     })
 
     return (
-        <AmapVectorEditor
+        <MapVectorEditor
             ref={ref}
             map={map}
             AMap={AMap}
             target={target}
             active={active}
-            pluginName={AmapPlugin.PolyEditor}
+            pluginName={MapPlugin.PolyEditor}
             constructorName="PolyEditor"
             options={currentOptions}
             events={events}
@@ -863,20 +863,20 @@ export const CircleEditor: FC<CircleEditorProps> = ({
     onDestroy,
     ...restOptions
 }) => {
-    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
-    const currentOptions = mergeAmapVectorEditorOptions({
+    const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
+    const currentOptions = mergeMapVectorEditorOptions({
         editorOptions,
-        extraOptions: restProps as AmapCircleEditorOptions,
+        extraOptions: restProps as MapCircleEditorOptions,
     })
 
     return (
-        <AmapVectorEditor
+        <MapVectorEditor
             ref={ref}
             map={map}
             AMap={AMap}
             target={target}
             active={active}
-            pluginName={AmapPlugin.CircleEditor}
+            pluginName={MapPlugin.CircleEditor}
             constructorName="CircleEditor"
             options={currentOptions}
             events={events}
@@ -899,20 +899,20 @@ export const BezierCurveEditor: FC<BezierCurveEditorProps> = ({
     onDestroy,
     ...restOptions
 }) => {
-    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
-    const currentOptions = mergeAmapVectorEditorOptions({
+    const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
+    const currentOptions = mergeMapVectorEditorOptions({
         editorOptions,
-        extraOptions: restProps as AmapBezierCurveEditorOptions,
+        extraOptions: restProps as MapBezierCurveEditorOptions,
     })
 
     return (
-        <AmapVectorEditor
+        <MapVectorEditor
             ref={ref}
             map={map}
             AMap={AMap}
             target={target}
             active={active}
-            pluginName={AmapPlugin.BezierCurveEditor}
+            pluginName={MapPlugin.BezierCurveEditor}
             constructorName="BezierCurveEditor"
             options={currentOptions}
             events={events}
@@ -935,20 +935,20 @@ export const EllipseEditor: FC<EllipseEditorProps> = ({
     onDestroy,
     ...restOptions
 }) => {
-    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
-    const currentOptions = mergeAmapVectorEditorOptions({
+    const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
+    const currentOptions = mergeMapVectorEditorOptions({
         editorOptions,
-        extraOptions: restProps as AmapEllipseEditorOptions,
+        extraOptions: restProps as MapEllipseEditorOptions,
     })
 
     return (
-        <AmapVectorEditor
+        <MapVectorEditor
             ref={ref}
             map={map}
             AMap={AMap}
             target={target}
             active={active}
-            pluginName={AmapPlugin.EllipseEditor}
+            pluginName={MapPlugin.EllipseEditor}
             constructorName="EllipseEditor"
             options={currentOptions}
             events={events}
@@ -971,20 +971,20 @@ export const RectangleEditor: FC<RectangleEditorProps> = ({
     onDestroy,
     ...restOptions
 }) => {
-    const { eventShortcuts, restProps } = splitAmapEventShortcutProps(restOptions)
-    const currentOptions = mergeAmapVectorEditorOptions({
+    const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
+    const currentOptions = mergeMapVectorEditorOptions({
         editorOptions,
-        extraOptions: restProps as AmapRectangleEditorOptions,
+        extraOptions: restProps as MapRectangleEditorOptions,
     })
 
     return (
-        <AmapVectorEditor
+        <MapVectorEditor
             ref={ref}
             map={map}
             AMap={AMap}
             target={target}
             active={active}
-            pluginName={AmapPlugin.RectangleEditor}
+            pluginName={MapPlugin.RectangleEditor}
             constructorName="RectangleEditor"
             options={currentOptions}
             events={events}

@@ -1,21 +1,21 @@
 import { useEffect, useState } from "react"
 
-import type { AmapMapInstance, AmapNamespace, AmapPlugin } from "../components/Amap"
-import { hasAmapConstructor, loadAmapPlugin } from "../utils/amapPlugin"
+import type { MapInstance, MapNamespace, MapPlugin } from "../components/Map"
+import { hasMapConstructor, loadMapPlugin } from "../utils/mapPlugin"
 
 /** 使用高德插件参数 */
-export interface UseAmapPluginParams {
+export interface UseMapPluginParams {
     /** 地图实例 */
-    map?: AmapMapInstance | null
+    map?: MapInstance | null
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace | null
+    AMap?: MapNamespace | null
     /** 插件名称 */
-    pluginName: AmapPlugin
+    pluginName: MapPlugin
     /** 插件加载后应存在的构造器名称 */
     constructorName: string
 }
 
-export function useAmapPlugin({ map, AMap, pluginName, constructorName }: UseAmapPluginParams) {
+export function useMapPlugin({ map, AMap, pluginName, constructorName }: UseMapPluginParams) {
     const [loaded, setLoaded] = useState(false)
 
     useEffect(() => {
@@ -26,14 +26,14 @@ export function useAmapPlugin({ map, AMap, pluginName, constructorName }: UseAma
             return
         }
 
-        if (hasAmapConstructor({ AMap, constructorName })) {
+        if (hasMapConstructor({ AMap, constructorName })) {
             setLoaded(true)
             return
         }
 
         setLoaded(false)
 
-        loadAmapPlugin({
+        loadMapPlugin({
             map,
             AMap,
             pluginName,

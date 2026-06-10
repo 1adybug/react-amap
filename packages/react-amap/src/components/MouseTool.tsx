@@ -1,34 +1,34 @@
 import { type FC, type Ref, useEffectEvent, useRef } from "react"
 
 import {
-    AmapPlugin,
-    type AmapEventHandler,
-    type AmapMapInstance,
-    type AmapNamespace,
-    useAmapContext,
-} from "./Amap"
-import type { AmapMarkerOptions } from "./Marker"
+    MapPlugin,
+    type MapEventHandler,
+    type MapInstance,
+    type MapNamespace,
+    useMapContext,
+} from "./Map"
+import type { MapMarkerOptions } from "./Marker"
 import type {
-    AmapCircleOptions,
-    AmapPolygonOptions,
-    AmapPolylineOptions,
+    MapCircleOptions,
+    MapPolygonOptions,
+    MapPolylineOptions,
 } from "./Vector"
 import { optionalFn } from "../utils/optionalFn"
-import { useAmapPlugin } from "../hooks/useAmapPlugin"
+import { useMapPlugin } from "../hooks/useMapPlugin"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapMoveEvent,
-    type AmapOverlayEventMap,
-    type AmapOverlayEventShortcutProps,
-    type AmapOverlayInteractionEvent,
-    type AmapOverlayMouseEvent,
-    type AmapTargetEvent,
-    getAmapEventEntries,
-    mergeAmapEvents,
-} from "../utils/amapEvents"
+    type MapMoveEvent,
+    type MapOverlayEventMap,
+    type MapOverlayEventShortcutProps,
+    type MapOverlayInteractionEvent,
+    type MapOverlayMouseEvent,
+    type MapTargetEvent,
+    getMapEventEntries,
+    mergeMapEvents,
+} from "../utils/mapEvents"
 
 /** 鼠标工具绘制模式 */
-export const AmapMouseToolMode = {
+export const MapMouseToolMode = {
     Marker: "marker",
     Circle: "circle",
     Rectangle: "rectangle",
@@ -40,197 +40,197 @@ export const AmapMouseToolMode = {
     RectZoomOut: "rectZoomOut",
 } as const
 
-export type AmapMouseToolMode = (typeof AmapMouseToolMode)[keyof typeof AmapMouseToolMode]
+export type MapMouseToolMode = (typeof MapMouseToolMode)[keyof typeof MapMouseToolMode]
 
-export type AmapMouseToolOnLoad = (mouseTool: AmapMouseToolInstance) => void
+export type MapMouseToolOnLoad = (mouseTool: MapMouseToolInstance) => void
 
-export type AmapMouseToolOnDestroy = (mouseTool: AmapMouseToolInstance) => void
+export type MapMouseToolOnDestroy = (mouseTool: MapMouseToolInstance) => void
 
-export type AmapMouseToolDrawOptions =
-    | AmapMarkerOptions
-    | AmapCircleOptions
-    | AmapPolygonOptions
-    | AmapPolylineOptions
+export type MapMouseToolDrawOptions =
+    | MapMarkerOptions
+    | MapCircleOptions
+    | MapPolygonOptions
+    | MapPolylineOptions
 
 /** MouseTool 鼠标事件 */
-export interface AmapMouseToolMouseEvent extends AmapOverlayMouseEvent<AmapMouseToolInstance> {}
+export interface MapMouseToolMouseEvent extends MapOverlayMouseEvent<MapMouseToolInstance> {}
 
 /** MouseTool 交互坐标事件 */
-export interface AmapMouseToolInteractionEvent extends AmapOverlayInteractionEvent<AmapMouseToolInstance> {}
+export interface MapMouseToolInteractionEvent extends MapOverlayInteractionEvent<MapMouseToolInstance> {}
 
 /** MouseTool 目标事件 */
-export interface AmapMouseToolTargetEvent extends AmapTargetEvent<AmapMouseToolInstance> {}
+export interface MapMouseToolTargetEvent extends MapTargetEvent<MapMouseToolInstance> {}
 
 /** MouseTool 移动动画事件 */
-export interface AmapMouseToolMoveEvent extends AmapMoveEvent<AmapMouseToolInstance> {}
+export interface MapMouseToolMoveEvent extends MapMoveEvent<MapMouseToolInstance> {}
 
 /** MouseTool 绘制完成事件 */
-export interface AmapMouseToolDrawEvent extends AmapTargetEvent<AmapMouseToolInstance> {
+export interface MapMouseToolDrawEvent extends MapTargetEvent<MapMouseToolInstance> {
     /** 绘制出的覆盖物 */
     obj?: unknown
 }
 
 /** MouseTool 事件快捷属性 */
-export interface AmapMouseToolEventShortcutProps extends AmapOverlayEventShortcutProps<AmapMouseToolInstance> {}
+export interface MapMouseToolEventShortcutProps extends MapOverlayEventShortcutProps<MapMouseToolInstance> {}
 
-export type AmapMouseToolOnDraw = (event: AmapMouseToolDrawEvent) => void
+export type MapMouseToolOnDraw = (event: MapMouseToolDrawEvent) => void
 
 /** 鼠标工具事件映射 */
-export interface AmapMouseToolEvents extends AmapOverlayEventMap<AmapMouseToolInstance> {
+export interface MapMouseToolEvents extends MapOverlayEventMap<MapMouseToolInstance> {
     /** 绘制完成事件 */
-    draw?: AmapMouseToolOnDraw
+    draw?: MapMouseToolOnDraw
 }
 
 /** 鼠标工具实例 */
-export interface AmapMouseToolInstance {
+export interface MapMouseToolInstance {
     /** 绘制点标记 */
-    marker?: (options?: AmapMarkerOptions) => void
+    marker?: (options?: MapMarkerOptions) => void
     /** 绘制圆形 */
-    circle?: (options?: AmapCircleOptions) => void
+    circle?: (options?: MapCircleOptions) => void
     /** 绘制矩形 */
-    rectangle?: (options?: AmapPolygonOptions) => void
+    rectangle?: (options?: MapPolygonOptions) => void
     /** 绘制折线 */
-    polyline?: (options?: AmapPolylineOptions) => void
+    polyline?: (options?: MapPolylineOptions) => void
     /** 绘制多边形 */
-    polygon?: (options?: AmapPolygonOptions) => void
+    polygon?: (options?: MapPolygonOptions) => void
     /** 面积量测 */
-    measureArea?: (options?: AmapPolygonOptions) => void
+    measureArea?: (options?: MapPolygonOptions) => void
     /** 距离量测 */
-    rule?: (options?: AmapPolylineOptions) => void
+    rule?: (options?: MapPolylineOptions) => void
     /** 拉框放大 */
-    rectZoomIn?: (options?: AmapPolygonOptions) => void
+    rectZoomIn?: (options?: MapPolygonOptions) => void
     /** 拉框缩小 */
-    rectZoomOut?: (options?: AmapPolygonOptions) => void
+    rectZoomOut?: (options?: MapPolygonOptions) => void
     /** 关闭当前鼠标操作 */
     close?: (ifClear?: boolean) => void
     /** 绑定事件 */
-    on?: (eventName: string, handler: AmapEventHandler) => void
+    on?: (eventName: string, handler: MapEventHandler) => void
     /** 解绑事件 */
-    off?: (eventName: string, handler: AmapEventHandler) => void
+    off?: (eventName: string, handler: MapEventHandler) => void
 }
 
 /** 鼠标工具构造器 */
-export interface AmapMouseToolConstructor {
-    new (map: AmapMapInstance): AmapMouseToolInstance
+export interface MapMouseToolConstructor {
+    new (map: MapInstance): MapMouseToolInstance
 }
 
 /** 支持 MouseTool 构造器的高德命名空间 */
-export interface AmapMouseToolNamespace extends AmapNamespace {
+export interface MapMouseToolNamespace extends MapNamespace {
     /** MouseTool 构造器 */
-    MouseTool?: new (map: AmapMapInstance) => AmapMouseToolInstance
+    MouseTool?: new (map: MapInstance) => MapMouseToolInstance
 }
 
 /** 获取 MouseTool 构造器参数 */
-export interface GetAmapMouseToolConstructorParams {
+export interface GetMapMouseToolConstructorParams {
     /** 高德地图命名空间 */
-    AMap: AmapNamespace
+    AMap: MapNamespace
 }
 
 /** 设置 MouseTool ref 参数 */
-export interface SetAmapMouseToolRefParams {
+export interface SetMapMouseToolRefParams {
     /** 外部 ref */
-    ref?: Ref<AmapMouseToolInstance | null>
+    ref?: Ref<MapMouseToolInstance | null>
     /** MouseTool 实例 */
-    mouseTool: AmapMouseToolInstance | null
+    mouseTool: MapMouseToolInstance | null
 }
 
 /** 绑定 MouseTool 事件参数 */
-export interface BindAmapMouseToolEventsParams {
+export interface BindMapMouseToolEventsParams {
     /** MouseTool 实例 */
-    mouseTool: AmapMouseToolInstance
+    mouseTool: MapMouseToolInstance
     /** 事件映射 */
-    events?: AmapMouseToolEvents
+    events?: MapMouseToolEvents
     /** 绘制完成回调 */
-    onDraw?: AmapMouseToolOnDraw
+    onDraw?: MapMouseToolOnDraw
 }
 
 /** 获取 MouseTool 模式参数 */
-export interface GetAmapMouseToolModeOptionsParams {
+export interface GetMapMouseToolModeOptionsParams {
     /** 绘制模式 */
-    mode?: AmapMouseToolMode
+    mode?: MapMouseToolMode
     /** 通用绘制参数 */
-    options?: AmapMouseToolDrawOptions
+    options?: MapMouseToolDrawOptions
     /** 点标记参数 */
-    markerOptions?: AmapMarkerOptions
+    markerOptions?: MapMarkerOptions
     /** 圆形参数 */
-    circleOptions?: AmapCircleOptions
+    circleOptions?: MapCircleOptions
     /** 矩形参数 */
-    rectangleOptions?: AmapPolygonOptions
+    rectangleOptions?: MapPolygonOptions
     /** 折线参数 */
-    polylineOptions?: AmapPolylineOptions
+    polylineOptions?: MapPolylineOptions
     /** 多边形参数 */
-    polygonOptions?: AmapPolygonOptions
+    polygonOptions?: MapPolygonOptions
     /** 面积量测参数 */
-    measureAreaOptions?: AmapPolygonOptions
+    measureAreaOptions?: MapPolygonOptions
     /** 距离量测参数 */
-    ruleOptions?: AmapPolylineOptions
+    ruleOptions?: MapPolylineOptions
     /** 拉框放大参数 */
-    rectZoomInOptions?: AmapPolygonOptions
+    rectZoomInOptions?: MapPolygonOptions
     /** 拉框缩小参数 */
-    rectZoomOutOptions?: AmapPolygonOptions
+    rectZoomOutOptions?: MapPolygonOptions
 }
 
 /** 开启 MouseTool 模式参数 */
-export interface OpenAmapMouseToolModeParams extends GetAmapMouseToolModeOptionsParams {
+export interface OpenMapMouseToolModeParams extends GetMapMouseToolModeOptionsParams {
     /** MouseTool 实例 */
-    mouseTool: AmapMouseToolInstance
+    mouseTool: MapMouseToolInstance
 }
 
 /** MouseTool 组件属性 */
-export interface MouseToolProps extends AmapMouseToolEventShortcutProps {
+export interface MouseToolProps extends MapMouseToolEventShortcutProps {
     /** MouseTool 实例 ref */
-    ref?: Ref<AmapMouseToolInstance | null>
+    ref?: Ref<MapMouseToolInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 绘制模式 */
-    mode?: AmapMouseToolMode
+    mode?: MapMouseToolMode
     /** 是否开启当前模式 */
     active?: boolean
     /** 通用绘制参数 */
-    options?: AmapMouseToolDrawOptions
+    options?: MapMouseToolDrawOptions
     /** 点标记参数 */
-    markerOptions?: AmapMarkerOptions
+    markerOptions?: MapMarkerOptions
     /** 圆形参数 */
-    circleOptions?: AmapCircleOptions
+    circleOptions?: MapCircleOptions
     /** 矩形参数 */
-    rectangleOptions?: AmapPolygonOptions
+    rectangleOptions?: MapPolygonOptions
     /** 折线参数 */
-    polylineOptions?: AmapPolylineOptions
+    polylineOptions?: MapPolylineOptions
     /** 多边形参数 */
-    polygonOptions?: AmapPolygonOptions
+    polygonOptions?: MapPolygonOptions
     /** 面积量测参数 */
-    measureAreaOptions?: AmapPolygonOptions
+    measureAreaOptions?: MapPolygonOptions
     /** 距离量测参数 */
-    ruleOptions?: AmapPolylineOptions
+    ruleOptions?: MapPolylineOptions
     /** 拉框放大参数 */
-    rectZoomInOptions?: AmapPolygonOptions
+    rectZoomInOptions?: MapPolygonOptions
     /** 拉框缩小参数 */
-    rectZoomOutOptions?: AmapPolygonOptions
+    rectZoomOutOptions?: MapPolygonOptions
     /** 关闭时是否清除绘制覆盖物 */
     clearOnClose?: boolean
     /** 切换模式时是否清除绘制覆盖物 */
     clearOnModeChange?: boolean
     /** MouseTool 事件映射 */
-    events?: AmapMouseToolEvents
+    events?: MapMouseToolEvents
     /** 绘制完成回调 */
-    onDraw?: AmapMouseToolOnDraw
+    onDraw?: MapMouseToolOnDraw
     /** MouseTool 创建完成回调 */
-    onLoad?: AmapMouseToolOnLoad
+    onLoad?: MapMouseToolOnLoad
     /** MouseTool 销毁前回调 */
-    onDestroy?: AmapMouseToolOnDestroy
+    onDestroy?: MapMouseToolOnDestroy
 }
 
-function getAmapMouseToolConstructor({ AMap }: GetAmapMouseToolConstructorParams) {
+function getMapMouseToolConstructor({ AMap }: GetMapMouseToolConstructorParams) {
     const constructor = (AMap as unknown as Record<string, unknown>).MouseTool
 
     if (typeof constructor !== "function") return undefined
 
-    return constructor as AmapMouseToolConstructor
+    return constructor as MapMouseToolConstructor
 }
 
-function setAmapMouseToolRef({ ref, mouseTool }: SetAmapMouseToolRefParams) {
+function setMapMouseToolRef({ ref, mouseTool }: SetMapMouseToolRefParams) {
     if (!ref) return
 
     if (typeof ref === "function") {
@@ -241,21 +241,21 @@ function setAmapMouseToolRef({ ref, mouseTool }: SetAmapMouseToolRefParams) {
     ref.current = mouseTool
 }
 
-function bindAmapMouseToolEvents({ mouseTool, events, onDraw }: BindAmapMouseToolEventsParams) {
-    const eventEntries = getAmapEventEntries(events)
+function bindMapMouseToolEvents({ mouseTool, events, onDraw }: BindMapMouseToolEventsParams) {
+    const eventEntries = getMapEventEntries(events)
 
     eventEntries.forEach(({ eventName, handler }) => mouseTool.on?.(eventName, handler))
 
     if (onDraw) mouseTool.on?.("draw", onDraw)
 
-    return function unbindAmapMouseToolEvents() {
+    return function unbindMapMouseToolEvents() {
         eventEntries.forEach(({ eventName, handler }) => mouseTool.off?.(eventName, handler))
 
         if (onDraw) mouseTool.off?.("draw", onDraw)
     }
 }
 
-function getAmapMouseToolModeOptions({
+function getMapMouseToolModeOptions({
     mode,
     options,
     markerOptions,
@@ -267,23 +267,23 @@ function getAmapMouseToolModeOptions({
     ruleOptions,
     rectZoomInOptions,
     rectZoomOutOptions,
-}: GetAmapMouseToolModeOptionsParams) {
+}: GetMapMouseToolModeOptionsParams) {
     if (options) return options
 
-    if (mode === AmapMouseToolMode.Marker) return markerOptions
-    if (mode === AmapMouseToolMode.Circle) return circleOptions
-    if (mode === AmapMouseToolMode.Rectangle) return rectangleOptions
-    if (mode === AmapMouseToolMode.Polyline) return polylineOptions
-    if (mode === AmapMouseToolMode.Polygon) return polygonOptions
-    if (mode === AmapMouseToolMode.MeasureArea) return measureAreaOptions
-    if (mode === AmapMouseToolMode.Rule) return ruleOptions
-    if (mode === AmapMouseToolMode.RectZoomIn) return rectZoomInOptions
-    if (mode === AmapMouseToolMode.RectZoomOut) return rectZoomOutOptions
+    if (mode === MapMouseToolMode.Marker) return markerOptions
+    if (mode === MapMouseToolMode.Circle) return circleOptions
+    if (mode === MapMouseToolMode.Rectangle) return rectangleOptions
+    if (mode === MapMouseToolMode.Polyline) return polylineOptions
+    if (mode === MapMouseToolMode.Polygon) return polygonOptions
+    if (mode === MapMouseToolMode.MeasureArea) return measureAreaOptions
+    if (mode === MapMouseToolMode.Rule) return ruleOptions
+    if (mode === MapMouseToolMode.RectZoomIn) return rectZoomInOptions
+    if (mode === MapMouseToolMode.RectZoomOut) return rectZoomOutOptions
 
     return undefined
 }
 
-function openAmapMouseToolMode({
+function openMapMouseToolMode({
     mouseTool,
     mode,
     options,
@@ -296,8 +296,8 @@ function openAmapMouseToolMode({
     ruleOptions,
     rectZoomInOptions,
     rectZoomOutOptions,
-}: OpenAmapMouseToolModeParams) {
-    const modeOptions = getAmapMouseToolModeOptions({
+}: OpenMapMouseToolModeParams) {
+    const modeOptions = getMapMouseToolModeOptions({
         mode,
         options,
         markerOptions,
@@ -311,47 +311,47 @@ function openAmapMouseToolMode({
         rectZoomOutOptions,
     })
 
-    if (mode === AmapMouseToolMode.Marker) {
-        mouseTool.marker?.(modeOptions as AmapMarkerOptions | undefined)
+    if (mode === MapMouseToolMode.Marker) {
+        mouseTool.marker?.(modeOptions as MapMarkerOptions | undefined)
         return
     }
 
-    if (mode === AmapMouseToolMode.Circle) {
-        mouseTool.circle?.(modeOptions as AmapCircleOptions | undefined)
+    if (mode === MapMouseToolMode.Circle) {
+        mouseTool.circle?.(modeOptions as MapCircleOptions | undefined)
         return
     }
 
-    if (mode === AmapMouseToolMode.Rectangle) {
-        mouseTool.rectangle?.(modeOptions as AmapPolygonOptions | undefined)
+    if (mode === MapMouseToolMode.Rectangle) {
+        mouseTool.rectangle?.(modeOptions as MapPolygonOptions | undefined)
         return
     }
 
-    if (mode === AmapMouseToolMode.Polyline) {
-        mouseTool.polyline?.(modeOptions as AmapPolylineOptions | undefined)
+    if (mode === MapMouseToolMode.Polyline) {
+        mouseTool.polyline?.(modeOptions as MapPolylineOptions | undefined)
         return
     }
 
-    if (mode === AmapMouseToolMode.Polygon) {
-        mouseTool.polygon?.(modeOptions as AmapPolygonOptions | undefined)
+    if (mode === MapMouseToolMode.Polygon) {
+        mouseTool.polygon?.(modeOptions as MapPolygonOptions | undefined)
         return
     }
 
-    if (mode === AmapMouseToolMode.MeasureArea) {
-        mouseTool.measureArea?.(modeOptions as AmapPolygonOptions | undefined)
+    if (mode === MapMouseToolMode.MeasureArea) {
+        mouseTool.measureArea?.(modeOptions as MapPolygonOptions | undefined)
         return
     }
 
-    if (mode === AmapMouseToolMode.Rule) {
-        mouseTool.rule?.(modeOptions as AmapPolylineOptions | undefined)
+    if (mode === MapMouseToolMode.Rule) {
+        mouseTool.rule?.(modeOptions as MapPolylineOptions | undefined)
         return
     }
 
-    if (mode === AmapMouseToolMode.RectZoomIn) {
-        mouseTool.rectZoomIn?.(modeOptions as AmapPolygonOptions | undefined)
+    if (mode === MapMouseToolMode.RectZoomIn) {
+        mouseTool.rectZoomIn?.(modeOptions as MapPolygonOptions | undefined)
         return
     }
 
-    if (mode === AmapMouseToolMode.RectZoomOut) mouseTool.rectZoomOut?.(modeOptions as AmapPolygonOptions | undefined)
+    if (mode === MapMouseToolMode.RectZoomOut) mouseTool.rectZoomOut?.(modeOptions as MapPolygonOptions | undefined)
 }
 
 export const MouseTool: FC<MouseToolProps> = ({
@@ -378,27 +378,27 @@ export const MouseTool: FC<MouseToolProps> = ({
     onDestroy: _onDestroy,
     ...eventShortcuts
 }) => {
-    const context = useAmapContext()
-    const mouseToolRef = useRef<AmapMouseToolInstance | null>(null)
+    const context = useMapContext()
+    const mouseToolRef = useRef<MapMouseToolInstance | null>(null)
     const currentMap = map ?? context.map
     const currentAMap = AMap ?? context.AMap
-    const pluginLoaded = useAmapPlugin({
+    const pluginLoaded = useMapPlugin({
         map: currentMap,
         AMap: currentAMap,
-        pluginName: AmapPlugin.MouseTool,
+        pluginName: MapPlugin.MouseTool,
         constructorName: "MouseTool",
     })
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
-    const currentEvents = mergeAmapEvents({
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapMouseToolEvents
+    }) as MapMouseToolEvents
 
     useStableEffect(() => {
         if (!currentMap || !currentAMap || !pluginLoaded) return
 
-        const MouseToolConstructor = getAmapMouseToolConstructor({
+        const MouseToolConstructor = getMapMouseToolConstructor({
             AMap: currentAMap,
         })
 
@@ -407,7 +407,7 @@ export const MouseTool: FC<MouseToolProps> = ({
         const mouseTool = new MouseToolConstructor(currentMap)
 
         mouseToolRef.current = mouseTool
-        setAmapMouseToolRef({
+        setMapMouseToolRef({
             ref,
             mouseTool,
         })
@@ -415,7 +415,7 @@ export const MouseTool: FC<MouseToolProps> = ({
 
         return () => {
             mouseToolRef.current = null
-            setAmapMouseToolRef({
+            setMapMouseToolRef({
                 ref,
                 mouseTool: null,
             })
@@ -434,7 +434,7 @@ export const MouseTool: FC<MouseToolProps> = ({
 
         if (!active || !mode) return
 
-        openAmapMouseToolMode({
+        openMapMouseToolMode({
             mouseTool: mouseToolRef.current,
             mode,
             options,
@@ -467,7 +467,7 @@ export const MouseTool: FC<MouseToolProps> = ({
     useStableEffect(() => {
         if (!mouseToolRef.current) return
 
-        return bindAmapMouseToolEvents({
+        return bindMapMouseToolEvents({
             mouseTool: mouseToolRef.current,
             events: currentEvents,
             onDraw,

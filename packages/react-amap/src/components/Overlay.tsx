@@ -10,83 +10,83 @@ import {
 } from "react"
 import { createPortal } from "react-dom"
 
-import { type AmapEventHandler, type AmapMapInstance, type AmapNamespace, useAmapContext } from "./Amap"
-import type { AmapMarkerAnchor, AmapMarkerOffset, AmapMarkerPosition } from "./Marker"
+import { type MapEventHandler, type MapInstance, type MapNamespace, useMapContext } from "./Map"
+import type { MapMarkerAnchor, MapMarkerOffset, MapMarkerPosition } from "./Marker"
 import { optionalFn } from "../utils/optionalFn"
 import { useStableEffect } from "../hooks/useStableEffect"
 import {
-    type AmapMoveEvent,
-    type AmapOverlayEventMap,
-    type AmapOverlayEventShortcutProps,
-    type AmapOverlayInteractionEvent,
-    type AmapOverlayMouseEvent,
-    type AmapTargetEvent,
-    getAmapEventEntries,
-    mergeAmapEvents,
-    splitAmapEventShortcutProps,
-} from "../utils/amapEvents"
+    type MapMoveEvent,
+    type MapOverlayEventMap,
+    type MapOverlayEventShortcutProps,
+    type MapOverlayInteractionEvent,
+    type MapOverlayMouseEvent,
+    type MapTargetEvent,
+    getMapEventEntries,
+    mergeMapEvents,
+    splitMapEventShortcutProps,
+} from "../utils/mapEvents"
 
-export type AmapInfoWindowOnLoad = (infoWindow: AmapInfoWindowInstance) => void
+export type MapInfoWindowOnLoad = (infoWindow: MapInfoWindowInstance) => void
 
-export type AmapInfoWindowOnDestroy = (infoWindow: AmapInfoWindowInstance) => void
+export type MapInfoWindowOnDestroy = (infoWindow: MapInfoWindowInstance) => void
 
-export type AmapContextMenuOnLoad = (contextMenu: AmapContextMenuInstance) => void
+export type MapContextMenuOnLoad = (contextMenu: MapContextMenuInstance) => void
 
-export type AmapContextMenuOnDestroy = (contextMenu: AmapContextMenuInstance) => void
+export type MapContextMenuOnDestroy = (contextMenu: MapContextMenuInstance) => void
 
 /** 交互覆盖物鼠标事件 */
-export interface AmapDomOverlayMouseEvent<TInstance = AmapDomOverlayEventTarget> extends AmapOverlayMouseEvent<TInstance> {}
+export interface MapDomOverlayMouseEvent<TInstance = MapDomOverlayEventTarget> extends MapOverlayMouseEvent<TInstance> {}
 
 /** 交互覆盖物坐标事件 */
-export interface AmapDomOverlayInteractionEvent<TInstance = AmapDomOverlayEventTarget>
-    extends AmapOverlayInteractionEvent<TInstance> {}
+export interface MapDomOverlayInteractionEvent<TInstance = MapDomOverlayEventTarget>
+    extends MapOverlayInteractionEvent<TInstance> {}
 
 /** 交互覆盖物目标事件 */
-export interface AmapDomOverlayTargetEvent<TInstance = AmapDomOverlayEventTarget> extends AmapTargetEvent<TInstance> {}
+export interface MapDomOverlayTargetEvent<TInstance = MapDomOverlayEventTarget> extends MapTargetEvent<TInstance> {}
 
 /** 交互覆盖物移动动画事件 */
-export interface AmapDomOverlayMoveEvent<TInstance = AmapDomOverlayEventTarget> extends AmapMoveEvent<TInstance> {}
+export interface MapDomOverlayMoveEvent<TInstance = MapDomOverlayEventTarget> extends MapMoveEvent<TInstance> {}
 
 /** 交互覆盖物事件快捷属性 */
-export interface AmapDomOverlayEventShortcutProps<TInstance = AmapDomOverlayEventTarget>
-    extends AmapOverlayEventShortcutProps<TInstance> {}
+export interface MapDomOverlayEventShortcutProps<TInstance = MapDomOverlayEventTarget>
+    extends MapOverlayEventShortcutProps<TInstance> {}
 
 /** 信息窗体鼠标事件 */
-export interface AmapInfoWindowMouseEvent extends AmapDomOverlayMouseEvent<AmapInfoWindowInstance> {}
+export interface MapInfoWindowMouseEvent extends MapDomOverlayMouseEvent<MapInfoWindowInstance> {}
 
 /** 信息窗体坐标事件 */
-export interface AmapInfoWindowInteractionEvent extends AmapDomOverlayInteractionEvent<AmapInfoWindowInstance> {}
+export interface MapInfoWindowInteractionEvent extends MapDomOverlayInteractionEvent<MapInfoWindowInstance> {}
 
 /** 信息窗体目标事件 */
-export interface AmapInfoWindowTargetEvent extends AmapDomOverlayTargetEvent<AmapInfoWindowInstance> {}
+export interface MapInfoWindowTargetEvent extends MapDomOverlayTargetEvent<MapInfoWindowInstance> {}
 
 /** 信息窗体移动动画事件 */
-export interface AmapInfoWindowMoveEvent extends AmapDomOverlayMoveEvent<AmapInfoWindowInstance> {}
+export interface MapInfoWindowMoveEvent extends MapDomOverlayMoveEvent<MapInfoWindowInstance> {}
 
 /** 信息窗体事件快捷属性 */
-export interface AmapInfoWindowEventShortcutProps extends AmapDomOverlayEventShortcutProps<AmapInfoWindowInstance> {}
+export interface MapInfoWindowEventShortcutProps extends MapDomOverlayEventShortcutProps<MapInfoWindowInstance> {}
 
 /** 右键菜单鼠标事件 */
-export interface AmapContextMenuMouseEvent extends AmapDomOverlayMouseEvent<AmapContextMenuInstance> {}
+export interface MapContextMenuMouseEvent extends MapDomOverlayMouseEvent<MapContextMenuInstance> {}
 
 /** 右键菜单坐标事件 */
-export interface AmapContextMenuInteractionEvent extends AmapDomOverlayInteractionEvent<AmapContextMenuInstance> {}
+export interface MapContextMenuInteractionEvent extends MapDomOverlayInteractionEvent<MapContextMenuInstance> {}
 
 /** 右键菜单目标事件 */
-export interface AmapContextMenuTargetEvent extends AmapDomOverlayTargetEvent<AmapContextMenuInstance> {}
+export interface MapContextMenuTargetEvent extends MapDomOverlayTargetEvent<MapContextMenuInstance> {}
 
 /** 右键菜单移动动画事件 */
-export interface AmapContextMenuMoveEvent extends AmapDomOverlayMoveEvent<AmapContextMenuInstance> {}
+export interface MapContextMenuMoveEvent extends MapDomOverlayMoveEvent<MapContextMenuInstance> {}
 
 /** 右键菜单事件快捷属性 */
-export interface AmapContextMenuEventShortcutProps extends AmapDomOverlayEventShortcutProps<AmapContextMenuInstance> {}
+export interface MapContextMenuEventShortcutProps extends MapDomOverlayEventShortcutProps<MapContextMenuInstance> {}
 
 /** 交互覆盖物事件映射 */
-export interface AmapDomOverlayEvents<TInstance = AmapDomOverlayEventTarget>
-    extends AmapOverlayEventMap<TInstance> {}
+export interface MapDomOverlayEvents<TInstance = MapDomOverlayEventTarget>
+    extends MapOverlayEventMap<TInstance> {}
 
 /** 信息窗体参数 */
-export interface AmapInfoWindowOptions {
+export interface MapInfoWindowOptions {
     /** 是否自定义窗体 */
     isCustom?: boolean
     /** 是否自动移动到视野内 */
@@ -100,19 +100,19 @@ export interface AmapInfoWindowOptions {
     /** 信息窗体尺寸 */
     size?: unknown
     /** 锚点 */
-    anchor?: AmapMarkerAnchor
+    anchor?: MapMarkerAnchor
     /** 偏移量 */
-    offset?: AmapMarkerOffset
+    offset?: MapMarkerOffset
     /** 显示位置 */
-    position?: AmapMarkerPosition
+    position?: MapMarkerPosition
     /** 自定义数据 */
     extData?: unknown
 }
 
 /** 信息窗体实例 */
-export interface AmapInfoWindowInstance {
+export interface MapInfoWindowInstance {
     /** 打开信息窗体 */
-    open?: (map: AmapMapInstance, position?: AmapMarkerPosition, height?: number) => void
+    open?: (map: MapInstance, position?: MapMarkerPosition, height?: number) => void
     /** 关闭信息窗体 */
     close?: () => void
     /** 获取是否打开 */
@@ -122,17 +122,17 @@ export interface AmapInfoWindowInstance {
     /** 设置内容 */
     setContent?: (content: string | HTMLElement) => void
     /** 设置锚点 */
-    setAnchor?: (anchor: AmapMarkerAnchor) => void
+    setAnchor?: (anchor: MapMarkerAnchor) => void
     /** 设置自定义数据 */
     setExtData?: (extData: unknown) => void
     /** 绑定事件 */
-    on?: (eventName: string, handler: AmapEventHandler) => void
+    on?: (eventName: string, handler: MapEventHandler) => void
     /** 解绑事件 */
-    off?: (eventName: string, handler: AmapEventHandler) => void
+    off?: (eventName: string, handler: MapEventHandler) => void
 }
 
 /** 右键菜单项 */
-export interface AmapContextMenuItem {
+export interface MapContextMenuItem {
     /** 菜单文字 */
     text: string
     /** 点击回调 */
@@ -142,17 +142,17 @@ export interface AmapContextMenuItem {
 }
 
 /** 右键菜单参数 */
-export interface AmapContextMenuOptions {
+export interface MapContextMenuOptions {
     /** 显示位置 */
-    position?: AmapMarkerPosition
+    position?: MapMarkerPosition
     /** 自定义内容 */
     content?: string | HTMLElement
 }
 
 /** 右键菜单实例 */
-export interface AmapContextMenuInstance {
+export interface MapContextMenuInstance {
     /** 打开菜单 */
-    open?: (map: AmapMapInstance, position?: AmapMarkerPosition) => void
+    open?: (map: MapInstance, position?: MapMarkerPosition) => void
     /** 关闭菜单 */
     close?: () => void
     /** 添加菜单项 */
@@ -160,21 +160,21 @@ export interface AmapContextMenuInstance {
     /** 移除菜单项 */
     removeItem?: (text: string, fn: EventListener) => void
     /** 绑定事件 */
-    on?: (eventName: string, handler: AmapEventHandler) => void
+    on?: (eventName: string, handler: MapEventHandler) => void
     /** 解绑事件 */
-    off?: (eventName: string, handler: AmapEventHandler) => void
+    off?: (eventName: string, handler: MapEventHandler) => void
 }
 
 /** 支持 DOM 覆盖物构造器的高德命名空间 */
-export interface AmapDomOverlayNamespace extends AmapNamespace {
+export interface MapDomOverlayNamespace extends MapNamespace {
     /** InfoWindow 构造器 */
-    InfoWindow?: new (options?: AmapInfoWindowOptions) => AmapInfoWindowInstance
+    InfoWindow?: new (options?: MapInfoWindowOptions) => MapInfoWindowInstance
     /** ContextMenu 构造器 */
-    ContextMenu?: new (options?: AmapContextMenuOptions) => AmapContextMenuInstance
+    ContextMenu?: new (options?: MapContextMenuOptions) => MapContextMenuInstance
 }
 
 /** 更新内容元素参数 */
-export interface UpdateAmapOverlayContentElementParams {
+export interface UpdateMapOverlayContentElementParams {
     /** 内容元素 */
     element: HTMLElement
     /** 类名 */
@@ -184,13 +184,13 @@ export interface UpdateAmapOverlayContentElementParams {
 }
 
 /** 信息窗体组件属性 */
-export interface InfoWindowProps extends AmapInfoWindowOptions, AmapInfoWindowEventShortcutProps {
+export interface InfoWindowProps extends MapInfoWindowOptions, MapInfoWindowEventShortcutProps {
     /** 信息窗体实例 ref */
-    ref?: Ref<AmapInfoWindowInstance | null>
+    ref?: Ref<MapInfoWindowInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 是否打开 */
     active?: boolean
     /** 打开高度 */
@@ -202,23 +202,23 @@ export interface InfoWindowProps extends AmapInfoWindowOptions, AmapInfoWindowEv
     /** React 自定义内容样式 */
     contentStyle?: CSSProperties
     /** 信息窗体额外参数 */
-    infoWindowOptions?: AmapInfoWindowOptions
+    infoWindowOptions?: MapInfoWindowOptions
     /** 事件映射 */
-    events?: AmapDomOverlayEvents<AmapInfoWindowInstance>
+    events?: MapDomOverlayEvents<MapInfoWindowInstance>
     /** 创建完成回调 */
-    onLoad?: AmapInfoWindowOnLoad
+    onLoad?: MapInfoWindowOnLoad
     /** 销毁前回调 */
-    onDestroy?: AmapInfoWindowOnDestroy
+    onDestroy?: MapInfoWindowOnDestroy
 }
 
 /** 右键菜单组件属性 */
-export interface ContextMenuProps extends AmapContextMenuOptions, AmapContextMenuEventShortcutProps {
+export interface ContextMenuProps extends MapContextMenuOptions, MapContextMenuEventShortcutProps {
     /** 右键菜单实例 ref */
-    ref?: Ref<AmapContextMenuInstance | null>
+    ref?: Ref<MapContextMenuInstance | null>
     /** 地图实例 */
-    map?: AmapMapInstance
+    map?: MapInstance
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
     /** 是否打开 */
     active?: boolean
     /** React 自定义内容 */
@@ -228,18 +228,18 @@ export interface ContextMenuProps extends AmapContextMenuOptions, AmapContextMen
     /** React 自定义内容样式 */
     contentStyle?: CSSProperties
     /** 右键菜单项 */
-    items?: AmapContextMenuItem[]
+    items?: MapContextMenuItem[]
     /** 右键菜单额外参数 */
-    contextMenuOptions?: AmapContextMenuOptions
+    contextMenuOptions?: MapContextMenuOptions
     /** 事件映射 */
-    events?: AmapDomOverlayEvents<AmapContextMenuInstance>
+    events?: MapDomOverlayEvents<MapContextMenuInstance>
     /** 创建完成回调 */
-    onLoad?: AmapContextMenuOnLoad
+    onLoad?: MapContextMenuOnLoad
     /** 销毁前回调 */
-    onDestroy?: AmapContextMenuOnDestroy
+    onDestroy?: MapContextMenuOnDestroy
 }
 
-function setAmapDomOverlayRef<TInstance>(ref: Ref<TInstance | null> | undefined, instance: TInstance | null) {
+function setMapDomOverlayRef<TInstance>(ref: Ref<TInstance | null> | undefined, instance: TInstance | null) {
     if (!ref) return
 
     if (typeof ref === "function") {
@@ -250,28 +250,28 @@ function setAmapDomOverlayRef<TInstance>(ref: Ref<TInstance | null> | undefined,
     ref.current = instance
 }
 
-function bindAmapDomOverlayEvents<TInstance extends AmapDomOverlayEventTarget>(
+function bindMapDomOverlayEvents<TInstance extends MapDomOverlayEventTarget>(
     instance: TInstance,
-    events?: AmapDomOverlayEvents
+    events?: MapDomOverlayEvents
 ) {
-    const eventEntries = getAmapEventEntries(events)
+    const eventEntries = getMapEventEntries(events)
 
     eventEntries.forEach(({ eventName, handler }) => instance.on?.(eventName, handler))
 
-    return function unbindAmapDomOverlayEvents() {
+    return function unbindMapDomOverlayEvents() {
         eventEntries.forEach(({ eventName, handler }) => instance.off?.(eventName, handler))
     }
 }
 
 /** DOM 覆盖物事件目标 */
-export interface AmapDomOverlayEventTarget {
+export interface MapDomOverlayEventTarget {
     /** 绑定事件 */
-    on?: (eventName: string, handler: AmapEventHandler) => void
+    on?: (eventName: string, handler: MapEventHandler) => void
     /** 解绑事件 */
-    off?: (eventName: string, handler: AmapEventHandler) => void
+    off?: (eventName: string, handler: MapEventHandler) => void
 }
 
-function mergeAmapDomOverlayOptions<TOptions extends object>(options: TOptions | undefined, extraOptions: TOptions) {
+function mergeMapDomOverlayOptions<TOptions extends object>(options: TOptions | undefined, extraOptions: TOptions) {
     const nextOptions: TOptions = {
         ...options,
     } as TOptions
@@ -283,24 +283,24 @@ function mergeAmapDomOverlayOptions<TOptions extends object>(options: TOptions |
     return nextOptions
 }
 
-function updateAmapOverlayContentElement({ element, className, style }: UpdateAmapOverlayContentElementParams) {
+function updateMapOverlayContentElement({ element, className, style }: UpdateMapOverlayContentElementParams) {
     element.className = className ?? ""
     element.removeAttribute("style")
 
     if (style) Object.assign(element.style, style)
 }
 
-function updateAmapInfoWindow(infoWindow: AmapInfoWindowInstance, options: AmapInfoWindowOptions) {
+function updateMapInfoWindow(infoWindow: MapInfoWindowInstance, options: MapInfoWindowOptions) {
     if (options.content !== undefined) infoWindow.setContent?.(options.content)
     if (options.size !== undefined) infoWindow.setSize?.(options.size)
     if (typeof options.anchor === "string") infoWindow.setAnchor?.(options.anchor)
     if (options.extData !== undefined) infoWindow.setExtData?.(options.extData)
 }
 
-function updateAmapContextMenuItems(contextMenu: AmapContextMenuInstance, items: AmapContextMenuItem[]) {
+function updateMapContextMenuItems(contextMenu: MapContextMenuInstance, items: MapContextMenuItem[]) {
     items.forEach(item => contextMenu.addItem?.(item.text, item.onClick, item.index))
 
-    return function removeAmapContextMenuItems() {
+    return function removeMapContextMenuItems() {
         items.forEach(item => contextMenu.removeItem?.(item.text, item.onClick))
     }
 }
@@ -320,21 +320,21 @@ export const InfoWindow: FC<InfoWindowProps> = ({
     onDestroy: _onDestroy,
     ...restProps
 }) => {
-    const context = useAmapContext()
-    const infoWindowRef = useRef<AmapInfoWindowInstance | null>(null)
+    const context = useMapContext()
+    const infoWindowRef = useRef<MapInfoWindowInstance | null>(null)
     const currentMap = map ?? context.map
-    const currentAMap = (AMap ?? context.AMap) as AmapDomOverlayNamespace | null
+    const currentAMap = (AMap ?? context.AMap) as MapDomOverlayNamespace | null
     const [contentElement, setContentElement] = useState<HTMLElement | null>(null)
     const hasChildrenContent = children !== undefined && children !== null && typeof children !== "boolean"
-    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
-    const currentOptions: AmapInfoWindowOptions = mergeAmapDomOverlayOptions(
+    const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
+    const currentOptions: MapInfoWindowOptions = mergeMapDomOverlayOptions(
         infoWindowOptions,
-        restOptions as AmapInfoWindowOptions
+        restOptions as MapInfoWindowOptions
     )
-    const currentEvents = mergeAmapEvents({
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapDomOverlayEvents
+    }) as MapDomOverlayEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -355,7 +355,7 @@ export const InfoWindow: FC<InfoWindowProps> = ({
     useStableEffect(() => {
         if (!contentElement) return
 
-        updateAmapOverlayContentElement({
+        updateMapOverlayContentElement({
             element: contentElement,
             className: contentClassName,
             style: contentStyle,
@@ -375,13 +375,13 @@ export const InfoWindow: FC<InfoWindowProps> = ({
         const infoWindow = new currentAMap.InfoWindow(nextOptions)
 
         infoWindowRef.current = infoWindow
-        setAmapDomOverlayRef(ref, infoWindow)
-        updateAmapInfoWindow(infoWindow, nextOptions)
+        setMapDomOverlayRef(ref, infoWindow)
+        updateMapInfoWindow(infoWindow, nextOptions)
         onLoad(infoWindow)
 
         return () => {
             infoWindowRef.current = null
-            setAmapDomOverlayRef(ref, null)
+            setMapDomOverlayRef(ref, null)
 
             try {
                 onDestroy(infoWindow)
@@ -400,7 +400,7 @@ export const InfoWindow: FC<InfoWindowProps> = ({
 
         if (hasChildrenContent && contentElement) nextOptions.content = contentElement
 
-        updateAmapInfoWindow(infoWindowRef.current, nextOptions)
+        updateMapInfoWindow(infoWindowRef.current, nextOptions)
 
         if (active && nextOptions.position) {
             infoWindowRef.current.open?.(currentMap!, nextOptions.position, height)
@@ -413,7 +413,7 @@ export const InfoWindow: FC<InfoWindowProps> = ({
     useStableEffect(() => {
         if (!infoWindowRef.current) return
 
-        return bindAmapDomOverlayEvents(infoWindowRef.current, currentEvents)
+        return bindMapDomOverlayEvents(infoWindowRef.current, currentEvents)
     }, [contentElement, currentAMap, currentEvents, currentMap, hasChildrenContent, ref])
 
     if (hasChildrenContent && contentElement) return createPortal(children, contentElement)
@@ -436,21 +436,21 @@ export const ContextMenu: FC<ContextMenuProps> = ({
     onDestroy: _onDestroy,
     ...restProps
 }) => {
-    const context = useAmapContext()
-    const contextMenuRef = useRef<AmapContextMenuInstance | null>(null)
+    const context = useMapContext()
+    const contextMenuRef = useRef<MapContextMenuInstance | null>(null)
     const currentMap = map ?? context.map
-    const currentAMap = (AMap ?? context.AMap) as AmapDomOverlayNamespace | null
+    const currentAMap = (AMap ?? context.AMap) as MapDomOverlayNamespace | null
     const [contentElement, setContentElement] = useState<HTMLElement | null>(null)
     const hasChildrenContent = children !== undefined && children !== null && typeof children !== "boolean"
-    const { eventShortcuts, restProps: restOptions } = splitAmapEventShortcutProps(restProps)
-    const currentOptions: AmapContextMenuOptions = mergeAmapDomOverlayOptions(
+    const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
+    const currentOptions: MapContextMenuOptions = mergeMapDomOverlayOptions(
         contextMenuOptions,
-        restOptions as AmapContextMenuOptions
+        restOptions as MapContextMenuOptions
     )
-    const currentEvents = mergeAmapEvents({
+    const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
-    }) as AmapDomOverlayEvents
+    }) as MapDomOverlayEvents
     const onLoad = useEffectEvent(optionalFn(_onLoad))
     const onDestroy = useEffectEvent(optionalFn(_onDestroy))
     const getInitialOptions = useEffectEvent(() => currentOptions)
@@ -471,7 +471,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
     useStableEffect(() => {
         if (!contentElement) return
 
-        updateAmapOverlayContentElement({
+        updateMapOverlayContentElement({
             element: contentElement,
             className: contentClassName,
             style: contentStyle,
@@ -491,12 +491,12 @@ export const ContextMenu: FC<ContextMenuProps> = ({
         const contextMenu = new currentAMap.ContextMenu(nextOptions)
 
         contextMenuRef.current = contextMenu
-        setAmapDomOverlayRef(ref, contextMenu)
+        setMapDomOverlayRef(ref, contextMenu)
         onLoad(contextMenu)
 
         return () => {
             contextMenuRef.current = null
-            setAmapDomOverlayRef(ref, null)
+            setMapDomOverlayRef(ref, null)
 
             try {
                 onDestroy(contextMenu)
@@ -509,7 +509,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
     useStableEffect(() => {
         if (!contextMenuRef.current) return
 
-        return updateAmapContextMenuItems(contextMenuRef.current, items)
+        return updateMapContextMenuItems(contextMenuRef.current, items)
     }, [items])
 
     useStableEffect(() => {
@@ -526,7 +526,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
     useStableEffect(() => {
         if (!contextMenuRef.current) return
 
-        return bindAmapDomOverlayEvents(contextMenuRef.current, currentEvents)
+        return bindMapDomOverlayEvents(contextMenuRef.current, currentEvents)
     }, [contentElement, currentAMap, currentEvents, currentMap, hasChildrenContent, ref])
 
     if (hasChildrenContent && contentElement) return createPortal(children, contentElement)

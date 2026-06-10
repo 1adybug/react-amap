@@ -1,41 +1,41 @@
 import { useMemo } from "react"
 
-import { type AmapLngLatLike, type AmapNamespace, useAmapContext } from "../components/Amap"
+import { type MapLngLatLike, type MapNamespace, useMapContext } from "../components/Map"
 
 /** 几何工具库 */
-export interface AmapGeometryUtil {
+export interface MapGeometryUtil {
     /** 计算两点距离 */
-    distance?: (first: AmapLngLatLike, second: AmapLngLatLike) => number
+    distance?: (first: MapLngLatLike, second: MapLngLatLike) => number
     /** 计算环面积 */
-    ringArea?: (ring: AmapLngLatLike[]) => number
+    ringArea?: (ring: MapLngLatLike[]) => number
     /** 判断环方向 */
-    isClockwise?: (ring: AmapLngLatLike[]) => boolean
+    isClockwise?: (ring: MapLngLatLike[]) => boolean
     /** 判断多边形类型 */
-    typePolygon?: (rings: AmapLngLatLike[][]) => unknown
+    typePolygon?: (rings: MapLngLatLike[][]) => unknown
     /** 确保顺时针 */
-    makesureClockwise?: (ring: AmapLngLatLike[]) => AmapLngLatLike[]
+    makesureClockwise?: (ring: MapLngLatLike[]) => MapLngLatLike[]
     /** 确保逆时针 */
-    makesureAntiClockwise?: (ring: AmapLngLatLike[]) => AmapLngLatLike[]
+    makesureAntiClockwise?: (ring: MapLngLatLike[]) => MapLngLatLike[]
     /** 计算线长度 */
-    distanceOfLine?: (path: AmapLngLatLike[]) => number
+    distanceOfLine?: (path: MapLngLatLike[]) => number
     /** 判断点是否在环内 */
-    isPointInRing?: (point: AmapLngLatLike, ring: AmapLngLatLike[]) => boolean
+    isPointInRing?: (point: MapLngLatLike, ring: MapLngLatLike[]) => boolean
     /** 判断点是否在多边形内 */
-    isPointInPolygon?: (point: AmapLngLatLike, polygon: AmapLngLatLike[] | AmapLngLatLike[][]) => boolean
+    isPointInPolygon?: (point: MapLngLatLike, polygon: MapLngLatLike[] | MapLngLatLike[][]) => boolean
     /** 判断点是否在多多边形内 */
-    isPointInPolygons?: (point: AmapLngLatLike, polygons: AmapLngLatLike[][][]) => boolean
+    isPointInPolygons?: (point: MapLngLatLike, polygons: MapLngLatLike[][][]) => boolean
     /** 判断点是否在线段上 */
-    isPointOnSegment?: (point: AmapLngLatLike, start: AmapLngLatLike, end: AmapLngLatLike) => boolean
+    isPointOnSegment?: (point: MapLngLatLike, start: MapLngLatLike, end: MapLngLatLike) => boolean
     /** 判断点是否在线上 */
-    isPointOnLine?: (point: AmapLngLatLike, line: AmapLngLatLike[]) => boolean
+    isPointOnLine?: (point: MapLngLatLike, line: MapLngLatLike[]) => boolean
     /** 计算线段最近点 */
-    closestOnSegment?: (point: AmapLngLatLike, start: AmapLngLatLike, end: AmapLngLatLike) => AmapLngLatLike
+    closestOnSegment?: (point: MapLngLatLike, start: MapLngLatLike, end: MapLngLatLike) => MapLngLatLike
     /** 计算点到线段距离 */
-    distanceToSegment?: (point: AmapLngLatLike, start: AmapLngLatLike, end: AmapLngLatLike) => number
+    distanceToSegment?: (point: MapLngLatLike, start: MapLngLatLike, end: MapLngLatLike) => number
 }
 
 /** DOM 工具库 */
-export interface AmapDomUtil {
+export interface MapDomUtil {
     /** 获取视口 */
     getViewport?: (element?: HTMLElement) => unknown
     /** 获取视口偏移 */
@@ -63,7 +63,7 @@ export interface AmapDomUtil {
 }
 
 /** 浏览器能力信息 */
-export interface AmapBrowser {
+export interface MapBrowser {
     /** User-Agent */
     ua?: string
     /** 是否移动端 */
@@ -165,7 +165,7 @@ export interface AmapBrowser {
 }
 
 /** 通用工具库 */
-export interface AmapUtil {
+export interface MapUtil {
     /** 判断 DOM */
     isDOM?: (value: unknown) => boolean
     /** 颜色名转 Hex */
@@ -199,40 +199,40 @@ export interface AmapUtil {
 }
 
 /** 通用库命名空间 */
-export interface AmapCommonNamespace extends AmapNamespace {
+export interface MapCommonNamespace extends MapNamespace {
     /** 几何工具库 */
-    GeometryUtil?: AmapGeometryUtil
+    GeometryUtil?: MapGeometryUtil
     /** DOM 工具库 */
-    DomUtil?: AmapDomUtil
+    DomUtil?: MapDomUtil
     /** 浏览器能力 */
-    Browser?: AmapBrowser
+    Browser?: MapBrowser
     /** 通用工具库 */
-    Util?: AmapUtil
+    Util?: MapUtil
 }
 
 /** 使用通用库参数 */
-export interface UseAmapCommonParams {
+export interface UseMapCommonParams {
     /** 高德地图命名空间 */
-    AMap?: AmapNamespace
+    AMap?: MapNamespace
 }
 
 /** 通用库集合 */
-export interface AmapCommon {
+export interface MapCommon {
     /** 几何工具库 */
-    GeometryUtil?: AmapGeometryUtil
+    GeometryUtil?: MapGeometryUtil
     /** DOM 工具库 */
-    DomUtil?: AmapDomUtil
+    DomUtil?: MapDomUtil
     /** 浏览器能力 */
-    Browser?: AmapBrowser
+    Browser?: MapBrowser
     /** 通用工具库 */
-    Util?: AmapUtil
+    Util?: MapUtil
 }
 
-export function useAmapCommon({ AMap }: UseAmapCommonParams = {}) {
-    const context = useAmapContext()
-    const currentAMap = (AMap ?? context.AMap) as AmapCommonNamespace | null
+export function useMapCommon({ AMap }: UseMapCommonParams = {}) {
+    const context = useMapContext()
+    const currentAMap = (AMap ?? context.AMap) as MapCommonNamespace | null
 
-    return useMemo<AmapCommon>(
+    return useMemo<MapCommon>(
         () => ({
             Browser: currentAMap?.Browser,
             DomUtil: currentAMap?.DomUtil,
@@ -243,18 +243,18 @@ export function useAmapCommon({ AMap }: UseAmapCommonParams = {}) {
     )
 }
 
-export function useAmapGeometryUtil(params?: UseAmapCommonParams) {
-    return useAmapCommon(params).GeometryUtil
+export function useMapGeometryUtil(params?: UseMapCommonParams) {
+    return useMapCommon(params).GeometryUtil
 }
 
-export function useAmapDomUtil(params?: UseAmapCommonParams) {
-    return useAmapCommon(params).DomUtil
+export function useMapDomUtil(params?: UseMapCommonParams) {
+    return useMapCommon(params).DomUtil
 }
 
-export function useAmapBrowser(params?: UseAmapCommonParams) {
-    return useAmapCommon(params).Browser
+export function useMapBrowser(params?: UseMapCommonParams) {
+    return useMapCommon(params).Browser
 }
 
-export function useAmapUtil(params?: UseAmapCommonParams) {
-    return useAmapCommon(params).Util
+export function useMapUtil(params?: UseMapCommonParams) {
+    return useMapCommon(params).Util
 }
