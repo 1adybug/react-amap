@@ -354,8 +354,6 @@ export interface MapVectorEditorNamespace extends MapNamespace {
 
 /** 合并矢量编辑器参数 */
 export interface MergeMapVectorEditorOptionsParams<TOptions extends MapVectorEditorBaseOptions> {
-    /** 额外编辑器参数 */
-    editorOptions?: TOptions
     /** 透传编辑器参数 */
     extraOptions?: TOptions
 }
@@ -434,8 +432,6 @@ export interface PolygonEditorProps extends MapPolygonEditorOptions, MapPolygonE
     target?: MapPolygonInstance | null
     /** 是否开启编辑 */
     active?: boolean
-    /** 编辑器额外参数 */
-    editorOptions?: MapPolygonEditorOptions
     /** 编辑器事件映射 */
     events?: MapVectorEditorEvents<MapPolygonEditorInstance>
     /** 编辑器创建完成回调 */
@@ -456,8 +452,6 @@ export interface PolylineEditorProps extends MapPolylineEditorOptions, MapPolyli
     target?: MapPolylineInstance | null
     /** 是否开启编辑 */
     active?: boolean
-    /** 编辑器额外参数 */
-    editorOptions?: MapPolylineEditorOptions
     /** 编辑器事件映射 */
     events?: MapVectorEditorEvents<MapPolylineEditorInstance>
     /** 编辑器创建完成回调 */
@@ -478,8 +472,6 @@ export interface PolyEditorProps extends MapPolyEditorOptions, MapPolyEditorEven
     target?: MapPolyEditorTarget | null
     /** 是否开启编辑 */
     active?: boolean
-    /** 编辑器额外参数 */
-    editorOptions?: MapPolyEditorOptions
     /** 编辑器事件映射 */
     events?: MapVectorEditorEvents<MapPolyEditorInstance>
     /** 编辑器创建完成回调 */
@@ -500,8 +492,6 @@ export interface CircleEditorProps extends MapCircleEditorOptions, MapCircleEdit
     target?: MapCircleInstance | null
     /** 是否开启编辑 */
     active?: boolean
-    /** 编辑器额外参数 */
-    editorOptions?: MapCircleEditorOptions
     /** 编辑器事件映射 */
     events?: MapVectorEditorEvents<MapCircleEditorInstance>
     /** 编辑器创建完成回调 */
@@ -522,8 +512,6 @@ export interface BezierCurveEditorProps extends MapBezierCurveEditorOptions, Map
     target?: MapBezierCurveInstance | null
     /** 是否开启编辑 */
     active?: boolean
-    /** 编辑器额外参数 */
-    editorOptions?: MapBezierCurveEditorOptions
     /** 编辑器事件映射 */
     events?: MapVectorEditorEvents<MapBezierCurveEditorInstance>
     /** 编辑器创建完成回调 */
@@ -544,8 +532,6 @@ export interface EllipseEditorProps extends MapEllipseEditorOptions, MapEllipseE
     target?: MapEllipseInstance | null
     /** 是否开启编辑 */
     active?: boolean
-    /** 编辑器额外参数 */
-    editorOptions?: MapEllipseEditorOptions
     /** 编辑器事件映射 */
     events?: MapVectorEditorEvents<MapEllipseEditorInstance>
     /** 编辑器创建完成回调 */
@@ -566,8 +552,6 @@ export interface RectangleEditorProps extends MapRectangleEditorOptions, MapRect
     target?: MapRectangleInstance | null
     /** 是否开启编辑 */
     active?: boolean
-    /** 编辑器额外参数 */
-    editorOptions?: MapRectangleEditorOptions
     /** 编辑器事件映射 */
     events?: MapVectorEditorEvents<MapRectangleEditorInstance>
     /** 编辑器创建完成回调 */
@@ -576,13 +560,10 @@ export interface RectangleEditorProps extends MapRectangleEditorOptions, MapRect
     onDestroy?: MapVectorEditorOnDestroy<MapRectangleEditorInstance>
 }
 
-function mergeMapVectorEditorOptions<TOptions extends MapVectorEditorBaseOptions>({
-    editorOptions,
+function getDefinedMapVectorEditorOptions<TOptions extends MapVectorEditorBaseOptions>({
     extraOptions,
 }: MergeMapVectorEditorOptionsParams<TOptions>) {
-    const nextOptions: TOptions = {
-        ...editorOptions,
-    } as TOptions
+    const nextOptions: TOptions = {} as TOptions
 
     Object.entries(extraOptions ?? {}).forEach(([key, value]) => {
         if (value !== undefined) (nextOptions as Record<string, unknown>)[key] = value
@@ -749,15 +730,13 @@ export const PolygonEditor: FC<PolygonEditorProps> = ({
     AMap,
     target,
     active = true,
-    editorOptions,
     events,
     onLoad,
     onDestroy,
     ...restOptions
 }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapVectorEditorOptions({
-        editorOptions,
+    const currentOptions = getDefinedMapVectorEditorOptions({
         extraOptions: restProps as MapPolygonEditorOptions,
     })
 
@@ -785,15 +764,13 @@ export const PolylineEditor: FC<PolylineEditorProps> = ({
     AMap,
     target,
     active = true,
-    editorOptions,
     events,
     onLoad,
     onDestroy,
     ...restOptions
 }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapVectorEditorOptions({
-        editorOptions,
+    const currentOptions = getDefinedMapVectorEditorOptions({
         extraOptions: restProps as MapPolylineEditorOptions,
     })
 
@@ -821,15 +798,13 @@ export const PolyEditor: FC<PolyEditorProps> = ({
     AMap,
     target,
     active = true,
-    editorOptions,
     events,
     onLoad,
     onDestroy,
     ...restOptions
 }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapVectorEditorOptions({
-        editorOptions,
+    const currentOptions = getDefinedMapVectorEditorOptions({
         extraOptions: restProps as MapPolyEditorOptions,
     })
 
@@ -857,15 +832,13 @@ export const CircleEditor: FC<CircleEditorProps> = ({
     AMap,
     target,
     active = true,
-    editorOptions,
     events,
     onLoad,
     onDestroy,
     ...restOptions
 }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapVectorEditorOptions({
-        editorOptions,
+    const currentOptions = getDefinedMapVectorEditorOptions({
         extraOptions: restProps as MapCircleEditorOptions,
     })
 
@@ -893,15 +866,13 @@ export const BezierCurveEditor: FC<BezierCurveEditorProps> = ({
     AMap,
     target,
     active = true,
-    editorOptions,
     events,
     onLoad,
     onDestroy,
     ...restOptions
 }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapVectorEditorOptions({
-        editorOptions,
+    const currentOptions = getDefinedMapVectorEditorOptions({
         extraOptions: restProps as MapBezierCurveEditorOptions,
     })
 
@@ -929,15 +900,13 @@ export const EllipseEditor: FC<EllipseEditorProps> = ({
     AMap,
     target,
     active = true,
-    editorOptions,
     events,
     onLoad,
     onDestroy,
     ...restOptions
 }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapVectorEditorOptions({
-        editorOptions,
+    const currentOptions = getDefinedMapVectorEditorOptions({
         extraOptions: restProps as MapEllipseEditorOptions,
     })
 
@@ -965,15 +934,13 @@ export const RectangleEditor: FC<RectangleEditorProps> = ({
     AMap,
     target,
     active = true,
-    editorOptions,
     events,
     onLoad,
     onDestroy,
     ...restOptions
 }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapVectorEditorOptions({
-        editorOptions,
+    const currentOptions = getDefinedMapVectorEditorOptions({
         extraOptions: restProps as MapRectangleEditorOptions,
     })
 

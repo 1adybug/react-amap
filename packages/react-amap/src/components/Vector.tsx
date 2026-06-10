@@ -444,8 +444,6 @@ export interface MapVectorNamespace extends MapNamespace {
 
 /** 合并矢量覆盖物参数 */
 export interface MergeMapVectorOverlayOptionsParams<TOptions extends MapVectorOverlayBaseOptions> {
-    /** 额外构造参数 */
-    overlayOptions?: TOptions
     /** 透传构造参数 */
     extraOptions?: TOptions
 }
@@ -526,8 +524,6 @@ export interface PolygonProps extends MapPolygonBaseOptions, MapPolygonEventShor
     map?: MapInstance
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 多边形额外参数 */
-    polygonOptions?: MapPolygonOptions
     /** 多边形事件映射 */
     events?: MapVectorOverlayEvents<MapPolygonInstance>
     /** 多边形创建完成回调 */
@@ -544,8 +540,6 @@ export interface PolylineProps extends MapPolylineBaseOptions, MapPolylineEventS
     map?: MapInstance
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 折线额外参数 */
-    polylineOptions?: MapPolylineOptions
     /** 折线事件映射 */
     events?: MapVectorOverlayEvents<MapPolylineInstance>
     /** 折线创建完成回调 */
@@ -562,8 +556,6 @@ export interface BezierCurveProps extends MapBezierCurveBaseOptions, MapBezierCu
     map?: MapInstance
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 贝塞尔曲线额外参数 */
-    bezierCurveOptions?: MapBezierCurveOptions
     /** 贝塞尔曲线事件映射 */
     events?: MapVectorOverlayEvents<MapBezierCurveInstance>
     /** 贝塞尔曲线创建完成回调 */
@@ -580,8 +572,6 @@ export interface CircleProps extends MapCircleBaseOptions, MapCircleEventShortcu
     map?: MapInstance
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 圆形额外参数 */
-    circleOptions?: MapCircleOptions
     /** 圆形事件映射 */
     events?: MapVectorOverlayEvents<MapCircleInstance>
     /** 圆形创建完成回调 */
@@ -598,8 +588,6 @@ export interface CircleMarkerProps extends MapCircleMarkerBaseOptions, MapCircle
     map?: MapInstance
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 圆点标记额外参数 */
-    circleMarkerOptions?: MapCircleMarkerOptions
     /** 圆点标记事件映射 */
     events?: MapVectorOverlayEvents<MapCircleMarkerInstance>
     /** 圆点标记创建完成回调 */
@@ -616,8 +604,6 @@ export interface EllipseProps extends MapEllipseBaseOptions, MapEllipseEventShor
     map?: MapInstance
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 椭圆额外参数 */
-    ellipseOptions?: MapEllipseOptions
     /** 椭圆事件映射 */
     events?: MapVectorOverlayEvents<MapEllipseInstance>
     /** 椭圆创建完成回调 */
@@ -634,8 +620,6 @@ export interface RectangleProps extends MapRectangleBaseOptions, MapRectangleEve
     map?: MapInstance
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 矩形额外参数 */
-    rectangleOptions?: MapRectangleOptions
     /** 矩形事件映射 */
     events?: MapVectorOverlayEvents<MapRectangleInstance>
     /** 矩形创建完成回调 */
@@ -652,8 +636,6 @@ export interface GeoJSONProps extends MapGeoJSONBaseOptions, MapGeoJSONEventShor
     map?: MapInstance
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** GeoJSON 额外参数 */
-    geoJSONOptions?: MapGeoJSONOptions
     /** GeoJSON 事件映射 */
     events?: MapVectorOverlayEvents<MapGeoJSONInstance>
     /** GeoJSON 创建完成回调 */
@@ -662,13 +644,10 @@ export interface GeoJSONProps extends MapGeoJSONBaseOptions, MapGeoJSONEventShor
     onDestroy?: MapVectorOverlayOnDestroy<MapGeoJSONInstance>
 }
 
-function mergeMapVectorOverlayOptions<TOptions extends MapVectorOverlayBaseOptions>({
-    overlayOptions,
+function getDefinedMapVectorOverlayOptions<TOptions extends MapVectorOverlayBaseOptions>({
     extraOptions,
 }: MergeMapVectorOverlayOptionsParams<TOptions>) {
-    const nextOptions: TOptions = {
-        ...overlayOptions,
-    } as TOptions
+    const nextOptions: TOptions = {} as TOptions
 
     Object.entries(extraOptions ?? {}).forEach(([key, value]) => {
         if (value !== undefined) (nextOptions as Record<string, unknown>)[key] = value
@@ -915,15 +894,13 @@ export const Polygon: FC<PolygonProps> = ({
     ref,
     map,
     AMap,
-    polygonOptions,
     events,
     onLoad,
     onDestroy,
     ...restOptions
 }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapVectorOverlayOptions({
-        overlayOptions: polygonOptions,
+    const currentOptions = getDefinedMapVectorOverlayOptions({
         extraOptions: restProps as MapPolygonOptions,
     })
 
@@ -946,15 +923,13 @@ export const Polyline: FC<PolylineProps> = ({
     ref,
     map,
     AMap,
-    polylineOptions,
     events,
     onLoad,
     onDestroy,
     ...restOptions
 }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapVectorOverlayOptions({
-        overlayOptions: polylineOptions,
+    const currentOptions = getDefinedMapVectorOverlayOptions({
         extraOptions: restProps as MapPolylineOptions,
     })
 
@@ -977,15 +952,13 @@ export const BezierCurve: FC<BezierCurveProps> = ({
     ref,
     map,
     AMap,
-    bezierCurveOptions,
     events,
     onLoad,
     onDestroy,
     ...restOptions
 }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapVectorOverlayOptions({
-        overlayOptions: bezierCurveOptions,
+    const currentOptions = getDefinedMapVectorOverlayOptions({
         extraOptions: restProps as MapBezierCurveOptions,
     })
 
@@ -1011,15 +984,13 @@ export const Circle: FC<CircleProps> = ({
     ref,
     map,
     AMap,
-    circleOptions,
     events,
     onLoad,
     onDestroy,
     ...restOptions
 }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapVectorOverlayOptions({
-        overlayOptions: circleOptions,
+    const currentOptions = getDefinedMapVectorOverlayOptions({
         extraOptions: restProps as MapCircleOptions,
     })
 
@@ -1042,15 +1013,13 @@ export const CircleMarker: FC<CircleMarkerProps> = ({
     ref,
     map,
     AMap,
-    circleMarkerOptions,
     events,
     onLoad,
     onDestroy,
     ...restOptions
 }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapVectorOverlayOptions({
-        overlayOptions: circleMarkerOptions,
+    const currentOptions = getDefinedMapVectorOverlayOptions({
         extraOptions: restProps as MapCircleMarkerOptions,
     })
 
@@ -1073,15 +1042,13 @@ export const Ellipse: FC<EllipseProps> = ({
     ref,
     map,
     AMap,
-    ellipseOptions,
     events,
     onLoad,
     onDestroy,
     ...restOptions
 }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapVectorOverlayOptions({
-        overlayOptions: ellipseOptions,
+    const currentOptions = getDefinedMapVectorOverlayOptions({
         extraOptions: restProps as MapEllipseOptions,
     })
 
@@ -1104,15 +1071,13 @@ export const Rectangle: FC<RectangleProps> = ({
     ref,
     map,
     AMap,
-    rectangleOptions,
     events,
     onLoad,
     onDestroy,
     ...restOptions
 }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapVectorOverlayOptions({
-        overlayOptions: rectangleOptions,
+    const currentOptions = getDefinedMapVectorOverlayOptions({
         extraOptions: restProps as MapRectangleOptions,
     })
 
@@ -1135,15 +1100,13 @@ export const GeoJSON: FC<GeoJSONProps> = ({
     ref,
     map,
     AMap,
-    geoJSONOptions,
     events,
     onLoad,
     onDestroy,
     ...restOptions
 }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapVectorOverlayOptions({
-        overlayOptions: geoJSONOptions,
+    const currentOptions = getDefinedMapVectorOverlayOptions({
         extraOptions: restProps as MapGeoJSONOptions,
     })
 

@@ -96,8 +96,6 @@ export interface RangingToolProps extends MapRangingToolOptions, MapRangingToolE
     active?: boolean
     /** 关闭时是否清除覆盖物 */
     removeOverlaysOnTurnOff?: boolean
-    /** 测距工具额外参数 */
-    rangingToolOptions?: MapRangingToolOptions
     /** 事件映射 */
     events?: MapRangingToolEvents
     /** 创建完成回调 */
@@ -127,12 +125,10 @@ function bindMapRangingToolEvents(rangingTool: MapRangingToolInstance, events?: 
     }
 }
 
-function mergeMapRangingToolOptions(options: MapRangingToolOptions | undefined, extraOptions: MapRangingToolOptions) {
-    const nextOptions: MapRangingToolOptions = {
-        ...options,
-    }
+function getDefinedMapRangingToolOptions(options: MapRangingToolOptions) {
+    const nextOptions: MapRangingToolOptions = {}
 
-    Object.entries(extraOptions).forEach(([key, value]) => {
+    Object.entries(options).forEach(([key, value]) => {
         if (value !== undefined) {
             Object.assign(nextOptions, {
                 [key]: value,
@@ -149,7 +145,6 @@ export const RangingTool: FC<RangingToolProps> = ({
     AMap,
     active = true,
     removeOverlaysOnTurnOff = false,
-    rangingToolOptions,
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
@@ -166,7 +161,7 @@ export const RangingTool: FC<RangingToolProps> = ({
         pluginName: MapPlugin.RangingTool,
         constructorName: "RangingTool",
     })
-    const currentOptions = mergeMapRangingToolOptions(rangingToolOptions, restOptions as MapRangingToolOptions)
+    const currentOptions = getDefinedMapRangingToolOptions(restOptions as MapRangingToolOptions)
     const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,

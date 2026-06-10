@@ -703,8 +703,6 @@ export interface TextProps extends MapTextBaseOptions, MapTextEventShortcutProps
     map?: MapInstance
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 文本标记额外参数 */
-    textOptions?: MapTextOptions
     /** 文本标记事件映射 */
     events?: MapMarkerEvents<MapTextInstance>
     /** 创建完成回调 */
@@ -721,8 +719,6 @@ export interface ElasticMarkerProps extends MapElasticMarkerBaseOptions, MapElas
     map?: MapInstance
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 灵活点标记额外参数 */
-    elasticMarkerOptions?: MapElasticMarkerOptions
     /** 灵活点标记事件映射 */
     events?: MapMarkerEvents<MapElasticMarkerInstance>
     /** 创建完成回调 */
@@ -741,8 +737,6 @@ export interface LabelsLayerProps extends MapLabelsLayerBaseOptions, MapLabelsLa
     AMap?: MapNamespace
     /** 子标注 */
     children?: ReactNode
-    /** 标注图层额外参数 */
-    labelsLayerOptions?: MapLabelsLayerOptions
     /** 标注图层事件映射 */
     events?: MapMarkerEvents<MapLabelsLayerInstance>
     /** 创建完成回调 */
@@ -757,8 +751,6 @@ export interface LabelMarkerProps extends MapLabelMarkerBaseOptions, MapLabelMar
     ref?: Ref<MapLabelMarkerInstance | null>
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 标注额外参数 */
-    labelMarkerOptions?: MapLabelMarkerOptions
     /** 标注事件映射 */
     events?: MapMarkerEvents<MapLabelMarkerInstance>
     /** 创建完成回调 */
@@ -777,8 +769,6 @@ export interface MassMarksProps extends MapMassMarksBaseOptions, MapMassMarksEve
     AMap?: MapNamespace
     /** 海量点数据 */
     data?: MapMassMarksData[]
-    /** 海量点额外参数 */
-    massMarksOptions?: MapMassMarksOptions
     /** 海量点事件映射 */
     events?: MapMarkerEvents<MapMassMarksInstance>
     /** 创建完成回调 */
@@ -797,8 +787,6 @@ export interface MarkerClusterProps extends MapMarkerClusterBaseOptions, MapMark
     AMap?: MapNamespace
     /** 聚合数据 */
     data?: MapMarkerClusterData[]
-    /** 点聚合额外参数 */
-    markerClusterOptions?: MapMarkerClusterOptions
     /** 点聚合事件映射 */
     events?: MapMarkerEvents<MapMarkerClusterInstance>
     /** 创建完成回调 */
@@ -913,15 +901,10 @@ function updateMapText(text: MapTextInstance, options: MapTextOptions) {
     if (typeof options.angle === "number") text.setAngle?.(options.angle)
 }
 
-function mergeMapPointOptions<TOptions extends object>(
-    options: TOptions | undefined,
-    extraOptions: TOptions
-) {
-    const nextOptions: TOptions = {
-        ...options,
-    } as TOptions
+function getDefinedMapPointOptions<TOptions extends object>(options: TOptions) {
+    const nextOptions: TOptions = {} as TOptions
 
-    Object.entries(extraOptions).forEach(([key, value]) => {
+    Object.entries(options).forEach(([key, value]) => {
         if (value !== undefined) (nextOptions as Record<string, unknown>)[key] = value
     })
 
@@ -1050,7 +1033,6 @@ export const Text: FC<TextProps> = ({
     ref,
     map,
     AMap,
-    textOptions,
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
@@ -1061,7 +1043,7 @@ export const Text: FC<TextProps> = ({
     const currentMap = map ?? context.map
     const currentAMap = (AMap ?? context.AMap) as MapPointNamespace | null
     const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
-    const currentOptions = mergeMapPointOptions(textOptions, restOptions as MapTextOptions)
+    const currentOptions = getDefinedMapPointOptions(restOptions as MapTextOptions)
     const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
@@ -1118,7 +1100,6 @@ export const ElasticMarker: FC<ElasticMarkerProps> = ({
     ref,
     map,
     AMap,
-    elasticMarkerOptions,
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
@@ -1135,7 +1116,7 @@ export const ElasticMarker: FC<ElasticMarkerProps> = ({
         pluginName: MapPlugin.ElasticMarker,
         constructorName: "ElasticMarker",
     })
-    const currentOptions = mergeMapPointOptions(elasticMarkerOptions, restOptions as MapElasticMarkerOptions)
+    const currentOptions = getDefinedMapPointOptions(restOptions as MapElasticMarkerOptions)
     const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
@@ -1193,7 +1174,6 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
     map,
     AMap,
     children,
-    labelsLayerOptions,
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
@@ -1207,7 +1187,7 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
     const currentAMap = (AMap ?? context.AMap) as MapPointNamespace | null
     const currentGroup = map ? null : contextGroup
     const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
-    const currentOptions = mergeMapPointOptions(labelsLayerOptions, restOptions as MapLabelsLayerOptions)
+    const currentOptions = getDefinedMapPointOptions(restOptions as MapLabelsLayerOptions)
     const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
@@ -1298,7 +1278,6 @@ export const LabelsLayer: FC<LabelsLayerProps> = ({
 export const LabelMarker: FC<LabelMarkerProps> = ({
     ref,
     AMap,
-    labelMarkerOptions,
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
@@ -1310,7 +1289,7 @@ export const LabelMarker: FC<LabelMarkerProps> = ({
     const currentLayer = contextLayer
     const currentAMap = (AMap ?? context.AMap) as MapPointNamespace | null
     const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
-    const currentOptions = mergeMapPointOptions(labelMarkerOptions, restOptions as MapLabelMarkerOptions)
+    const currentOptions = getDefinedMapPointOptions(restOptions as MapLabelMarkerOptions)
     const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
@@ -1384,7 +1363,6 @@ export const MassMarks: FC<MassMarksProps> = ({
     map,
     AMap,
     data = [],
-    massMarksOptions,
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
@@ -1395,7 +1373,7 @@ export const MassMarks: FC<MassMarksProps> = ({
     const currentMap = map ?? context.map
     const currentAMap = (AMap ?? context.AMap) as MapPointNamespace | null
     const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
-    const currentOptions = mergeMapPointOptions(massMarksOptions, restOptions as MapMassMarksOptions)
+    const currentOptions = getDefinedMapPointOptions(restOptions as MapMassMarksOptions)
     const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
@@ -1460,7 +1438,6 @@ export const MarkerCluster: FC<MarkerClusterProps> = ({
     map,
     AMap,
     data = [],
-    markerClusterOptions,
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
@@ -1477,7 +1454,7 @@ export const MarkerCluster: FC<MarkerClusterProps> = ({
         pluginName: MapPlugin.MarkerCluster,
         constructorName: "MarkerCluster",
     })
-    const currentOptions = mergeMapPointOptions(markerClusterOptions, restOptions as MapMarkerClusterOptions)
+    const currentOptions = getDefinedMapPointOptions(restOptions as MapMarkerClusterOptions)
     const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,

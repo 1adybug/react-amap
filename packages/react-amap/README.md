@@ -88,14 +88,9 @@ export default App
 </div>
 ```
 
-### 参数合并
+### 参数传递
 
-多数组件都支持两类参数：
-
-- 顶层 props：例如 `<Marker position={...} visible />`。
-- `xxxOptions`：例如 `<Marker markerOptions={{ position: ... }} />`。
-
-当同一个字段同时出现在两处时，顶层 props 优先级更高。未显式传入的字段不会覆盖 `xxxOptions` 中的值。
+组件配置参数直接作为顶层 props 传入，例如 `<Marker position={...} visible />`。组件不再提供 `xxxOptions` 形式的额外配置容器。
 
 ### 事件
 
@@ -162,7 +157,6 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 | `loaderOptions` | 传给 Loader 的额外配置，不允许覆盖 `key`、`version`、`plugins`、`serviceHost` |
 | `loaderTimeout` | 自定义 Loader 脚本加载超时，默认 `15000` ms |
 | `appName` | 写入 `AMap.getConfig().appname`，默认 `"react-amap"` |
-| `mapOptions` | 额外 `AMap.Map` 初始化参数 |
 | `events` | 地图原始事件映射 |
 | `onMapLoad` | 地图创建完成回调，参数为 `(map, AMap)` |
 | `onMapError` | 地图加载失败回调 |
@@ -188,7 +182,7 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 
 以下运行时参数变化后会同步到地图实例：`center`、`zoom`、`rotation`、`pitch`、`features`、`layers`、`zooms`、`dragEnable`、`zoomEnable`、`jogEnable`、`pitchEnable`、`rotateEnable`、`animateEnable`、`keyboardEnable`、`doubleClickZoom`、`scrollWheel`、`touchZoom`、`touchZoomCenter`、`defaultCursor`、`mapStyle`。
 
-以下初始化参数变化会重建地图：`apiKey`、`version`、`plugins`、`loaderUrl`、`loaderOptions`、`loaderTimeout`、`securityConfig`、`viewMode`、`showLabel`、`isHotspot`、`showBuildingBlock`、`showIndoorMap`、`skyColor`、`WebGLParams`、`mapOptions`。
+以下初始化参数变化会重建地图：`apiKey`、`version`、`plugins`、`loaderUrl`、`loaderOptions`、`loaderTimeout`、`securityConfig`、`viewMode`、`showLabel`、`isHotspot`、`showBuildingBlock`、`showIndoorMap`、`skyColor`、`WebGLParams`。
 
 ## Marker
 
@@ -211,7 +205,6 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 | `angle` | 旋转角度 |
 | `clickable` / `draggable` | 是否可点击 / 拖拽 |
 | `label` | 文本标注，`direction` 可用 `MapMarkerLabelDirection` |
-| `markerOptions` | 额外 Marker 构造参数 |
 
 ```tsx
 <Marker
@@ -255,7 +248,7 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 />
 ```
 
-常用 props：`position`、`text`、`title`、`zIndex`、`offset`、`anchor`、`angle`、`clickable`、`draggable`、`bubble`、`zooms`、`cursor`、`topWhenClick`、`style`、`visible`、`textOptions`。
+常用 props：`position`、`text`、`title`、`zIndex`、`offset`、`anchor`、`angle`、`clickable`、`draggable`、`bubble`、`zooms`、`cursor`、`topWhenClick`、`style`、`visible`。
 
 ### ElasticMarker
 
@@ -289,7 +282,7 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 />
 ```
 
-常用 props：`position`、`zIndex`、`offset`、`clickable`、`draggable`、`bubble`、`cursor`、`topWhenClick`、`zoomStyleMapping`、`styles`、`visible`、`elasticMarkerOptions`。
+常用 props：`position`、`zIndex`、`offset`、`clickable`、`draggable`、`bubble`、`cursor`、`topWhenClick`、`zoomStyleMapping`、`styles`、`visible`。
 
 ### LabelsLayer 与 LabelMarker
 
@@ -318,9 +311,9 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 </LabelsLayer>
 ```
 
-`LabelsLayer` 常用 props：`zooms`、`zIndex`、`visible`、`collision`、`allowCollision`、`animation`、`labelsLayerOptions`。
+`LabelsLayer` 常用 props：`zooms`、`zIndex`、`visible`、`collision`、`allowCollision`、`animation`。
 
-`LabelMarker` 常用 props：`name`、`position`、`zooms`、`opacity`、`rank`、`zIndex`、`visible`、`extData`、`icon`、`text`、`labelMarkerOptions`。
+`LabelMarker` 常用 props：`name`、`position`、`zooms`、`opacity`、`rank`、`zIndex`、`visible`、`extData`、`icon`、`text`。
 
 ### MassMarks
 
@@ -348,7 +341,7 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 />
 ```
 
-常用 props：`data`、`style`、`opacity`、`zIndex`、`zooms`、`cursor`、`visible`、`massMarksOptions`。
+常用 props：`data`、`style`、`opacity`、`zIndex`、`zooms`、`cursor`、`visible`。
 
 ### MarkerCluster
 
@@ -366,7 +359,7 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 />
 ```
 
-常用 props：`data`、`gridSize`、`maxZoom`、`averageCenter`、`clusterByZoomChange`、`styles`、`renderClusterMarker`、`renderMarker`、`markerClusterOptions`。
+常用 props：`data`、`gridSize`、`maxZoom`、`averageCenter`、`clusterByZoomChange`、`styles`、`renderClusterMarker`、`renderMarker`。
 
 ## 矢量覆盖物
 
@@ -391,13 +384,11 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
     fillColor="#1677ff"
     fillOpacity={0.25}
     strokeColor="#1677ff"
-    polygonOptions={{
-        extrusionHeight: 200,
-    }}
+    extrusionHeight={200}
 />
 ```
 
-常用 props：`path`、`extrusionHeight`、`wallColor`、`roofColor`、`polygonOptions`。
+常用 props：`path`、`extrusionHeight`、`wallColor`、`roofColor`。
 
 ### Polyline
 
@@ -414,7 +405,7 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 />
 ```
 
-常用 props：`path`、`polylineOptions`。
+常用 props：`path`。
 
 ### BezierCurve 与 BesizerCurve
 
@@ -431,7 +422,7 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 />
 ```
 
-常用 props：`path`、`bezierCurveOptions`。
+常用 props：`path`。
 
 ### Circle
 
@@ -445,7 +436,7 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 />
 ```
 
-常用 props：`center`、`radius`、`circleOptions`。
+常用 props：`center`、`radius`。
 
 ### CircleMarker
 
@@ -453,7 +444,7 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 <CircleMarker center={[116.397428, 39.90923]} radius={8} fillColor="#f5222d" />
 ```
 
-`CircleMarker` 的 `radius` 单位是像素。常用 props：`center`、`radius`、`circleMarkerOptions`。
+`CircleMarker` 的 `radius` 单位是像素。常用 props：`center`、`radius`。
 
 ### Ellipse
 
@@ -466,7 +457,7 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 />
 ```
 
-常用 props：`center`、`radius`、`ellipseOptions`。
+常用 props：`center`、`radius`。
 
 ### Rectangle
 
@@ -474,7 +465,7 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 <Rectangle bounds={bounds} fillColor="#13c2c2" fillOpacity={0.2} />
 ```
 
-`bounds` 可传入高德 `Bounds` 实例或 JSAPI 支持的 bounds-like 数据。常用 props：`bounds`、`rectangleOptions`。
+`bounds` 可传入高德 `Bounds` 实例或 JSAPI 支持的 bounds-like 数据。常用 props：`bounds`。
 
 ### GeoJSON
 
@@ -487,11 +478,11 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 />
 ```
 
-常用 props：`geoJSON`、`getMarker`、`getPolyline`、`getPolygon`、`geoJSONOptions`。
+常用 props：`geoJSON`、`getMarker`、`getPolyline`、`getPolygon`。
 
 ## 图层
 
-图层组件通用 props：`visible`、`opacity`、`zIndex`、`zooms`、`layerOptions`、`events`、`onLoad`、`onDestroy`。
+图层组件通用 props：`visible`、`opacity`、`zIndex`、`zooms`、`events`、`onLoad`、`onDestroy`。
 
 ### 基础瓦片图层
 
@@ -669,11 +660,11 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 />
 ```
 
-常用 props：`dataSet`、`radius`、`gradient`、`heatMapOptions`。
+常用 props：`dataSet`、`radius`、`gradient`。
 
 ## 控件
 
-控件组件会创建对应插件并调用 `map.addControl`。通用 props：`position`、`offset`、`visible`、`controlOptions`、`events`、`onLoad`、`onDestroy`。
+控件组件会创建对应插件并调用 `map.addControl`。通用 props：`position`、`offset`、`visible`、`events`、`onLoad`、`onDestroy`。
 
 `position` 可使用 `ControlPosition`：
 
@@ -705,7 +696,7 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 </InfoWindow>
 ```
 
-常用 props：`active`、`height`、`position`、`content`、`children`、`contentClassName`、`contentStyle`、`isCustom`、`autoMove`、`avoid`、`closeWhenClickMap`、`size`、`anchor`、`offset`、`extData`、`infoWindowOptions`。
+常用 props：`active`、`height`、`position`、`content`、`children`、`contentClassName`、`contentStyle`、`isCustom`、`autoMove`、`avoid`、`closeWhenClickMap`、`size`、`anchor`、`offset`、`extData`。
 
 ### ContextMenu
 
@@ -728,7 +719,7 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 />
 ```
 
-常用 props：`active`、`position`、`content`、`children`、`contentClassName`、`contentStyle`、`items`、`contextMenuOptions`。
+常用 props：`active`、`position`、`content`、`children`、`contentClassName`、`contentStyle`、`items`。
 
 ## 群组
 
@@ -806,7 +797,7 @@ const markerRef = useRef<MapMarkerInstance | null>(null)
 />
 ```
 
-常用 props：`active`、`removeOverlaysOnTurnOff`、`startMarkerOptions`、`midMarkerOptions`、`endMarkerOptions`、`lineOptions`、`tmpLineOptions`、`startLabelText`、`midLabelText`、`endLabelText`、`startLabelOffset`、`midLabelOffset`、`endLabelOffset`、`rangingToolOptions`。
+常用 props：`active`、`removeOverlaysOnTurnOff`、`startMarkerOptions`、`midMarkerOptions`、`endMarkerOptions`、`lineOptions`、`tmpLineOptions`、`startLabelText`、`midLabelText`、`endLabelText`、`startLabelOffset`、`midLabelOffset`、`endLabelOffset`。
 
 ## 矢量编辑器
 
@@ -832,7 +823,7 @@ const [polygon, setPolygon] = useState<MapPolygonInstance | null>(null)
 />
 ```
 
-通用 props：`target`、`active`、`createOptions`、`editOptions`、`editorOptions`、`events`、`onLoad`、`onDestroy`。
+通用 props：`target`、`active`、`createOptions`、`editOptions`、`events`、`onLoad`、`onDestroy`。
 
 组件说明：
 
@@ -909,7 +900,7 @@ function onSearchAddress() {
 }
 ```
 
-常用 props：`city`、`radius`、`lang`、`batch`、`extensions`、`geocoderOptions`。
+常用 props：`city`、`radius`、`lang`、`batch`、`extensions`。
 
 ### AutoComplete
 
@@ -925,7 +916,7 @@ function onSearchAddress() {
 />
 ```
 
-常用 props：`type`、`city`、`datatype`、`citylimit`、`input`、`output`、`outPutDirAuto`、`closeResultOnScroll`、`lang`、`autoCompleteOptions`。
+常用 props：`type`、`city`、`datatype`、`citylimit`、`input`、`output`、`outPutDirAuto`、`closeResultOnScroll`、`lang`。
 
 ### PlaceSearch
 
@@ -941,7 +932,7 @@ function onSearchAddress() {
 />
 ```
 
-常用 props：`city`、`type`、`pageSize`、`pageIndex`、`extensions`、`panel`、`citylimit`、`autoFitView`、`placeSearchOptions`。
+常用 props：`city`、`type`、`pageSize`、`pageIndex`、`extensions`、`panel`、`citylimit`、`autoFitView`。
 
 当传入 `map` 或放在 `Map` 内时，`PlaceSearch` 会把当前地图写入构造参数，除非你已经在 options 中显式设置 `map`。
 
@@ -962,7 +953,7 @@ function onSearchAddress() {
 />
 ```
 
-常用 props：`tableId`、`keywords`、`filter`、`orderBy`、`pageSize`、`pageIndex`、`panel`、`autoFitView`、`cloudDataSearchOptions`。
+常用 props：`tableId`、`keywords`、`filter`、`orderBy`、`pageSize`、`pageIndex`、`panel`、`autoFitView`。
 
 ### 路线规划服务
 
@@ -985,11 +976,11 @@ function onSearchAddress() {
 
 额外 props：
 
-- `Driving`：`ferry`、`drivingOptions`。
-- `TruckDriving`：`size`、`width`、`height`、`load`、`weight`、`axlesNum`、`truckDrivingOptions`。
-- `Transfer`：`city`、`cityd`、`transferOptions`。
-- `Walking`：`walkingOptions`。
-- `Riding`：`ridingOptions`。
+- `Driving`：`ferry`。
+- `TruckDriving`：`size`、`width`、`height`、`load`、`weight`、`axlesNum`。
+- `Transfer`：`city`、`cityd`。
+- `Walking`：使用通用路线 props。
+- `Riding`：使用通用路线 props。
 
 ### DragRoute 与 DragRouteTruck
 
@@ -1019,9 +1010,9 @@ function onSearchAddress() {
 />
 ```
 
-`DragRoute` 常用 props：`path`、`policy`、`autoSearch`、`polyOption`、`startMarkerOptions`、`midMarkerOptions`、`endMarkerOptions`、`showTraffic`、`dragRouteOptions`。
+`DragRoute` 常用 props：`path`、`policy`、`autoSearch`、`polyOption`、`startMarkerOptions`、`midMarkerOptions`、`endMarkerOptions`、`showTraffic`。
 
-`DragRouteTruck` 常用 props：`locations`、`autoSearch`、`cartype`、`showpolyline`、`nosteps`、`autoRefresh`、`refreshTime`、`apiVersion`、`showFields`、`dragRouteTruckOptions`。
+`DragRouteTruck` 常用 props：`locations`、`autoSearch`、`cartype`、`showpolyline`、`nosteps`、`autoRefresh`、`refreshTime`、`apiVersion`、`showFields`。
 
 ### GraspRoad
 
@@ -1052,7 +1043,7 @@ function onSearchAddress() {
 />
 ```
 
-常用 props：`level`、`showbiz`、`extensions`、`subdistrict`、`districtSearchOptions`。
+常用 props：`level`、`showbiz`、`extensions`、`subdistrict`。
 
 ### Weather
 
@@ -1084,7 +1075,7 @@ function onSearchAddress() {
 />
 ```
 
-常用 props：`pageIndex`、`pageSize`、`city`、`extensions`、`stationSearchOptions`、`lineSearchOptions`。
+常用 props：`pageIndex`、`pageSize`、`city`、`extensions`。
 
 ### Geolocation
 
@@ -1105,7 +1096,7 @@ function onSearchAddress() {
 />
 ```
 
-常用 props：`addControl`、`position`、`offset`、`convert`、`enableHighAccuracy`、`timeout`、`maximumAge`、`showButton`、`showCircle`、`showMarker`、`markerOptions`、`circleOptions`、`panToLocation`、`zoomToAccuracy`、`GeoLocationFirst`、`noIpLocate`、`noGeoLocation`、`useNative`、`getCityWhenFail`、`needAddress`、`extensions`、`geolocationOptions`。
+常用 props：`addControl`、`position`、`offset`、`convert`、`enableHighAccuracy`、`timeout`、`maximumAge`、`showButton`、`showCircle`、`showMarker`、`markerOptions`、`circleOptions`、`panToLocation`、`zoomToAccuracy`、`GeoLocationFirst`、`noIpLocate`、`noGeoLocation`、`useNative`、`getCityWhenFail`、`needAddress`、`extensions`。
 
 ### CitySearch
 

@@ -212,8 +212,6 @@ export interface MapMarkerNamespace extends MapNamespace {
 
 /** 合并点标记参数 */
 export interface MergeMapMarkerOptionsParams extends MapMarkerBaseOptions {
-    /** 额外点标记参数 */
-    markerOptions?: MapMarkerOptions
     /** 透传点标记参数 */
     extraOptions?: MapMarkerOptions
     /** React 子节点承载元素 */
@@ -254,8 +252,6 @@ export interface MarkerProps extends MapMarkerBaseOptions, MapMarkerEventShortcu
     ref?: Ref<MapMarkerInstance | null>
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 点标记额外参数 */
-    markerOptions?: MapMarkerOptions
     /** React 自定义内容 */
     children?: ReactNode
     /** React 自定义内容类名 */
@@ -271,7 +267,6 @@ export interface MarkerProps extends MapMarkerBaseOptions, MapMarkerEventShortcu
 }
 
 function mergeMapMarkerOptions({
-    markerOptions,
     extraOptions,
     contentElement,
     hasChildrenContent,
@@ -279,7 +274,6 @@ function mergeMapMarkerOptions({
     ...topLevelMarkerOptions
 }: MergeMapMarkerOptionsParams) {
     const nextMarkerOptions: MapMarkerOptions = {
-        ...markerOptions,
         ...extraOptions,
     }
 
@@ -374,7 +368,6 @@ export const Marker: FC<MarkerProps> = ({
     ref,
     map,
     AMap,
-    markerOptions,
     children,
     contentClassName,
     contentStyle,
@@ -415,7 +408,6 @@ export const Marker: FC<MarkerProps> = ({
         events,
     }) as MapMarkerEvents
     const currentMarkerOptions = mergeMapMarkerOptions({
-        markerOptions,
         extraOptions,
         contentElement,
         hasChildrenContent,

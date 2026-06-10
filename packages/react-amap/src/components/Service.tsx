@@ -1066,60 +1066,34 @@ export interface MapCitySearchEventShortcutProps extends MapServiceEventShortcut
 export interface UseMapServiceBaseParams<TInstance extends MapServiceInstance> extends MapServiceProps<TInstance> {}
 
 /** 地理编码组件属性 */
-export interface GeocoderProps extends UseMapServiceBaseParams<MapGeocoderInstance>, MapGeocoderOptions {
-    /** 地理编码额外参数 */
-    geocoderOptions?: MapGeocoderOptions
-}
+export interface GeocoderProps extends UseMapServiceBaseParams<MapGeocoderInstance>, MapGeocoderOptions {}
 
 /** 输入提示组件属性 */
-export interface AutoCompleteProps extends UseMapServiceBaseParams<MapAutoCompleteInstance>, MapAutoCompleteOptions {
-    /** 输入提示额外参数 */
-    autoCompleteOptions?: MapAutoCompleteOptions
-}
+export interface AutoCompleteProps extends UseMapServiceBaseParams<MapAutoCompleteInstance>, MapAutoCompleteOptions {}
 
 /** POI 搜索组件属性 */
-export interface PlaceSearchProps extends UseMapServiceBaseParams<MapPlaceSearchInstance>, MapPlaceSearchOptions {
-    /** POI 搜索额外参数 */
-    placeSearchOptions?: MapPlaceSearchOptions
-}
+export interface PlaceSearchProps extends UseMapServiceBaseParams<MapPlaceSearchInstance>, MapPlaceSearchOptions {}
 
 /** 云数据检索组件属性 */
 export interface CloudDataSearchProps extends UseMapServiceBaseParams<MapCloudDataSearchInstance>, MapCloudDataSearchOptions {
     /** 云数据表 ID */
     tableId: string
-    /** 云数据检索额外参数 */
-    cloudDataSearchOptions?: MapCloudDataSearchOptions
 }
 
 /** 驾车规划组件属性 */
-export interface DrivingProps extends UseMapServiceBaseParams<MapDrivingInstance>, MapDrivingOptions {
-    /** 驾车规划额外参数 */
-    drivingOptions?: MapDrivingOptions
-}
+export interface DrivingProps extends UseMapServiceBaseParams<MapDrivingInstance>, MapDrivingOptions {}
 
 /** 货车规划组件属性 */
-export interface TruckDrivingProps extends UseMapServiceBaseParams<MapTruckDrivingInstance>, MapTruckDrivingOptions {
-    /** 货车规划额外参数 */
-    truckDrivingOptions?: MapTruckDrivingOptions
-}
+export interface TruckDrivingProps extends UseMapServiceBaseParams<MapTruckDrivingInstance>, MapTruckDrivingOptions {}
 
 /** 步行规划组件属性 */
-export interface WalkingProps extends UseMapServiceBaseParams<MapWalkingInstance>, MapRouteServiceOptions {
-    /** 步行规划额外参数 */
-    walkingOptions?: MapRouteServiceOptions
-}
+export interface WalkingProps extends UseMapServiceBaseParams<MapWalkingInstance>, MapRouteServiceOptions {}
 
 /** 公交规划组件属性 */
-export interface TransferProps extends UseMapServiceBaseParams<MapTransferInstance>, MapTransferOptions {
-    /** 公交规划额外参数 */
-    transferOptions?: MapTransferOptions
-}
+export interface TransferProps extends UseMapServiceBaseParams<MapTransferInstance>, MapTransferOptions {}
 
 /** 骑行规划组件属性 */
-export interface RidingProps extends UseMapServiceBaseParams<MapRidingInstance>, MapRouteServiceOptions {
-    /** 骑行规划额外参数 */
-    ridingOptions?: MapRouteServiceOptions
-}
+export interface RidingProps extends UseMapServiceBaseParams<MapRidingInstance>, MapRouteServiceOptions {}
 
 /** 拖拽路线组件属性 */
 export interface DragRouteProps extends UseMapServiceBaseParams<MapDragRouteInstance>, MapDragRouteOptions {
@@ -1129,8 +1103,6 @@ export interface DragRouteProps extends UseMapServiceBaseParams<MapDragRouteInst
     policy?: number | string
     /** 创建后是否立即搜索 */
     autoSearch?: boolean
-    /** 拖拽路线额外参数 */
-    dragRouteOptions?: MapDragRouteOptions
 }
 
 /** 货车拖拽路线组件属性 */
@@ -1141,40 +1113,27 @@ export interface DragRouteTruckProps
     locations?: MapDragRouteTruckLocation[]
     /** 创建后是否立即搜索 */
     autoSearch?: boolean
-    /** 货车拖拽路线额外参数 */
-    dragRouteTruckOptions?: MapDragRouteTruckOptions
 }
 
 /** 轨迹纠偏组件属性 */
 export interface GraspRoadProps extends UseMapServiceBaseParams<MapGraspRoadInstance> {}
 
 /** 行政区查询组件属性 */
-export interface DistrictSearchProps extends UseMapServiceBaseParams<MapDistrictSearchInstance>, MapDistrictSearchOptions {
-    /** 行政区查询额外参数 */
-    districtSearchOptions?: MapDistrictSearchOptions
-}
+export interface DistrictSearchProps extends UseMapServiceBaseParams<MapDistrictSearchInstance>, MapDistrictSearchOptions {}
 
 /** 天气查询组件属性 */
 export interface WeatherProps extends UseMapServiceBaseParams<MapWeatherInstance> {}
 
 /** 公交站点查询组件属性 */
-export interface StationSearchProps extends UseMapServiceBaseParams<MapStationSearchInstance>, MapBusSearchOptions {
-    /** 公交站点查询额外参数 */
-    stationSearchOptions?: MapBusSearchOptions
-}
+export interface StationSearchProps extends UseMapServiceBaseParams<MapStationSearchInstance>, MapBusSearchOptions {}
 
 /** 公交线路查询组件属性 */
-export interface LineSearchProps extends UseMapServiceBaseParams<MapLineSearchInstance>, MapBusSearchOptions {
-    /** 公交线路查询额外参数 */
-    lineSearchOptions?: MapBusSearchOptions
-}
+export interface LineSearchProps extends UseMapServiceBaseParams<MapLineSearchInstance>, MapBusSearchOptions {}
 
 /** 定位组件属性 */
 export interface GeolocationProps extends UseMapServiceBaseParams<MapGeolocationInstance>, MapGeolocationOptions {
     /** 是否添加为地图控件 */
     addControl?: boolean
-    /** 定位额外参数 */
-    geolocationOptions?: MapGeolocationOptions
 }
 
 /** 城市查询组件属性 */
@@ -1254,12 +1213,10 @@ function bindMapServiceEvents<TInstance extends MapServiceInstance>(service: TIn
     }
 }
 
-function mergeMapServiceOptions<TOptions extends MapServiceBaseOptions>(options: TOptions | undefined, extraOptions: TOptions) {
-    const nextOptions: TOptions = {
-        ...options,
-    } as TOptions
+function getDefinedMapServiceOptions<TOptions extends MapServiceBaseOptions>(options: TOptions) {
+    const nextOptions: TOptions = {} as TOptions
 
-    Object.entries(cleanMapServiceExtraOptions(extraOptions)).forEach(([key, value]) => {
+    Object.entries(cleanMapServiceExtraOptions(options)).forEach(([key, value]) => {
         if (value !== undefined) {
             Object.assign(nextOptions, {
                 [key]: value,
@@ -1275,6 +1232,7 @@ function cleanMapServiceExtraOptions<TOptions extends MapServiceBaseOptions>(ext
         AMap: _AMap,
         enabled: _enabled,
         events: _events,
+        map: _map,
         onDestroy: _onDestroy,
         onLoad: _onLoad,
         onChange: _onChange,
@@ -1414,8 +1372,7 @@ export function useMapService<TInstance extends MapServiceInstance, TOptions ext
 }
 
 export function useGeocoder(params: GeocoderProps = {}) {
-    const { geocoderOptions, ...restOptions } = params
-    const options = mergeMapServiceOptions(geocoderOptions, restOptions as MapGeocoderOptions)
+    const options = getDefinedMapServiceOptions(params as MapGeocoderOptions)
 
     return useMapService<MapGeocoderInstance, MapGeocoderOptions>({
         ...params,
@@ -1429,8 +1386,7 @@ export function useGeocoder(params: GeocoderProps = {}) {
 }
 
 export function useAutoComplete(params: AutoCompleteProps = {}) {
-    const { autoCompleteOptions, ...restOptions } = params
-    const options = mergeMapServiceOptions(autoCompleteOptions, restOptions as MapAutoCompleteOptions)
+    const options = getDefinedMapServiceOptions(params as MapAutoCompleteOptions)
 
     return useMapService<MapAutoCompleteInstance, MapAutoCompleteOptions>({
         ...params,
@@ -1446,9 +1402,8 @@ export function useAutoComplete(params: AutoCompleteProps = {}) {
 }
 
 export function usePlaceSearch(params: PlaceSearchProps = {}) {
-    const { placeSearchOptions, ...restOptions } = params
     const options = applyMapServiceMapOption(
-        mergeMapServiceOptions(placeSearchOptions, restOptions as MapPlaceSearchOptions),
+        getDefinedMapServiceOptions(params as MapPlaceSearchOptions),
         params.map
     )
 
@@ -1468,9 +1423,9 @@ export function usePlaceSearch(params: PlaceSearchProps = {}) {
 }
 
 export function useCloudDataSearch(params: CloudDataSearchProps) {
-    const { tableId, cloudDataSearchOptions, ...restOptions } = params
+    const { tableId, ...restOptions } = params
     const options = applyMapServiceMapOption(
-        mergeMapServiceOptions(cloudDataSearchOptions, restOptions as MapCloudDataSearchOptions),
+        getDefinedMapServiceOptions(restOptions as MapCloudDataSearchOptions),
         params.map
     )
 
@@ -1489,9 +1444,8 @@ export function useCloudDataSearch(params: CloudDataSearchProps) {
 }
 
 export function useDriving(params: DrivingProps = {}) {
-    const { drivingOptions, ...restOptions } = params
     const options = applyMapServiceMapOption(
-        mergeMapServiceOptions(drivingOptions, restOptions as MapDrivingOptions),
+        getDefinedMapServiceOptions(params as MapDrivingOptions),
         params.map
     )
 
@@ -1509,9 +1463,8 @@ export function useDriving(params: DrivingProps = {}) {
 }
 
 export function useTruckDriving(params: TruckDrivingProps = {}) {
-    const { truckDrivingOptions, ...restOptions } = params
     const options = applyMapServiceMapOption(
-        mergeMapServiceOptions(truckDrivingOptions, restOptions as MapTruckDrivingOptions),
+        getDefinedMapServiceOptions(params as MapTruckDrivingOptions),
         params.map
     )
 
@@ -1529,9 +1482,8 @@ export function useTruckDriving(params: TruckDrivingProps = {}) {
 }
 
 export function useWalking(params: WalkingProps = {}) {
-    const { walkingOptions, ...restOptions } = params
     const options = applyMapServiceMapOption(
-        mergeMapServiceOptions(walkingOptions, restOptions as MapRouteServiceOptions),
+        getDefinedMapServiceOptions(params as MapRouteServiceOptions),
         params.map
     )
 
@@ -1544,9 +1496,8 @@ export function useWalking(params: WalkingProps = {}) {
 }
 
 export function useTransfer(params: TransferProps = {}) {
-    const { transferOptions, ...restOptions } = params
     const options = applyMapServiceMapOption(
-        mergeMapServiceOptions(transferOptions, restOptions as MapTransferOptions),
+        getDefinedMapServiceOptions(params as MapTransferOptions),
         params.map
     )
 
@@ -1564,9 +1515,8 @@ export function useTransfer(params: TransferProps = {}) {
 }
 
 export function useRiding(params: RidingProps = {}) {
-    const { ridingOptions, ...restOptions } = params
     const options = applyMapServiceMapOption(
-        mergeMapServiceOptions(ridingOptions, restOptions as MapRouteServiceOptions),
+        getDefinedMapServiceOptions(params as MapRouteServiceOptions),
         params.map
     )
 
@@ -1582,8 +1532,8 @@ export function useRiding(params: RidingProps = {}) {
 }
 
 export function useDragRoute(params: DragRouteProps = {}) {
-    const { path = [], policy, autoSearch = true, dragRouteOptions, ...restOptions } = params
-    const options = mergeMapServiceOptions(dragRouteOptions, restOptions as MapDragRouteOptions)
+    const { path = [], policy, autoSearch = true, ...restOptions } = params
+    const options = getDefinedMapServiceOptions(restOptions as MapDragRouteOptions)
 
     return useMapService<MapDragRouteInstance, MapDragRouteOptions>({
         ...params,
@@ -1604,8 +1554,8 @@ export function useDragRoute(params: DragRouteProps = {}) {
 }
 
 export function useDragRouteTruck(params: DragRouteTruckProps = {}) {
-    const { locations, autoSearch = true, dragRouteTruckOptions, ...restOptions } = params
-    const options = mergeMapServiceOptions(dragRouteTruckOptions, restOptions as MapDragRouteTruckOptions)
+    const { locations, autoSearch = true, ...restOptions } = params
+    const options = getDefinedMapServiceOptions(restOptions as MapDragRouteTruckOptions)
 
     return useMapService<MapDragRouteTruckInstance, MapDragRouteTruckOptions>({
         ...params,
@@ -1635,8 +1585,7 @@ export function useGraspRoad(params: GraspRoadProps = {}) {
 }
 
 export function useDistrictSearch(params: DistrictSearchProps = {}) {
-    const { districtSearchOptions, ...restOptions } = params
-    const options = mergeMapServiceOptions(districtSearchOptions, restOptions as MapDistrictSearchOptions)
+    const options = getDefinedMapServiceOptions(params as MapDistrictSearchOptions)
 
     return useMapService<MapDistrictSearchInstance, MapDistrictSearchOptions>({
         ...params,
@@ -1659,8 +1608,7 @@ export function useWeather(params: WeatherProps = {}) {
 }
 
 export function useStationSearch(params: StationSearchProps = {}) {
-    const { stationSearchOptions, ...restOptions } = params
-    const options = mergeMapServiceOptions(stationSearchOptions, restOptions as MapBusSearchOptions)
+    const options = getDefinedMapServiceOptions(params as MapBusSearchOptions)
 
     return useMapService<MapStationSearchInstance, MapBusSearchOptions>({
         ...params,
@@ -1672,8 +1620,7 @@ export function useStationSearch(params: StationSearchProps = {}) {
 }
 
 export function useLineSearch(params: LineSearchProps = {}) {
-    const { lineSearchOptions, ...restOptions } = params
-    const options = mergeMapServiceOptions(lineSearchOptions, restOptions as MapBusSearchOptions)
+    const options = getDefinedMapServiceOptions(params as MapBusSearchOptions)
 
     return useMapService<MapLineSearchInstance, MapBusSearchOptions>({
         ...params,
@@ -1685,8 +1632,8 @@ export function useLineSearch(params: LineSearchProps = {}) {
 }
 
 export function useGeolocation(params: GeolocationProps = {}) {
-    const { addControl = true, geolocationOptions, ...restOptions } = params
-    const options = mergeMapServiceOptions(geolocationOptions, restOptions as MapGeolocationOptions)
+    const { addControl = true, ...restOptions } = params
+    const options = getDefinedMapServiceOptions(restOptions as MapGeolocationOptions)
 
     return useMapService<MapGeolocationInstance, MapGeolocationOptions>({
         ...params,

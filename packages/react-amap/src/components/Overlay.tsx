@@ -201,8 +201,6 @@ export interface InfoWindowProps extends MapInfoWindowOptions, MapInfoWindowEven
     contentClassName?: string
     /** React 自定义内容样式 */
     contentStyle?: CSSProperties
-    /** 信息窗体额外参数 */
-    infoWindowOptions?: MapInfoWindowOptions
     /** 事件映射 */
     events?: MapDomOverlayEvents<MapInfoWindowInstance>
     /** 创建完成回调 */
@@ -229,8 +227,6 @@ export interface ContextMenuProps extends MapContextMenuOptions, MapContextMenuE
     contentStyle?: CSSProperties
     /** 右键菜单项 */
     items?: MapContextMenuItem[]
-    /** 右键菜单额外参数 */
-    contextMenuOptions?: MapContextMenuOptions
     /** 事件映射 */
     events?: MapDomOverlayEvents<MapContextMenuInstance>
     /** 创建完成回调 */
@@ -271,12 +267,10 @@ export interface MapDomOverlayEventTarget {
     off?: (eventName: string, handler: MapEventHandler) => void
 }
 
-function mergeMapDomOverlayOptions<TOptions extends object>(options: TOptions | undefined, extraOptions: TOptions) {
-    const nextOptions: TOptions = {
-        ...options,
-    } as TOptions
+function getDefinedMapDomOverlayOptions<TOptions extends object>(options: TOptions) {
+    const nextOptions: TOptions = {} as TOptions
 
-    Object.entries(extraOptions).forEach(([key, value]) => {
+    Object.entries(options).forEach(([key, value]) => {
         if (value !== undefined) (nextOptions as Record<string, unknown>)[key] = value
     })
 
@@ -314,7 +308,6 @@ export const InfoWindow: FC<InfoWindowProps> = ({
     children,
     contentClassName,
     contentStyle,
-    infoWindowOptions,
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
@@ -327,10 +320,7 @@ export const InfoWindow: FC<InfoWindowProps> = ({
     const [contentElement, setContentElement] = useState<HTMLElement | null>(null)
     const hasChildrenContent = children !== undefined && children !== null && typeof children !== "boolean"
     const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
-    const currentOptions: MapInfoWindowOptions = mergeMapDomOverlayOptions(
-        infoWindowOptions,
-        restOptions as MapInfoWindowOptions
-    )
+    const currentOptions = getDefinedMapDomOverlayOptions(restOptions as MapInfoWindowOptions)
     const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
@@ -430,7 +420,6 @@ export const ContextMenu: FC<ContextMenuProps> = ({
     contentClassName,
     contentStyle,
     items = [],
-    contextMenuOptions,
     events,
     onLoad: _onLoad,
     onDestroy: _onDestroy,
@@ -443,10 +432,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
     const [contentElement, setContentElement] = useState<HTMLElement | null>(null)
     const hasChildrenContent = children !== undefined && children !== null && typeof children !== "boolean"
     const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
-    const currentOptions: MapContextMenuOptions = mergeMapDomOverlayOptions(
-        contextMenuOptions,
-        restOptions as MapContextMenuOptions
-    )
+    const currentOptions = getDefinedMapDomOverlayOptions(restOptions as MapContextMenuOptions)
     const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,

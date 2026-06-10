@@ -458,8 +458,6 @@ export interface ConfigureMapSecurityParams {
 
 /** 合并地图初始化参数 */
 export interface MergeMapOptionsParams extends MapBaseOptions {
-    /** 额外地图初始化参数 */
-    mapOptions?: MapOptions
 }
 
 /** 同步地图运行时参数 */
@@ -535,8 +533,6 @@ export interface MapProps
     loaderTimeout?: number
     /** 应用标识 */
     appName?: string
-    /** 额外地图初始化参数 */
-    mapOptions?: MapOptions
     /** 地图事件映射 */
     events?: MapEvents
     /** 地图加载完成回调 */
@@ -719,12 +715,10 @@ function setMapContainerRef(ref: Ref<HTMLDivElement | null> | undefined, element
     ref.current = element
 }
 
-function mergeMapOptions({ mapOptions, ...topLevelMapOptions }: MergeMapOptionsParams) {
-    const nextMapOptions: MapOptions = {
-        ...mapOptions,
-    }
+function getDefinedMapOptions(options: MergeMapOptionsParams) {
+    const nextMapOptions: MapOptions = {}
 
-    Object.entries(topLevelMapOptions).forEach(([key, value]) => {
+    Object.entries(options).forEach(([key, value]) => {
         if (value !== undefined) {
             Object.assign(nextMapOptions, {
                 [key]: value,
@@ -829,7 +823,6 @@ export const Map: FC<MapProps> = ({
     loaderOptions,
     loaderTimeout = DEFAULT_LOADER_TIMEOUT,
     appName = DEFAULT_APP_NAME,
-    mapOptions: _mapOptions,
     children,
     center,
     zoom,
@@ -901,8 +894,7 @@ export const Map: FC<MapProps> = ({
         status: MapStatus.Idle,
     })
 
-    const currentMapOptions = mergeMapOptions({
-        mapOptions: _mapOptions,
+    const currentMapOptions = getDefinedMapOptions({
         center,
         zoom,
         rotation,
@@ -1088,7 +1080,6 @@ export const Map: FC<MapProps> = ({
         }
     }, [
         WebGLParams,
-        _mapOptions,
         apiKey,
         isHotspot,
         loaderOptions,

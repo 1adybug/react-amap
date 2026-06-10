@@ -234,8 +234,6 @@ export interface ScaleProps extends MapControlBaseOptions, MapControlEventShortc
     map?: MapInstance
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 控件额外参数 */
-    controlOptions?: MapControlBaseOptions
     /** 控件事件映射 */
     events?: MapControlEvents
     /** 创建完成回调 */
@@ -255,8 +253,6 @@ export interface ControlBarProps extends MapControlBarOptions, MapControlEventSh
     map?: MapInstance
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 控件额外参数 */
-    controlOptions?: MapControlBarOptions
     /** 控件事件映射 */
     events?: MapControlEvents
     /** 创建完成回调 */
@@ -273,8 +269,6 @@ export interface MapTypeProps extends MapTypeOptions, MapTypeEventShortcutProps 
     map?: MapInstance
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 控件额外参数 */
-    controlOptions?: MapTypeOptions
     /** 控件事件映射 */
     events?: MapControlEvents<MapTypeInstance>
     /** 创建完成回调 */
@@ -291,8 +285,6 @@ export interface HawkEyeProps extends MapHawkEyeOptions, MapControlEventShortcut
     map?: MapInstance
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 控件额外参数 */
-    controlOptions?: MapHawkEyeOptions
     /** 控件事件映射 */
     events?: MapControlEvents
     /** 创建完成回调 */
@@ -333,12 +325,10 @@ function bindMapControlEvents<TInstance extends MapControlInstance>(control: TIn
     }
 }
 
-function mergeMapControlOptions<TOptions extends MapControlBaseOptions>(controlOptions: TOptions | undefined, extraOptions: TOptions) {
-    const nextOptions: TOptions = {
-        ...controlOptions,
-    } as TOptions
+function getDefinedMapControlOptions<TOptions extends MapControlBaseOptions>(options: TOptions) {
+    const nextOptions: TOptions = {} as TOptions
 
-    Object.entries(extraOptions).forEach(([key, value]) => {
+    Object.entries(options).forEach(([key, value]) => {
         if (value !== undefined) (nextOptions as Record<string, unknown>)[key] = value
     })
 
@@ -436,9 +426,9 @@ function MapControl<TInstance extends MapControlInstance, TOptions extends MapCo
     return null
 }
 
-export const Scale: FC<ScaleProps> = ({ ref, map, AMap, controlOptions, events, onLoad, onDestroy, ...restOptions }) => {
+export const Scale: FC<ScaleProps> = ({ ref, map, AMap, events, onLoad, onDestroy, ...restOptions }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapControlOptions(controlOptions, restProps as MapControlBaseOptions)
+    const currentOptions = getDefinedMapControlOptions(restProps as MapControlBaseOptions)
 
     return (
         <MapControl
@@ -456,9 +446,9 @@ export const Scale: FC<ScaleProps> = ({ ref, map, AMap, controlOptions, events, 
     )
 }
 
-export const ToolBar: FC<ToolBarProps> = ({ ref, map, AMap, controlOptions, events, onLoad, onDestroy, ...restOptions }) => {
+export const ToolBar: FC<ToolBarProps> = ({ ref, map, AMap, events, onLoad, onDestroy, ...restOptions }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapControlOptions(controlOptions, restProps as MapControlBaseOptions)
+    const currentOptions = getDefinedMapControlOptions(restProps as MapControlBaseOptions)
 
     return (
         <MapControl
@@ -476,9 +466,9 @@ export const ToolBar: FC<ToolBarProps> = ({ ref, map, AMap, controlOptions, even
     )
 }
 
-export const ControlBar: FC<ControlBarProps> = ({ ref, map, AMap, controlOptions, events, onLoad, onDestroy, ...restOptions }) => {
+export const ControlBar: FC<ControlBarProps> = ({ ref, map, AMap, events, onLoad, onDestroy, ...restOptions }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapControlOptions(controlOptions, restProps as MapControlBarOptions)
+    const currentOptions = getDefinedMapControlOptions(restProps as MapControlBarOptions)
 
     return (
         <MapControl
@@ -496,9 +486,9 @@ export const ControlBar: FC<ControlBarProps> = ({ ref, map, AMap, controlOptions
     )
 }
 
-export const MapType: FC<MapTypeProps> = ({ ref, map, AMap, controlOptions, events, onLoad, onDestroy, ...restOptions }) => {
+export const MapType: FC<MapTypeProps> = ({ ref, map, AMap, events, onLoad, onDestroy, ...restOptions }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapControlOptions(controlOptions, restProps as MapTypeOptions)
+    const currentOptions = getDefinedMapControlOptions(restProps as MapTypeOptions)
 
     return (
         <MapControl
@@ -516,9 +506,9 @@ export const MapType: FC<MapTypeProps> = ({ ref, map, AMap, controlOptions, even
     )
 }
 
-export const HawkEye: FC<HawkEyeProps> = ({ ref, map, AMap, controlOptions, events, onLoad, onDestroy, ...restOptions }) => {
+export const HawkEye: FC<HawkEyeProps> = ({ ref, map, AMap, events, onLoad, onDestroy, ...restOptions }) => {
     const { eventShortcuts, restProps } = splitMapEventShortcutProps(restOptions)
-    const currentOptions = mergeMapControlOptions(controlOptions, restProps as MapHawkEyeOptions)
+    const currentOptions = getDefinedMapControlOptions(restProps as MapHawkEyeOptions)
 
     return (
         <MapControl

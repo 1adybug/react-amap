@@ -521,17 +521,14 @@ export interface UseMapLayerPluginParams {
     pluginConstructorName?: string
 }
 
-/** 通用图层组件属性 */
-export interface LayerProps<TOptions extends MapLayerBaseOptions = MapLayerBaseOptions>
-    extends MapLayerEventShortcutProps<MapLayerInstance> {
+/** 通用图层基础组件属性 */
+export interface LayerBaseProps extends MapLayerEventShortcutProps<MapLayerInstance> {
     /** 图层实例 ref */
     ref?: Ref<MapLayerInstance | null>
     /** 地图实例 */
     map?: MapInstance
     /** 高德地图命名空间 */
     AMap?: MapNamespace
-    /** 图层额外参数 */
-    layerOptions?: TOptions
     /** 图层事件映射 */
     events?: MapLayerEvents
     /** 创建完成回调 */
@@ -539,6 +536,9 @@ export interface LayerProps<TOptions extends MapLayerBaseOptions = MapLayerBaseO
     /** 销毁前回调 */
     onDestroy?: MapLayerOnDestroy
 }
+
+/** 通用图层组件属性 */
+export type LayerProps<TOptions extends MapLayerBaseOptions = MapLayerBaseOptions> = LayerBaseProps & TOptions
 
 /** 热力图组件属性 */
 export interface HeatMapProps extends MapHeatMapOptions, MapHeatMapEventShortcutProps {
@@ -550,8 +550,6 @@ export interface HeatMapProps extends MapHeatMapOptions, MapHeatMapEventShortcut
     AMap?: MapNamespace
     /** 热力图数据集 */
     dataSet?: MapHeatMapDataSet
-    /** 热力图额外参数 */
-    heatMapOptions?: MapHeatMapOptions
     /** 热力图事件映射 */
     events?: MapLayerEvents
     /** 创建完成回调 */
@@ -680,12 +678,10 @@ function bindMapLayerEvents<TInstance extends MapLayerInstance>(layer: TInstance
     }
 }
 
-function mergeMapLayerOptions<TOptions extends MapLayerBaseOptions>(layerOptions: TOptions | undefined, extraOptions: TOptions) {
-    const nextOptions: TOptions = {
-        ...layerOptions,
-    } as TOptions
+function getDefinedMapLayerOptions<TOptions extends MapLayerBaseOptions>(options: TOptions) {
+    const nextOptions: TOptions = {} as TOptions
 
-    Object.entries(extraOptions).forEach(([key, value]) => {
+    Object.entries(options).forEach(([key, value]) => {
         if (value !== undefined) (nextOptions as Record<string, unknown>)[key] = value
     })
 
@@ -940,14 +936,13 @@ function createLayerComponent<TOptions extends MapLayerBaseOptions>(constructorP
         ref,
         map,
         AMap,
-        layerOptions,
         events,
         onLoad,
         onDestroy,
         ...restProps
     }) => {
         const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
-        const currentOptions = mergeMapLayerOptions(layerOptions, restOptions as TOptions)
+        const currentOptions = getDefinedMapLayerOptions(restOptions as TOptions)
 
         return (
             <MapLayer
@@ -1022,14 +1017,13 @@ export const VectorLayer: FC<VectorLayerProps> = ({
     map,
     AMap,
     children,
-    layerOptions,
     events,
     onLoad,
     onDestroy,
     ...restProps
 }) => {
     const { eventShortcuts, restProps: restOptions } = splitMapEventShortcutProps(restProps)
-    const currentOptions = mergeMapLayerOptions(layerOptions, restOptions as MapVectorLayerOptions)
+    const currentOptions = getDefinedMapLayerOptions(restOptions as MapVectorLayerOptions)
 
     return (
         <MapLayer
@@ -1055,7 +1049,6 @@ export const HeatMap: FC<HeatMapProps> = ({
     map,
     AMap,
     dataSet,
-    heatMapOptions,
     events,
     onLoad,
     onDestroy,
@@ -1074,7 +1067,7 @@ export const HeatMap: FC<HeatMapProps> = ({
         pluginName: MapPlugin.HeatMap,
         pluginConstructorName: "HeatMap",
     })
-    const currentOptions = mergeMapLayerOptions(heatMapOptions, restOptions as MapHeatMapOptions)
+    const currentOptions = getDefinedMapLayerOptions(restOptions as MapHeatMapOptions)
     const currentEvents = mergeMapEvents({
         eventShortcuts,
         events,
