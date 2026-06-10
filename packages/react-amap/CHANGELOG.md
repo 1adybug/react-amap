@@ -1,5 +1,11 @@
 # @1adybug/react-amap
 
+## 0.5.1
+
+### Patch Changes
+
+- fix(react-amap): allow undefined district layer styles
+
 ## 0.5.0
 
 ### Minor Changes
