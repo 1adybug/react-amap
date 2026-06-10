@@ -111,7 +111,7 @@ export interface MapLayerRuntimeOptions extends MapLayerBaseOptions {
     /** 楼块样式 */
     styleOpts?: MapBuildingsStyleOptions
     /** 行政区或矢量瓦片样式 */
-    styles?: Record<string, unknown> | MapboxVectorTileLayerStyles
+    styles?: MapDistrictLayerStyles | MapboxVectorTileLayerStyles
     /** 国家代码 */
     SOC?: string
     /** 行政区编码 */
@@ -189,6 +189,72 @@ export interface MapBuildingsLayerOptions extends MapLayerBaseOptions {
     styleOpts?: MapBuildingsStyleOptions
 }
 
+/** 行政区样式区域数据 */
+export interface MapDistrictLayerArea {
+    /** 中文名称 */
+    NAME_CHN: string
+    /** 国家代码 */
+    SOC: string
+    /** 行政区编码 */
+    adcode: number
+    /** 城市行政区编码 */
+    adcode_cit: number
+    /** 省级行政区编码 */
+    adcode_pro: number
+    /** 城市编码 */
+    citycode: string
+    /** 行政区级别 */
+    level: string
+    /** 区域类型 */
+    type: string
+    /** 经度 */
+    x: number
+    /** 纬度 */
+    y: number
+    /** 区域类型编码 */
+    type_: number
+    /** 要素类型编码 */
+    feature_type_: number
+}
+
+/** 行政区样式回调 */
+export type MapDistrictLayerStyleCallback<TValue = unknown> = (area: MapDistrictLayerArea) => TValue
+
+/** 行政区样式配置值 */
+export type MapDistrictLayerStyleValue<TValue> = TValue | MapDistrictLayerStyleCallback<TValue>
+
+/** 行政区样式颜色数组 */
+export type MapDistrictLayerStyleColorArray = Array<string | number>
+
+/** 行政区样式颜色值 */
+export type MapDistrictLayerStyleColor = string | MapDistrictLayerStyleColorArray
+
+/** 行政区样式数值配置 */
+export type MapDistrictLayerStyleNumberValue = MapDistrictLayerStyleValue<number>
+
+/** 行政区样式颜色配置 */
+export type MapDistrictLayerStyleColorValue = MapDistrictLayerStyleValue<MapDistrictLayerStyleColor>
+
+/** 行政区图层样式 */
+export interface MapDistrictLayerStyles {
+    /** 描边线宽 */
+    "stroke-width"?: MapDistrictLayerStyleNumberValue
+    /** 图层中每个区域层级 */
+    zIndex?: MapDistrictLayerStyleNumberValue
+    /** 海岸线颜色 */
+    "coastline-stroke"?: MapDistrictLayerStyleColorValue
+    /** 国境线颜色 */
+    "nation-stroke"?: MapDistrictLayerStyleColorValue
+    /** 省界颜色 */
+    "province-stroke"?: MapDistrictLayerStyleColorValue
+    /** 城市界颜色 */
+    "city-stroke"?: MapDistrictLayerStyleColorValue
+    /** 区县界颜色 */
+    "county-stroke"?: MapDistrictLayerStyleColorValue
+    /** 填充色 */
+    fill?: MapDistrictLayerStyleColorValue
+}
+
 /** 行政区图层参数 */
 export interface MapDistrictLayerOptions extends MapLayerBaseOptions {
     /** 行政区编码 */
@@ -198,7 +264,7 @@ export interface MapDistrictLayerOptions extends MapLayerBaseOptions {
     /** 数据层级深度 */
     depth?: number
     /** 行政区样式 */
-    styles?: Record<string, unknown>
+    styles?: MapDistrictLayerStyles
 }
 
 /** 室内图层参数 */
