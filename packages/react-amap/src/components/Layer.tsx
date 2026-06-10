@@ -218,10 +218,10 @@ export interface MapDistrictLayerArea {
 }
 
 /** 行政区样式回调 */
-export type MapDistrictLayerStyleCallback<TValue = unknown> = (area: MapDistrictLayerArea) => TValue
+export type MapDistrictLayerStyleCallback<TValue = unknown> = (area: MapDistrictLayerArea) => TValue | undefined
 
 /** 行政区样式配置值 */
-export type MapDistrictLayerStyleValue<TValue> = TValue | MapDistrictLayerStyleCallback<TValue>
+export type MapDistrictLayerStyleValue<TValue> = TValue | undefined | MapDistrictLayerStyleCallback<TValue>
 
 /** 行政区样式颜色数组 */
 export type MapDistrictLayerStyleColorArray = Array<string | number>
