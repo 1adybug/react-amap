@@ -1,5 +1,12 @@
 # @1adybug/react-amap
 
+## 0.5.0
+
+### Minor Changes
+
+- feat(react-amap): remove nested options props
+- fix(react-amap): optimize district layer styles type
+
 ## 0.4.0
 
 ### Minor Changes
